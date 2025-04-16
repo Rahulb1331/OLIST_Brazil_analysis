@@ -1,12 +1,4 @@
-import os
-import sys
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../')))
-
-from Scripts.config import setup_environment
-setup_environment()
-
 from pyspark.sql import SparkSession
-#from pyspark.sql.connect.functions import to_timestamp
 from pyspark.sql.functions import col, to_date, mean, when
 from pyspark.sql.types import *
 
@@ -22,9 +14,6 @@ spark = SparkSession.builder \
     .config("spark.pyspark.driver.python", venv_python_path) \
     .getOrCreate()
 
-print("[DEBUG] Spark config PYSPARK_PYTHON:", spark.conf.get("spark.pyspark.python"))
-print("[DEBUG] Spark config DRIVER_PYTHON:", spark.conf.get("spark.pyspark.driver.python"))
-
 review_schema = StructType([
     StructField("review_id", StringType(), True),
     StructField("order_id", StringType(), True),
@@ -35,28 +24,45 @@ review_schema = StructType([
     StructField("review_answer_timestamp", StringType(), True)
 ])
 
-# Go up one level from 'analysis' and into 'Data'
-base_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
-csv_path = os.path.join(base_path, 'Data')
+# Corresponding direct download links from Google Drive
+dataset_links = {
+    "olist_orders_dataset": "https://drive.google.com/file/d/1IW8RCm8SsxMTnxwBhbY2ki7UQFbjpWJQ/view?usp=sharing",
+    "olist_customers_dataset": "https://drive.google.com/file/d/1GlfbdUR7Htaoa23ZaDaJU2BONVpd-46s/view?usp=sharing",
+    "olist_order_items_dataset": "https://drive.google.com/file/d/1fzKgJiI8nrpOioDMNEH3FTGjNk38na4K/view?usp=sharing",
+    "olist_geolocation_dataset": "https://drive.google.com/file/d/14Ov5-Ulw1pRPQwl-d1HGEDkrdeqAZdsf/view?usp=sharing",
+    "olist_order_payments_dataset": "https://drive.google.com/file/d/1Yhb25SAM6uYOKb3LuiZNI87MwpzcMzcm/view?usp=sharing",
+    "olist_order_reviews_dataset": "https://drive.google.com/file/d/129XEZCdH-e7LS6RxwJ8yIzTBEO2zSJIZ/view?usp=sharing",
+    "olist_products_dataset": "https://drive.google.com/file/d/17jhNuSGKgXTWSop0vsjPGw9CP6eBJto7/view?usp=sharing",
+    "olist_sellers_dataset": "https://drive.google.com/file/d/1vhjeb7QmtXiMWBELCylT4vL9-s8s1P_s/view?usp=sharing",
+    "product_category_name_translation": "https://drive.google.com/file/d/1viI3NGEKJoN0M8I0DhTGzE47wGRfNB2r/view?usp=sharing"
+}
 
+# Load them into a dictionary of Spark DataFrames
+dfs = {}
 
-# Load Dataset
-orders = spark.read.csv(os.path.join(csv_path,"olist_orders_dataset.csv"), header=True, inferSchema=True)
-customers = spark.read.csv(os.path.join(csv_path,"olist_customers_dataset.csv"), header=True, inferSchema=True)
-order_items = spark.read.csv(os.path.join(csv_path,"olist_order_items_dataset.csv"), header=True, inferSchema=True)
-geolocation = spark.read.csv(os.path.join(csv_path,"olist_geolocation_dataset.csv"), header=True, inferSchema=True)
-order_payments = spark.read.csv(os.path.join(csv_path,"olist_order_payments_dataset.csv"), header=True, inferSchema=True)
-order_reviews = spark.read.csv(
-    os.path.join(csv_path,"olist_order_reviews_dataset.csv"),
-    header=True,
-    schema=review_schema,
-    multiLine=True,
-    escape='"'
-)
-products = spark.read.csv(os.path.join(csv_path,"olist_products_dataset.csv"), header=True, inferSchema=True)
-sellers = spark.read.csv(os.path.join(csv_path,"olist_sellers_dataset.csv"), header=True, inferSchema=True)
-product_category = spark.read.csv(os.path.join(csv_path,"product_category_name_translation.csv"), header=True, inferSchema=True)
+for name in dataset_names:
+    if name == "olist_order_reviews_dataset":
+        # Handle reviews separately if using custom schema or multiLine
+        df = spark.read.csv(
+            dataset_links[name],
+            header=True,
+            schema=review_schema,  # make sure this is defined earlier
+            multiLine=True,
+            escape='"'
+        )
+    else:
+        df = spark.read.csv(dataset_links[name], header=True, inferSchema=True)
+    dfs[name] = df
 
+orders = dfs["olist_orders_dataset"]
+customers = dfs["olist_customers_dataset"]
+geolocation = dfs["olist_geolocation_dataset"]
+product_category = dfs["product_category_name_translation"]
+sellers = dfs["olist_sellers_dataset"]
+products = dfs["olist_products_dataset"]
+order_reviews = dfs["olist_order_reviews_dataset"]
+order_payments = dfs["olist_order_payments_dataset"]
+order_items = dfs["olist_order_items_dataset"]
 
 # Show Sample Data
 data = [product_category,
