@@ -1,10 +1,6 @@
 # analysis/rfm.py
-import os
-import sys
-from Scripts.config import setup_environment
-setup_environment()
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../')))
 
+from analysis.Preprocessing import full_orders
 from datetime import timedelta
 from pyspark.sql.functions import col, max as spark_max, count, sum as spark_sum, datediff, to_date, lit, udf, when
 from pyspark.sql.types import IntegerType
@@ -13,7 +9,6 @@ from pyspark.sql import functions as F
 from pyspark.sql.window import Window
 import plotly.express as px
 
-from analysis.Preprocessing import full_orders
 
 
 def run_rfm_analysis(order_customer_df):
