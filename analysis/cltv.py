@@ -435,3 +435,5 @@ def model_cltv_lifetimes(df):
     summary["cltv_segment"] = pd.qcut(summary["predicted_cltv"], q=4, labels=["Low", "Mid", "High", "Very High"])
 
     return summary
+
+summary.cache()
