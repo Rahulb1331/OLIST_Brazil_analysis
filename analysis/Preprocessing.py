@@ -144,7 +144,7 @@ full_orders = full_orders.join(products, on="product_id", how="left")
 # Join payments
 full_orders = full_orders.join(order_payments, on="order_id", how="left")
 
+# Cache full_orders for performance
 full_orders.cache()
-full_orders.show(5)
-order_reviews.show(5)
-__all__ = ['full_orders']
+
+__all__ = ["full_orders", "geolocation", "order_reviews", "sellers", "spark"]
