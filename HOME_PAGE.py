@@ -49,5 +49,5 @@ st.sidebar.page_link("pages/Preprocessing.py", label="Preprocessing & EDA")
 # image = Image.open("images/olist_banner.png")
 # st.image(image, use_column_width=True)
 
-st.markdown("Made with Streamlit by [Your Name] | Dataset: Olist Store - Brazilian E-Commerce")
+st.markdown("Made with Streamlit by Rahul Bamal | Dataset: Olist Store - Brazilian E-Commerce")
 
