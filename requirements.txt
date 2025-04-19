@@ -1,0 +1,8 @@
+streamlit
+pyspark==3.5.0
+pandas
+plotly
+scikit-learn
+numpy
+matplotlib
+openpyxl
