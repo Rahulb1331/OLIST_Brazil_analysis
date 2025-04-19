@@ -1,10 +1,10 @@
 # At the top of Scripts/pages/rfm_page.py
-import sys
-import os
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../../')))
+#import sys
+#import os
+#sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../../')))
 
-from Scripts.config import setup_environment
-setup_environment()
+#from Scripts.config import setup_environment
+#setup_environment()
 
 import streamlit as st
 from datetime import timedelta
