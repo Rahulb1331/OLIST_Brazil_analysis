@@ -8,10 +8,6 @@ from pyspark.sql.types import *
 spark = SparkSession.builder \
     .appName("E-Commerce Data Processing") \
     .config("spark.sql.shuffle.partitions", "50") \
-    .config("spark.executorEnv.PYSPARK_PYTHON", venv_python_path) \
-    .config("spark.driverEnv.PYSPARK_PYTHON", venv_python_path) \
-    .config("spark.pyspark.python", venv_python_path) \
-    .config("spark.pyspark.driver.python", venv_python_path) \
     .getOrCreate()
 
 review_schema = StructType([
