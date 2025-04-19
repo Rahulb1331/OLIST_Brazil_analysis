@@ -2,8 +2,8 @@ from pyspark.sql import SparkSession
 from pyspark.sql.functions import col, to_date, mean, when
 from pyspark.sql.types import *
 
-venv_python_path = sys.executable
-print("the path is ",venv_python_path)
+#venv_python_path = sys.executable
+#print("the path is ",venv_python_path)
 # Initialize Spark Session
 spark = SparkSession.builder \
     .appName("E-Commerce Data Processing") \
