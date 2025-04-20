@@ -1,45 +1,35 @@
 from analysis.Preprocessing import full_orders
-from pyspark.ml.fpm import FPGrowth
-from pyspark.sql.functions import collect_set
-from pyspark.sql.functions import size
+from analysis.cltv import summary
 import plotly.express as px
 import plotly.graph_objects as go
-from analysis.cltv import summary
+from mlxtend.frequent_patterns import apriori, association_rules
+import pandas as pd
+import networkx as nx
 
 # Prepare data: group product names per order
-transactions_df = full_orders.groupBy("order_id") \
-    .agg(collect_set("product_category").alias("items"))
-
-transactions_df.select(size("items").alias("num_items")).summary().show()
+transactions_df = full_orders.groupby("order_id")['product_category'].unique().reset_index()
+transactions_df['items'] = transactions_df['product_category']
 
 # Check orders with ≥ 2 items
-multi_item_txns = transactions_df.filter(size("items") > 1)
-print(multi_item_txns.count())  # just to see how many we get
+multi_item_txns = transactions_df[transactions_df['items'].apply(len) > 1]
+print(f"Multi-item transactions: {len(multi_item_txns)}") # just to see how many we get
 
-# Fit FP-Growth model
-fp_growth = FPGrowth(itemsCol="items", minSupport=0.001, minConfidence=0.1)
-model = fp_growth.fit(multi_item_txns)
+# Convert to one-hot encoded format for mlxtend.apriori
+all_items = sorted(set(item for sublist in multi_item_txns['items'] for item in sublist))
+encoded_df = pd.DataFrame(0, index=multi_item_txns.index, columns=all_items)
+for idx, row in multi_item_txns.iterrows():
+    encoded_df.loc[idx, row['items']] = 1
 
-# Frequent itemsets
-frequent_itemsets = model.freqItemsets
-frequent_itemsets.show(truncate=False)
+# Apply Apriori algorithm
+frequent_itemsets = apriori(encoded_df, min_support=0.001, use_colnames=True)
+rules = association_rules(frequent_itemsets, metric="confidence", min_threshold=0.1)
+rules.sort_values(by='lift', ascending=False, inplace=True)
 
-# Association rules
-rules = model.associationRules
-rules.orderBy("lift", ascending=False).show(truncate=False)
-
-# Predictions (if you want to apply it)
-predictions = model.transform(transactions_df)
+# Creating readable rule labels
+rules["rule"] = rules["antecedents"].apply(lambda x: ", ".join(x)) + " → " + rules["consequents"].apply(lambda x: ", ".join(x))
 
 
 # Plotly bubble chart to visualize your top association rules
-
-# Converting rules to pandas
-rules_df = rules.toPandas()
-
-# Creating readable rule labels
-rules_df["rule"] = rules_df["antecedent"].apply(lambda x: ", ".join(x)) + " → " + rules_df["consequent"].apply(lambda x: ", ".join(x))
-
 fig = px.scatter(
     rules_df,
     x="confidence",
@@ -61,20 +51,12 @@ fig.update_layout(
 fig.show()
 
 # Filtering the transactions to get the transactions with support at least 0.005 to avoid niche or singular transactions with high lift and then ordering by lift and confidence
-rules_filtered = rules.filter("support >= 0.005") \
-    .orderBy(["lift", "confidence"], ascending=[False, False])
-
-rules_filtered.show(20)
-
-# Convert Spark DataFrame to Pandas
-rules_pd = rules_filtered.toPandas()
-
-# Add a readable rule label for hover
-rules_pd["rule"] = rules_pd["antecedent"].astype(str) + " → " + rules_pd["consequent"].astype(str)
+rules_filtered = rules[rules['support'] >= 0.005].sort_values(by=["lift", "confidence"], ascending=False)
+rules_filtered["rule"] = rules_filtered["antecedents"].astype(str) + " → " + rules_filtered["consequents"].astype(str)
 
 # Now plot
 fig = px.scatter(
-    rules_pd,
+    rules_filtered,
     x="support",
     y="confidence",
     size="lift",
@@ -83,26 +65,20 @@ fig = px.scatter(
     title="Association Rules (Support vs Confidence, sized by Lift)",
     labels={"support": "Support", "confidence": "Confidence", "lift": "Lift"}
 )
-
 fig.update_layout(template="plotly_white")
 fig.show()
 
-import networkx as nx
 
-# Sample filtered rules DataFrame (you can replace this with your actual filtered rules from Spark)
-# First, convert Spark DataFrame to pandas
-rules_pdf = rules_filtered.toPandas()
-
-# Flatten the lists for antecedents and consequents into strings
-rules_pdf["antecedent"] = rules_pdf["antecedent"].apply(lambda x: ", ".join(x))
-rules_pdf["consequent"] = rules_pdf["consequent"].apply(lambda x: ", ".join(x))
-
+# Network graph
+rules_net = rules_filtered.copy()
+rules_net["antecedent"] = rules_net["antecedents"].apply(lambda x: ", ".join(x))
+rules_net["consequent"] = rules_net["consequents"].apply(lambda x: ", ".join(x))
 
 # Create a graph
 G = nx.DiGraph()
 
 # Add nodes and edges
-for _, row in rules_pdf.iterrows():
+for _, row in rules_net.iterrows():
     G.add_node(row["antecedent"])
     G.add_node(row["consequent"])
     G.add_edge(row["antecedent"], row["consequent"], weight=row["lift"], confidence=row["confidence"], support=row["support"])
@@ -122,12 +98,8 @@ for edge in G.edges(data=True):
     edge_text.append(f"{edge[0]} → {edge[1]}<br>Confidence: {edge[2]['confidence']}, Lift: {edge[2]['weight']}")
 
 # Node positions
-node_x = []
-node_y = []
-for node in G.nodes():
-    x, y = pos[node]
-    node_x.append(x)
-    node_y.append(y)
+node_x, node_y = zip(*[pos[n] for n in G.nodes()])
+
 
 # Plot edges
 edge_trace = go.Scatter(
@@ -168,43 +140,30 @@ fig.show()
 
 
 # Segmented MBA using CLTV
-from pyspark.sql import SparkSession
-
-# Make sure Spark session is active
-spark = SparkSession.builder.getOrCreate()
-
-# Convert pandas DataFrame to Spark
-summary_spark = spark.createDataFrame(summary)
-
-transactions_df = full_orders.groupBy("order_id", "customer_unique_id") \
-    .agg(collect_set("product_category").alias("items"))
-
-
-transactions_df.printSchema()
 
 # Joining CLTV Segments with Transactions
-segmented_txns = transactions_df.join(
-    summary_spark.select("customer_unique_id", "cltv_segment"),
-    on="customer_unique_id",
-    how="inner"
-)
+segmented_txns = full_orders.merge(summary[['customer_unique_id', 'cltv_segment']], on='customer_unique_id', how='inner')
+segmented_txns = segmented_txns.groupby(['order_id', 'customer_unique_id', 'cltv_segment'])['product_category'].unique().reset_index()
+segmented_txns.rename(columns={'product_category': 'items'}, inplace=True)
 
-
-# Looping Over Segments and Run FP-Growth
-
-segments = segmented_txns.select("cltv_segment").distinct().rdd.flatMap(lambda x: x).collect()
-
+segments = segmented_txns['cltv_segment'].unique()
 segment_models = {}
+
 for segment in segments:
     print(f"Running MBA for segment: {segment}")
 
-    segment_df = segmented_txns.filter(segmented_txns["cltv_segment"] == segment)
-    multi_item_txns = segment_df.filter(size("items") > 1)
+    segment_df = segmented_txns[segmented_txns['cltv_segment'] == segment]
+    multi_item_txns = segment_df[segment_df['items'].apply(len) > 1]
 
-    if multi_item_txns.count() > 0:
-        fp_growth = FPGrowth(itemsCol="items", minSupport=0.001, minConfidence=0.1)
-        model = fp_growth.fit(multi_item_txns)
-        rules = model.associationRules.orderBy("lift", ascending=False)
+    if not multi_item_txns.empty:
+        all_items = sorted(set(item for sublist in multi_item_txns['items'] for item in sublist))
+        encoded_segment = pd.DataFrame(0, index=multi_item_txns.index, columns=all_items)
+        for idx, row in multi_item_txns.iterrows():
+            encoded_segment.loc[idx, row['items']] = 1
+
+        frequent_itemsets = apriori(encoded_segment, min_support=0.001, use_colnames=True)
+        rules = association_rules(frequent_itemsets, metric="confidence", min_threshold=0.1)
+        rules.sort_values(by='lift', ascending=False, inplace=True)
         segment_models[segment] = rules
     else:
         print(f"Not enough multi-item transactions for {segment}")
@@ -212,10 +171,10 @@ for segment in segments:
 # Converting Rules to Pandas for Visualization
 # Convert one segment to Pandas (we can choose dynamically in Streamlit)
 segment = "Very High"  # example
-rules_df = segment_models[segment].toPandas()
+rules_df = segment_models[segment]
 
 # Add readable rule text for visuals
-rules_df["rule"] = rules_df["antecedent"].astype(str) + " → " + rules_df["consequent"].astype(str)
+rules_df['rule'] = rules_df['antecedents'].apply(lambda x: ", ".join(x)) + " → " + rules_df['consequents'].apply(lambda x: ", ".join(x))
 
 # Plotting
 fig = px.scatter(
