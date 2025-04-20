@@ -1,10 +1,3 @@
-import sys
-import os
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../../')))
-
-from Scripts.config import setup_environment
-setup_environment()
-
 import streamlit as st
 import pandas as pd
 import plotly.express as px
@@ -15,7 +8,6 @@ from sklearn.decomposition import PCA
 from analysis.Preprocessing import full_orders, geolocation
 from analysis.mba import summary_spark
 from analysis.Others import customer_features
-from pyspark.sql import functions as F
 
 st.set_page_config(page_title="Geolocation & CLTV Dashboard", layout="wide")
 
@@ -23,17 +15,18 @@ st.title("📍 Geolocation Insights & Customer Segmentation")
 
 # Merge with CLTV
 st.header("1. CLTV by State and City")
-cltv_geo_df = full_orders.join(
-    summary_spark.select("customer_unique_id", "predicted_cltv"),
-    on="customer_unique_id", how="inner"
+cltv_geo_df = pd.merge(
+    full_orders,
+    summary[["customer_unique_id", "predicted_cltv"]],
+    on="customer_unique_id",
+    how="inner"
 )
 
-top_states = cltv_geo_df.groupBy("customer_state") \
-    .agg(F.sum("predicted_cltv").alias("total_cltv"),
-         F.countDistinct("customer_unique_id").alias("unique_customers")) \
-    .orderBy(F.desc("total_cltv"))
+top_states_pd = cltv_geo_df.groupby("customer_state").agg(
+    total_cltv=("predicted_cltv", "sum"),
+    unique_customers=("customer_unique_id", pd.Series.nunique)
+).sort_values("total_cltv", ascending=False).reset_index()
 
-top_states_pd = top_states.toPandas()
 
 fig1 = px.bar(
     top_states_pd.head(10), x="customer_state", y="total_cltv",
@@ -48,12 +41,10 @@ st.plotly_chart(fig1, use_container_width=True)
 # Revenue by region
 st.header("2. Revenue by State")
 
-revenue_by_state = full_orders.groupBy("customer_state").agg(
-    F.sum("payment_value").alias("total_revenue"),
-    F.countDistinct("order_id").alias("total_orders")
-).orderBy(F.desc("total_revenue"))
-
-revenue_by_state_pd = revenue_by_state.toPandas()
+revenue_by_state_pd = full_orders.groupby("customer_state").agg(
+    total_revenue=("payment_value", "sum"),
+    total_orders=("order_id", pd.Series.nunique)
+).sort_values("total_revenue", ascending=False).reset_index()
 
 fig2 = px.bar(
     revenue_by_state_pd.head(10),
@@ -69,27 +60,25 @@ st.plotly_chart(fig2, use_container_width=True)
 # Geo Bubble Map
 st.header("3. Geo Revenue Bubble Map")
 
-geo_coords = geolocation.groupBy("geolocation_zip_code_prefix") \
-    .agg(
-        F.avg("geolocation_lat").alias("lat"),
-        F.avg("geolocation_lng").alias("lon"),
-        F.first("geolocation_city").alias("city"),
-        F.first("geolocation_state").alias("state")
-    )
+grouped_geo = geolocation.groupby("geolocation_zip_code_prefix").agg(
+    lat=("geolocation_lat", "mean"),
+    lon=("geolocation_lng", "mean"),
+    city=("geolocation_city", "first"),
+    state=("geolocation_state", "first")
+).reset_index()
 
-orders_by_zip = full_orders.groupBy("customer_zip_code_prefix") \
-    .agg(
-        F.sum("payment_value").alias("total_revenue"),
-        F.count("order_id").alias("total_orders")
-    )
+orders_by_zip = full_orders.groupby("customer_zip_code_prefix").agg(
+    total_revenue=("payment_value", "sum"),
+    total_orders=("order_id", "count")
+).reset_index()
 
-geo_insights = orders_by_zip.join(
-    geo_coords,
-    orders_by_zip.customer_zip_code_prefix == geo_coords.geolocation_zip_code_prefix,
+geo_pd = pd.merge(
+    orders_by_zip,
+    grouped_geo,
+    left_on="customer_zip_code_prefix",
+    right_on="geolocation_zip_code_prefix",
     how="inner"
-).select("customer_zip_code_prefix", "lat", "lon", "city", "state", "total_revenue", "total_orders")
-
-geo_pd = geo_insights.toPandas()
+)
 
 fig3 = px.scatter_geo(
     geo_pd, lat="lat", lon="lon", size="total_revenue",
@@ -122,7 +111,7 @@ st.plotly_chart(fig4, use_container_width=True)
 # Customer Segmentation
 st.header("5. Customer Behavioral Clustering (KMeans + PCA)")
 
-cluster_df = customer_features.toPandas()
+cluster_df = customer_features.copy()
 cluster_df['first_purchase'] = pd.to_datetime(cluster_df['first_purchase'])
 cluster_df['last_purchase'] = pd.to_datetime(cluster_df['last_purchase'])
 
