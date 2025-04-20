@@ -1,12 +1,4 @@
 # Scripts/pages/cltv_page.py
-
-import sys
-import os
-
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../../')))
-from Scripts.config import setup_environment
-setup_environment()
-
 import streamlit as st
 from pyspark.sql import SparkSession
 from pyspark.sql.functions import col, lit, when, min as spark_min, max as spark_max
@@ -14,17 +6,6 @@ from analysis.Preprocessing import full_orders
 from analysis.rfm import run_rfm_analysis
 from analysis.cltv import run_cltv_analysis, enrich_cltv_with_segments, model_cltv_lifetimes
 import plotly.express as px
-
-# Setup Spark session
-venv_python_path = sys.executable
-spark = SparkSession.builder \
-    .appName("CLTV Streamlit") \
-    .config("spark.sql.shuffle.partitions", "50") \
-    .config("spark.executorEnv.PYSPARK_PYTHON", venv_python_path) \
-    .config("spark.driverEnv.PYSPARK_PYTHON", venv_python_path) \
-    .config("spark.pyspark.python", venv_python_path) \
-    .config("spark.pyspark.driver.python", venv_python_path) \
-    .getOrCreate()
 
 st.title("💸 Customer Lifetime Value (CLTV) Analysis")
 
@@ -37,17 +18,18 @@ cltv_df = run_cltv_analysis(orders_df)
 cltv_df = enrich_cltv_with_segments(cltv_df)
 
 # Join with RFM
-rfm_cltv_df = rfm_df.join(
-    cltv_df.select("customer_unique_id", "better_cltv", "cltv_normalized", "CLTV_new_Segment"),
+rfm_cltv_df = pd.merge(
+    rfm_df,
+    cltv_df[["customer_unique_id", "better_cltv", "cltv_normalized", "CLTV_new_Segment"]],
     on="customer_unique_id",
     how="inner"
 )
 
 st.subheader("🔍 CLTV Segmentation")
-st.dataframe(cltv_df.toPandas().head(10))
+st.dataframe(cltv_df.head(10))
 
 # Visualize CLTV Distribution
-cltv_pd = rfm_cltv_df.select("cltv_normalized", "CLTV_new_Segment").toPandas()
+cltv_pd = rfm_cltv_df[["cltv_normalized", "CLTV_new_Segment"]]
 
 fig = px.histogram(
     cltv_pd,
