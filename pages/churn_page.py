@@ -50,7 +50,7 @@ le = LabelEncoder()
 churn_features_pd["cltv_segment_encoded"] = le.fit_transform(churn_features_df["cltv_segment"])
 
 # Drop unnecessary columns
-churn_features_pd = churn_features_df.drop(columns=["customer_unique_id", "cltv_segment", "last_purchase"])
+churn_features_df = churn_features_df.drop(columns=["customer_unique_id", "cltv_segment", "last_purchase"])
 
 # Split features & target
 X = churn_features_df.drop(columns=["churned"])
