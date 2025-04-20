@@ -73,11 +73,11 @@ print(rfm_summary)
 # Distribution of customer segments
 
 fig = px.bar(
-    rfm_df["CustomerGroup"].value_counts().reset_index(),
-    x="index", y="CustomerGroup",
-    labels={"index": "Customer Group", "CustomerGroup": "Count"},
-    color="index",
+    rfm_df,
+    x="CustomerGroup",
     title="Customer Segments Distribution",
+    labels={"CustomerGroup": "Customer Group", "count": "Count"},
+    color="CustomerGroup",
     color_discrete_sequence=px.colors.qualitative.Set2
 )
 fig.show()
