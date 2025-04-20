@@ -1,10 +1,7 @@
 # Scripts/pages/cltv_page.py
 import streamlit as st
-from pyspark.sql import SparkSession
-from pyspark.sql.functions import col, lit, when, min as spark_min, max as spark_max
-from analysis.Preprocessing import full_orders
-from analysis.rfm import run_rfm_analysis
-from analysis.cltv import run_cltv_analysis, enrich_cltv_with_segments, model_cltv_lifetimes
+import pandas as pd
+import numpy as np
 import plotly.express as px
 
 st.title("💸 Customer Lifetime Value (CLTV) Analysis")
