@@ -47,7 +47,7 @@ churn_features_df["days_since_last_purchase"] = (max_date - churn_features_df["l
 
 # Encode cltv_segment
 le = LabelEncoder()
-churn_features_pd["cltv_segment_encoded"] = le.fit_transform(churn_features_df["cltv_segment"])
+churn_features_df["cltv_segment_encoded"] = le.fit_transform(churn_features_df["cltv_segment"])
 
 # Drop unnecessary columns
 churn_features_df = churn_features_df.drop(columns=["customer_unique_id", "cltv_segment", "last_purchase"])
