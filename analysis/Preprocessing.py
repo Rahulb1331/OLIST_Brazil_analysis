@@ -92,4 +92,10 @@ full_orders = full_orders.merge(order_payments, on="order_id", how="left")
 @st.cache_data
 
 # Make available for import
-__all__ = ["full_orders", "geolocation", "order_reviews", "sellers", "order_items"]
+__all__ = [
+    "full_orders",
+    "geolocation",
+    "order_reviews",
+    "sellers",
+    "order_items"
+]
