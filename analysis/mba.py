@@ -4,6 +4,7 @@ import plotly.express as px
 import plotly.graph_objects as go
 from mlxtend.frequent_patterns import apriori, association_rules
 import pandas as pd
+import numpy as np
 import networkx as nx
 
 # Prepare data: group product names per order
