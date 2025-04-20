@@ -1,126 +1,94 @@
-from pyspark.sql.functions import col, countDistinct, count, sum, avg, when, lit
-from pyspark.sql.window import Window
-from pyspark.sql.functions import min as spark_min, max as spark_max
-from pyspark.sql import functions as F
+import pandas as pd
+import plotly.express as px
 from analysis.Preprocessing import full_orders
 from analysis.rfm import rfm_df
-import plotly.express as px
-import pandas as pd
 
 def run_cltv_analysis(full_orders_df):
     # Step 1: Aggregate order stats by customer
-    customer_metrics = full_orders_df.groupBy("customer_unique_id").agg(
-        countDistinct("order_id").alias("total_orders"),
-        sum("payment_value").alias("total_payment"),
-        avg("payment_value").alias("avg_order_value")
-    )
+    customer_metrics = full_orders_df.groupby("customer_unique_id").agg(
+        total_orders=("order_id", "nunique"),
+        total_payment=("payment_value", "sum"),
+        avg_order_value=("payment_value", "mean")
+    ).reset_index()
 
     # Step 2: Calculate global purchase frequency
-    total_orders = full_orders_df.select("order_id").distinct().count()
-    total_customers = full_orders_df.select("customer_unique_id").distinct().count()
+    total_orders = full_orders_df["order_id"].nunique()
+    total_customers = full_orders_df["customer_unique_id"].nunique()
     purchase_frequency = total_orders / total_customers
 
     # Step 3: Calculate CLTV
-    cltv_df = customer_metrics.withColumn(
-        "purchase_frequency", col("total_orders") / total_customers
-    ).withColumn(
-        "cltv", col("avg_order_value") * col("purchase_frequency")
-    )
+    customer_metrics["purchase_frequency"] = customer_metrics["total_orders"] / total_customers
+    customer_metrics["cltv"] = customer_metrics["avg_order_value"] * customer_metrics["purchase_frequency"]
 
-    return cltv_df.select("customer_unique_id", "total_orders", "avg_order_value", "purchase_frequency", "cltv")
+    return customer_metrics[["customer_unique_id", "total_orders", "avg_order_value", "purchase_frequency", "cltv"]]
 
 cltv_df = run_cltv_analysis(full_orders)
-cltv_df.show(10, truncate=False)
 
 # Normalizing the CLTV
 # Calculate min and max CLTV
-min_cltv = cltv_df.agg(spark_min("cltv")).first()[0]
-max_cltv = cltv_df.agg(spark_max("cltv")).first()[0]
+min_cltv = cltv_df["cltv"].min()
+max_cltv = cltv_df["cltv"].max()
 
 # Avoid division by zero
 range_cltv = max_cltv - min_cltv if max_cltv != min_cltv else 1.0
 
 # Add normalized CLTV column
-cltv_df = cltv_df.withColumn(
-    "normalized_cltv",
-    (col("cltv") - lit(min_cltv)) / lit(range_cltv)
-)
+cltv_df["normalized_cltv"] = (cltv_df["cltv"] - min_cltv) / range_cltv
 
 # Segmenting the customers based on the normalized cltv
-cltv_df = cltv_df.withColumn(
-    "CLTV_Segment",
-    when(col("normalized_cltv") >= 0.66, "High CLTV")
-    .when(col("normalized_cltv") >= 0.33, "Medium CLTV")
-    .otherwise("Low CLTV")
+cltv_df["CLTV_Segment"] = pd.cut(
+    cltv_df["normalized_cltv"],
+    bins=[-np.inf, 0.33, 0.66, np.inf],
+    labels=["Low CLTV", "Medium CLTV", "High CLTV"]
 )
-
-cltv_df.select(
-    "customer_unique_id",
-    "cltv",
-    "normalized_cltv",
-    "CLTV_Segment"
-).show(10, truncate=False)
-
 
 #Join CLTV Data with RFM
 # Join on customer ID
-rfm_cltv_df = rfm_df.join(cltv_df.select("customer_unique_id", "cltv", "normalized_cltv", "CLTV_Segment"), on="customer_unique_id", how="inner")
+rfm_cltv_df = pd.merge(rfm_df, cltv_df[["customer_unique_id", "cltv", "normalized_cltv", "CLTV_Segment"]], on="customer_unique_id", how="inner")
 
 
 # Using the new formula
 # Average order value already computed per customer
 # Purchase frequency = total orders / total unique customers (global freq)
-# Assume lifespan in months (tune this!)
+# Assume lifespan in months (taken 12 months)
 
-total_customers = cltv_df.select("customer_unique_id").distinct().count()
-global_purchase_frequency = cltv_df.agg(F.sum("total_orders")).first()[0] / total_customers
+global_purchase_frequency = cltv_df["total_orders"].sum() / total_customers
 lifespan_months = 12
+cltv_df["better_cltv"] = cltv_df["avg_order_value"] * global_purchase_frequency * lifespan_months
 
-cltv_df = cltv_df.withColumn(
-    "better_cltv",
-    col("avg_order_value") * F.lit(global_purchase_frequency) * F.lit(lifespan_months)
-)
+min_val = cltv_df["better_cltv"].min()
+max_val = cltv_df["better_cltv"].max()
+range_val = max_val - min_val if max_val != min_val else 1.0
+cltv_df["cltv_normalized"] = (cltv_df["better_cltv"] - min_val) / range_val
 
-windowSpec = Window.orderBy(F.lit(1))  # dummy window for global agg
-min_val = cltv_df.agg(F.min("better_cltv")).first()[0]
-max_val = cltv_df.agg(F.max("better_cltv")).first()[0]
-range_val = max_val - min_val
-
-cltv_df = cltv_df.withColumn(
-    "cltv_normalized",
-    ((col("better_cltv") - F.lit(min_val)) / F.lit(range_val))
-)
 
 # Get quantile breakpoints
-quantiles = cltv_df.approxQuantile("better_cltv", [0.33, 0.66], 0.01)
-q1, q2 = quantiles
+q1 = cltv_df["better_cltv"].quantile(0.33)
+q2 = cltv_df["better_cltv"].quantile(0.66)
 
 # Segment
-cltv_df = cltv_df.withColumn(
-    "CLTV_new_Segment",
-    when(col("better_cltv") >= q2, "High CLTV")
-    .when(col("better_cltv") >= q1, "Medium CLTV")
-    .otherwise("Low CLTV")
+cltv_df["CLTV_new_Segment"] = pd.cut(
+    cltv_df["better_cltv"],
+    bins=[-np.inf, q1, q2, np.inf],
+    labels=["Low CLTV", "Medium CLTV", "High CLTV"]
 )
-
 
 #Join CLTV Data with RFM
 # Join on customer ID
-rfm_cltv_df = rfm_df.join(cltv_df.select("customer_unique_id", "better_cltv", "cltv_normalized", "CLTV_new_Segment"), on="customer_unique_id", how="inner")
+rfm_cltv_df = pd.merge(rfm_df, cltv_df[["customer_unique_id", "better_cltv", "cltv_normalized", "CLTV_new_Segment"]], on="customer_unique_id", how="inner")
 
 # Count Customers in Each CLTV Segment
-segment_counts = rfm_cltv_df.groupBy("CLTV_new_Segment").agg(F.count("*").alias("CustomerCount"))
-segment_counts.show()
+segment_counts = rfm_cltv_df["CLTV_new_Segment"].value_counts().reset_index(name="CustomerCount")
+print(segment_counts)
 
 #Cross Tab CLTV vs RFM Segments
 #This gives a matrix-style overview of how customer segments overlap:
-rfm_cltv_df.crosstab("CLTV_new_Segment", "CustomerGroup").show()
-
+cross_tab = pd.crosstab(rfm_cltv_df["CLTV_new_Segment"], rfm_cltv_df["CustomerGroup"])
+print(cross_tab)
 #Plotly: Visualize CLTV Distribution
-cltv_pd = rfm_cltv_df.select("cltv_normalized", "CLTV_new_Segment").toPandas()
+cltv_pd = rfm_cltv_df[["cltv_normalized", "CLTV_new_Segment"]]
 
 #Histogram by segment
-
 fig = px.histogram(
     cltv_pd,
     x="cltv_normalized",
@@ -131,25 +99,14 @@ fig = px.histogram(
     barmode="overlay",
     opacity=0.7
 )
-
 fig.update_layout(template="plotly_white")
 fig.show()
 
 
 # Preparing the dataset for the modeling
 # Select necessary columns
-orders_filtered = full_orders.select(
-    "customer_unique_id",
-    "order_id",
-    "order_purchase_timestamp",
-    "payment_value"
-)
-
-# Convert to Pandas
-orders_pd = orders_filtered.toPandas()
-
-
-# Reference date (end of observation period)
+orders_pd = full_orders[["customer_unique_id", "order_id", "order_purchase_timestamp", "payment_value"]].copy()
+orders_pd["order_purchase_timestamp"] = pd.to_datetime(orders_pd["order_purchase_timestamp"])
 max_date = orders_pd["order_purchase_timestamp"].max()
 
 # Create summary DataFrame
@@ -195,6 +152,13 @@ print("Min values:\n", summary[["frequency", "recency", "T", "monetary_value"]].
 print("Max values:\n", summary[["frequency", "recency", "T", "monetary_value"]].max())
 print("Any NaNs?\n", summary.isnull().sum())
 
+sns.histplot(summary["recency"], bins=50, kde=True)
+plt.title("Recency Distribution")
+plt.show()
+
+sns.histplot(summary["T"], bins=50, kde=True)
+plt.title("T Distribution")
+plt.show()
 
 # Fitting BG/NBD model (predicts number of transactions)
 
@@ -207,8 +171,6 @@ pnbd.fit(
     recency=summary["recency"],
     T=summary["T"]
 )
-
-
 
 #Fitting Gamma-Gamma model (predicts monetary value)
 from lifetimes import GammaGammaFitter
@@ -227,7 +189,7 @@ summary["predicted_purchases"] = pnbd.conditional_expected_number_of_purchases_u
     summary["frequency"],
     summary["recency"],
     summary["T"]
-)
+).clip(lower=0)
 
 # Predict average monetary value
 summary["predicted_avg_value"] = ggf.conditional_expected_average_profit(
@@ -236,7 +198,6 @@ summary["predicted_avg_value"] = ggf.conditional_expected_average_profit(
 )
 
 # Calculate CLTV
-summary["predicted_purchases"] = summary["predicted_purchases"].clip(lower=0)
 summary["predicted_cltv"] = summary["predicted_purchases"] * summary["predicted_avg_value"]
 
 print(summary.head())
@@ -353,52 +314,33 @@ fig.show()
 
 
 def enrich_cltv_with_segments(cltv_df):
-    min_cltv = cltv_df.agg(spark_min("cltv")).first()[0]
-    max_cltv = cltv_df.agg(spark_max("cltv")).first()[0]
+    min_cltv = cltv_df["cltv"].min()
+    max_cltv = cltv_df["cltv"].max()
     range_cltv = max_cltv - min_cltv if max_cltv != min_cltv else 1.0
 
-    cltv_df = cltv_df.withColumn(
-        "normalized_cltv",
-        (col("cltv") - lit(min_cltv)) / lit(range_cltv)
-    )
+    cltv_df["normalized_cltv"] = (cltv_df["cltv"] - min_cltv) / range_cltv
 
-    cltv_df = cltv_df.withColumn(
-        "CLTV_Segment",
-        when(col("normalized_cltv") >= 0.66, "High CLTV")
-        .when(col("normalized_cltv") >= 0.33, "Medium CLTV")
-        .otherwise("Low CLTV")
-    )
+    cltv_df["CLTV_Segment"] = pd.cut(cltv_df["normalized_cltv"], bins=[-np.inf, 0.33, 0.66, np.inf], labels=["Low CLTV", "Medium CLTV", "High CLTV"])
 
     # Advanced CLTV
-    global_purchase_frequency = cltv_df.agg(F.sum("total_orders")).first()[0] / cltv_df.count()
+    global_purchase_frequency = cltv_df["total_orders"].sum() / cltv_df.shape[0]
     lifespan_months = 12
 
-    cltv_df = cltv_df.withColumn(
-        "better_cltv",
-        col("avg_order_value") * F.lit(global_purchase_frequency) * F.lit(lifespan_months)
-    )
+    cltv_df["better_cltv"] = cltv_df["avg_order_value"] * global_purchase_frequency * lifespan_months
 
-    q1, q2 = cltv_df.approxQuantile("better_cltv", [0.33, 0.66], 0.01)
-    cltv_df = cltv_df.withColumn(
-        "cltv_normalized",
-        (col("better_cltv") - spark_min("better_cltv").over(Window.orderBy())).cast("double")
-    ).withColumn(
-        "CLTV_new_Segment",
-        when(col("better_cltv") >= q2, "High CLTV")
-        .when(col("better_cltv") >= q1, "Medium CLTV")
-        .otherwise("Low CLTV")
-    )
+
+    q1 = cltv_df["better_cltv"].quantile(0.33)
+    q2 = cltv_df["better_cltv"].quantile(0.66)
+    cltv_df["cltv_normalized"] = (cltv_df["better_cltv"] - cltv_df["better_cltv"].min()) / (cltv_df["better_cltv"].max() - cltv_df["better_cltv"].min())
+    cltv_df["CLTV_new_Segment"] = pd.cut(cltv_df["better_cltv"], bins=[-np.inf, q1, q2, np.inf], labels=["Low CLTV", "Medium CLTV", "High CLTV"])
+
 
     return cltv_df
 
 
 def model_cltv_lifetimes(df):
-    import pandas as pd
-    from lifetimes import ParetoNBDFitter, GammaGammaFitter
-
-    orders_pd = df.select(
-        "customer_unique_id", "order_id", "order_purchase_timestamp", "payment_value"
-    ).toPandas()
+    
+    orders_pd = df[["customer_unique_id", "order_id", "order_purchase_timestamp", "payment_value"]].copy()
 
     orders_pd["order_purchase_timestamp"] = pd.to_datetime(orders_pd["order_purchase_timestamp"])
     max_date = orders_pd["order_purchase_timestamp"].max()
