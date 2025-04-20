@@ -127,7 +127,7 @@ top_products_by_segment = top_products_by_segment.sort_values(by=["CustomerGroup
 print(top_products_by_segment.head(10))
 
 # Join RFM segments to full orders to explore their product preferences
-rfm_orders = full_orders.join(rfm_df.select("customer_unique_id", "CustomerGroup"), on="customer_unique_id", how="inner")
+rfm_orders = pd.merge(full_orders, rfm_df[["customer_unique_id", "CustomerGroup"]], on="customer_unique_id", how="inner")
 
 # Now group to see top product categories per customer group
 fig_products = px.bar(
