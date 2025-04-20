@@ -90,8 +90,11 @@ full_orders = full_orders.merge(order_payments, on="order_id", how="left")
 
 # caching using a lightweight decorator 
 @st.cache_data
+def load_data():
+    return full_orders, geolocation, order_reviews, sellers, order_items
 
-# Make available for import
+full_orders, geolocation, order_reviews, sellers, order_items = load_data()
+
 __all__ = [
     "full_orders",
     "geolocation",
