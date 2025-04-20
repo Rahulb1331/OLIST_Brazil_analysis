@@ -6,7 +6,7 @@ from sklearn.cluster import KMeans
 from sklearn.decomposition import PCA
 
 from analysis.Preprocessing import full_orders, geolocation
-from analysis.mba import summary_spark
+from analysis.cltv import summary
 from analysis.Others import customer_features
 
 st.set_page_config(page_title="Geolocation & CLTV Dashboard", layout="wide")
