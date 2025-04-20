@@ -42,7 +42,7 @@ rules["rule"] = rules["antecedents"].apply(lambda x: ", ".join(x)) + " → " + r
 
 # Plotly bubble chart to visualize your top association rules
 fig = px.scatter(
-    rules_df,
+    rules,
     x="confidence",
     y="lift",
     size="support",
