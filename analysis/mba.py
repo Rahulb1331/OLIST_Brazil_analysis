@@ -164,6 +164,10 @@ for segment in segments:
     print(f"Running MBA for segment: {segment}")
 
     segment_df = segmented_txns[segmented_txns['cltv_segment'] == segment]
+    segment_df['items'] = segment_df['items'].apply(
+        lambda x: [str(i).strip().lower() for i in x if pd.notnull(i)] if isinstance(x, (list, pd.Series, np.ndarray)) else []
+    )
+
     multi_item_txns = segment_df[segment_df['items'].apply(len) > 1]
 
     if not multi_item_txns.empty:
