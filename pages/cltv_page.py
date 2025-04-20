@@ -2,7 +2,11 @@
 import streamlit as st
 import pandas as pd
 import numpy as np
+from analysis.Preprocessing import full_orders
+from analysis.rfm import run_rfm_analysis
+from analysis.cltv import run_cltv_analysis, enrich_cltv_with_segments, model_cltv_lifetimes
 import plotly.express as px
+
 
 st.title("💸 Customer Lifetime Value (CLTV) Analysis")
 
