@@ -53,6 +53,7 @@ rfm_cltv_df = pd.merge(rfm_df, cltv_df[["customer_unique_id", "cltv", "normalize
 # Purchase frequency = total orders / total unique customers (global freq)
 # Assume lifespan in months (taken 12 months)
 
+total_customers = cltv_df["customer_unique_id"].nunique()
 global_purchase_frequency = cltv_df["total_orders"].sum() / total_customers
 lifespan_months = 12
 cltv_df["better_cltv"] = cltv_df["avg_order_value"] * global_purchase_frequency * lifespan_months
