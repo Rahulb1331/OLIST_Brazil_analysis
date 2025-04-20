@@ -1,9 +1,3 @@
-import sys
-import os
-
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../../')))
-from Scripts.config import setup_environment
-setup_environment()
 import streamlit as st
 import pandas as pd
 import matplotlib.pyplot as plt
@@ -15,15 +9,9 @@ from sklearn.ensemble import RandomForestClassifier
 from sklearn.preprocessing import LabelEncoder
 from sklearn.metrics import classification_report, confusion_matrix, roc_curve, roc_auc_score
 
-from pyspark.sql import SparkSession
-from pyspark.sql.functions import col, max as spark_max, min, datediff, lit, count, avg, sum as spark_sum
-
 # Spark & data imports
 from analysis.Preprocessing import full_orders
 from analysis.cltv import summary
-
-# Initialize Spark session
-spark = SparkSession.builder.getOrCreate()
 
 # Streamlit setup
 st.set_page_config(page_title="Customer Churn Prediction", layout="wide")
@@ -32,44 +20,41 @@ st.title("🔁 Customer Churn Prediction Dashboard")
 # --- Data Preparation ---
 st.header("📦 Data Preparation")
 
+# Ensure datetime type
+full_orders["order_purchase_timestamp"] = pd.to_datetime(full_orders["order_purchase_timestamp"])
+
 # Max and min purchase dates
-max_date = full_orders.select(spark_max("order_purchase_timestamp")).first()[0]
-min_date = full_orders.select(min("order_purchase_timestamp")).first()[0]
+max_date = full_orders["order_purchase_timestamp"].max()
+min_date = full_orders["order_purchase_timestamp"].min()
 
 # Last purchase per customer
-last_purchase_df = full_orders.groupBy("customer_unique_id") \
-    .agg(spark_max("order_purchase_timestamp").alias("last_purchase"))
-
-# Churn label: 1 if no purchase in last 180 days
-churn_df = last_purchase_df.withColumn(
-    "churned",
-    (datediff(lit(max_date), col("last_purchase")) > 180).cast("int")
+last_purchase_df = (
+    full_orders.groupby("customer_unique_id")["order_purchase_timestamp"]
+    .max()
+    .reset_index()
+    .rename(columns={"order_purchase_timestamp": "last_purchase"})
 )
 
-# Create Spark DataFrame from CLTV summary
-summary_df = spark.createDataFrame(summary)
+# Churn label: 1 if no purchase in last 180 days
+last_purchase_df["churned"] = (max_date - last_purchase_df["last_purchase"]).dt.days > 180
+last_purchase_df["churned"] = last_purchase_df["churned"].astype(int)
 
 # Join churn labels with CLTV summary
-churn_features_df = churn_df.join(summary_df, on="customer_unique_id", how="inner")
+churn_features_df = pd.merge(last_purchase_df, summary, on="customer_unique_id", how="inner")
+# Date calculations
+churn_features_df["days_since_last_purchase"] = (max_date - churn_features_df["last_purchase"]).dt.days
 
-# Convert to Pandas
-churn_features_pd = churn_features_df.toPandas()
-churn_features_pd["last_purchase"] = pd.to_datetime(churn_features_pd["last_purchase"])
 
 # Encode cltv_segment
 le = LabelEncoder()
-churn_features_pd["cltv_segment_encoded"] = le.fit_transform(churn_features_pd["cltv_segment"])
-
-# Date calculations
-max_date = datetime.combine(max_date, datetime.min.time())
-churn_features_pd["days_since_last_purchase"] = (max_date - churn_features_pd["last_purchase"]).dt.days
+churn_features_pd["cltv_segment_encoded"] = le.fit_transform(churn_features_df["cltv_segment"])
 
 # Drop unnecessary columns
-churn_features_pd = churn_features_pd.drop(columns=["customer_unique_id", "cltv_segment", "last_purchase"])
+churn_features_pd = churn_features_df.drop(columns=["customer_unique_id", "cltv_segment", "last_purchase"])
 
 # Split features & target
-X = churn_features_pd.drop(columns=["churned"])
-y = churn_features_pd["churned"]
+X = churn_features_df.drop(columns=["churned"])
+y = churn_features_df["churned"]
 
 # Split train/test
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
