@@ -1,4 +1,5 @@
 import pandas as pd
+import numpy as np
 import plotly.express as px
 from analysis.Preprocessing import full_orders
 from analysis.rfm import rfm_df
