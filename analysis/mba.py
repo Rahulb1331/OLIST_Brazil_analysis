@@ -14,6 +14,16 @@ transactions_df['items'] = transactions_df['product_category']
 multi_item_txns = transactions_df[transactions_df['items'].apply(len) > 1]
 print(f"Multi-item transactions: {len(multi_item_txns)}") # just to see how many we get
 
+# Clean 'items' to ensure no NaNs and consistent string types
+multi_item_txns['items'] = multi_item_txns['items'].apply(
+    lambda items: [str(i).strip().lower() for i in items if pd.notnull(i)] if isinstance(items, (list, pd.Series, np.ndarray)) else []
+)
+
+# Re-check for any empty rows (can happen after filtering nulls)
+multi_item_txns = multi_item_txns[multi_item_txns['items'].apply(len) > 1]
+
+# Extract all unique items safely
+
 # Convert to one-hot encoded format for mlxtend.apriori
 all_items = sorted(set(item for sublist in multi_item_txns['items'] for item in sublist))
 encoded_df = pd.DataFrame(0, index=multi_item_txns.index, columns=all_items)
