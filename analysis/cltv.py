@@ -380,4 +380,3 @@ def model_cltv_lifetimes(df):
 
     return summary
 
-summary.cache()
