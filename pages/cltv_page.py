@@ -14,6 +14,10 @@ st.title("💸 Customer Lifetime Value (CLTV) Analysis")
 orders_df = full_orders
 rfm_df = run_rfm_analysis(orders_df)
 
+# Initialize session state
+if 'log_applied' not in st.session_state:
+    st.session_state.log_applied = False
+
 # Run CLTV analysis
 cltv_df = run_cltv_analysis(orders_df)
 cltv_df = enrich_cltv_with_segments(cltv_df)
@@ -31,6 +35,21 @@ st.dataframe(cltv_df.head(10))
 
 # Visualize CLTV Distribution
 cltv_pd = rfm_cltv_df[["cltv_normalized", "CLTV_new_Segment"]]
+
+# Log transformation button in main area
+if not st.session_state.log_applied:
+    if st.button("Apply Log Transformation"):
+        st.session_state.log_applied = True
+        st.success("Log transformation applied.")
+
+# Apply transformation
+if st.session_state.log_applied:
+    cltv_pd['cltv_transformed'] = np.log1p(cltv_pd['cltv_normalized'])
+    title_suffix = "(Log Scale)"
+else:
+    cltv_pd['cltv_transformed'] = cltv_pd['cltv_normalized']
+    title_suffix = "(Raw Scale)"
+
 
 fig = px.histogram(
     cltv_pd,
@@ -50,7 +69,7 @@ import plotly.express as px
 fig = px.box(
     cltv_pd,
     x="CLTV_new_Segment",
-    y="cltv_normalized",
+    y="cltv_transformed",
     color="CLTV_new_Segment",
     title="📦 CLTV Distribution by Segment",
     labels={"normalized_cltv": "Normalized CLTV", "CLTV_new_Segment": "CLTV Segment"},
@@ -62,7 +81,7 @@ st.plotly_chart(fig, use_container_width=True)
 fig = px.violin(
     cltv_pd,
     x="CLTV_new_Segment",
-    y="cltv_normalized",
+    y="cltv_transformed",
     color="CLTV_new_Segment",
     box=True,  # show box inside
     points="all",
@@ -82,7 +101,7 @@ st.dataframe(summary_df[["customer_unique_id", "predicted_cltv"]].sort_values(by
 fig_rev = px.bar(
     summary_df.groupby("cltv_segment")["predicted_cltv"].sum().reset_index(),
     x="cltv_segment",
-    y="predicted_cltv",
+    y="cltv_transformed",
     title="Revenue Forecast by CLTV Segment (12 months)",
     text_auto=".2s",
     color="cltv_segment"
