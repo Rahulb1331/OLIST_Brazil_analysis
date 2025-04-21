@@ -146,8 +146,11 @@ with tab3:
     # Forecast Accuracy Metrics
     st.markdown("---")
     st.subheader("📏 Forecast Accuracy Metrics")
-    actual = revenue_df.set_index("ds").loc[forecast_revenue['ds']].dropna()
+    # Ensure we only evaluate metrics on historical period
+    common_dates = revenue_df["ds"].isin(forecast_revenue["ds"])
+    actual = revenue_df[common_dates].set_index("ds")
     predicted = forecast_revenue.set_index("ds").loc[actual.index]
+
 
     mae = mean_absolute_error(actual['y'], predicted['yhat'])
     rmse = np.sqrt(mean_squared_error(actual['y'], predicted['yhat']))
