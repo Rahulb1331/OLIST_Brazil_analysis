@@ -101,7 +101,7 @@ st.dataframe(summary_df[["customer_unique_id", "predicted_cltv"]].sort_values(by
 fig_rev = px.bar(
     summary_df.groupby("cltv_segment")["predicted_cltv"].sum().reset_index(),
     x="cltv_segment",
-    y="cltv_transformed",
+    y="predicted_cltv",
     title="Revenue Forecast by CLTV Segment (12 months)",
     text_auto=".2s",
     color="cltv_segment"
