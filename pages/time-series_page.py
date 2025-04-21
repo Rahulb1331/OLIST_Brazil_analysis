@@ -142,3 +142,29 @@ with tab3:
     fig_ci.update_layout(title="💡 Revenue Forecast with Confidence Intervals", xaxis_title="Date",
                          yaxis_title="Revenue")
     st.plotly_chart(fig_ci, use_container_width=True)
+
+    # Forecast Accuracy Metrics
+    st.markdown("---")
+    st.subheader("📏 Forecast Accuracy Metrics")
+    actual = revenue_df.set_index("ds").loc[forecast_revenue['ds']].dropna()
+    predicted = forecast_revenue.set_index("ds").loc[actual.index]
+
+    mae = mean_absolute_error(actual['y'], predicted['yhat'])
+    rmse = np.sqrt(mean_squared_error(actual['y'], predicted['yhat']))
+    mape = np.mean(np.abs((actual['y'] - predicted['yhat']) / actual['y'])) * 100
+
+    st.metric("MAE (Mean Absolute Error)", f"{mae:,.0f}")
+    st.metric("RMSE (Root Mean Squared Error)", f"{rmse:,.0f}")
+    st.metric("MAPE (Mean Absolute Percentage Error)", f"{mape:.2f}%")
+
+with tab4:
+    st.subheader("📦 Category-wise Revenue Trends")
+    categories = sorted(full_orders['product_category'].dropna().unique())
+    selected_cat = st.selectbox("Select Product Category", categories)
+
+    cat_df = full_orders[full_orders['product_category'] == selected_cat]
+    cat_monthly = cat_df.groupby(cat_df['order_purchase_timestamp'].dt.to_period("M").astype(str))["price"].sum().reset_index()
+    fig_cat = px.line(cat_monthly, x="order_purchase_timestamp", y="price", title=f"Revenue Trend: {selected_cat}",
+                      labels={"order_purchase_timestamp": "Month", "price": "Revenue"})
+    st.plotly_chart(fig_cat, use_container_width=True)
+
