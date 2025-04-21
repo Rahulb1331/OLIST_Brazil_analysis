@@ -1,13 +1,6 @@
-import sys
-import os
-
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../../')))
-
-from Scripts.config import setup_environment
-
-setup_environment()
 import streamlit as st
-from pyspark.sql.functions import col, count, avg, datediff
+import pandas as pd
+import numpy as np
 from analysis.Preprocessing import full_orders, order_reviews
 import plotly.express as px
 
@@ -16,8 +9,8 @@ st.set_page_config(page_title="Review Sentiment Analysis", layout="wide")
 st.title("📊 Review Sentiment Dashboard")
 
 # Join data
-orders_with_reviews = full_orders.join(order_reviews, on="order_id", how="inner")
-orders_with_reviews = orders_with_reviews.filter(col("seller_id").isNotNull())
+orders_with_reviews = pd.merge(full_orders, order_reviews, on="order_id", how="inner")
+orders_with_reviews = orders_with_reviews[orders_with_reviews["seller_id"].notna()]
 
 # Tabs for exploration
 tab1, tab2, tab3, tab4 = st.tabs([
@@ -30,62 +23,62 @@ tab1, tab2, tab3, tab4 = st.tabs([
 with tab1:
     st.header("📦 Product & Seller Ratings")
 
-    top_sellers = orders_with_reviews.groupBy("seller_id").agg(
-        count("review_score").alias("num_reviews"),
-        avg("review_score").alias("avg_rating")
-    ).orderBy(col("avg_rating").desc(), col("num_reviews").desc()).limit(10)
+    top_sellers = orders_with_reviews.groupby("seller_id").agg(
+        num_reviews=pd.NamedAgg(column="review_score", aggfunc="count"),
+        avg_rating=pd.NamedAgg(column="review_score", aggfunc="mean")
+    ).sort_values(by=["avg_rating", "num_reviews"], ascending=[False, False]).head(10)
 
-    top_products = orders_with_reviews.groupBy("product_category").agg(
-        count("review_score").alias("num_reviews"),
-        avg("review_score").alias("avg_rating")
-    ).orderBy(col("avg_rating").desc(), col("num_reviews").desc()).limit(10)
+    top_products = orders_with_reviews.groupby("product_category").agg(
+        num_reviews=pd.NamedAgg(column="review_score", aggfunc="count"),
+        avg_rating=pd.NamedAgg(column="review_score", aggfunc="mean")
+    ).sort_values(by=["avg_rating", "num_reviews"], ascending=[False, False]).head(10)
 
-    worst_sellers = orders_with_reviews.groupBy("seller_id").agg(
-        count("review_score").alias("num_reviews"),
-        avg("review_score").alias("avg_rating")
-    ).filter(col("num_reviews") >= 10).orderBy(col("avg_rating").asc()).limit(10)
+    worst_sellers = orders_with_reviews.groupby("seller_id").agg(
+        num_reviews=pd.NamedAgg(column="review_score", aggfunc="count"),
+        avg_rating=pd.NamedAgg(column="review_score", aggfunc="mean")
+    )
+    worst_sellers = worst_sellers[worst_sellers["num_reviews"] >= 10]
+    worst_sellers = worst_sellers.sort_values("avg_rating").head(10)
 
-    worst_products = orders_with_reviews.groupBy("product_category").agg(
-        count("review_score").alias("num_reviews"),
-        avg("review_score").alias("avg_rating")
-    ).filter(col("num_reviews") >= 10).orderBy(col("avg_rating").asc()).limit(10)
+    worst_products = orders_with_reviews.groupby("product_category").agg(
+        num_reviews=pd.NamedAgg(column="review_score", aggfunc="count"),
+        avg_rating=pd.NamedAgg(column="review_score", aggfunc="mean")
+    )
+    worst_products = worst_products[worst_products["num_reviews"] >= 10]
+    worst_products = worst_products.sort_values("avg_rating").head(10)
 
     # Display plots
     col1, col2 = st.columns(2)
     with col1:
         st.subheader("Top 10 Products by Rating")
-        top_pd = top_products.toPandas()
-        st.plotly_chart(px.bar(top_pd, x="product_category", y="avg_rating", title="Top Products"))
+        st.plotly_chart(px.bar(top_products.reset_index(), x="product_category", y="avg_rating", title="Top Products"))
 
     with col2:
         st.subheader("Worst 10 Products by Rating")
-        worst_pd = worst_products.toPandas()
-        st.plotly_chart(px.bar(worst_pd, x="product_category", y="avg_rating", title="Worst Products"))
+        st.plotly_chart(px.bar(worst_products.reset_index(), x="product_category", y="avg_rating", title="Worst Products"))
 
     col3, col4 = st.columns(2)
     with col3:
         st.subheader("Top 10 Sellers by Rating")
-        top_seller_pd = top_sellers.toPandas()
-        st.plotly_chart(px.bar(top_seller_pd, x="seller_id", y="avg_rating", title="Top Sellers"))
+        st.plotly_chart(px.bar(top_sellers.reset_index(), x="seller_id", y="avg_rating", title="Top Sellers"))
 
     with col4:
         st.subheader("Worst 10 Sellers by Rating")
-        worst_seller_pd = worst_sellers.toPandas()
-        st.plotly_chart(px.bar(worst_seller_pd, x="seller_id", y="avg_rating", title="Worst Sellers"))
+        st.plotly_chart(px.bar(worst_sellers.reset_index(), x="seller_id", y="avg_rating", title="Worst Sellers"))
 
 with tab2:
     st.header("⏳ Delivery Time Impact on Reviews")
 
-    orders_with_reviews = orders_with_reviews.withColumn(
-        "delivery_days", datediff("order_delivered_customer_date", "order_purchase_timestamp"))
+    orders_with_reviews["delivery_days"] = (pd.to_datetime(orders_with_reviews["order_delivered_customer_date"]) - 
+                                              pd.to_datetime(orders_with_reviews["order_purchase_timestamp"]))
+    orders_with_reviews["delivery_days"] = orders_with_reviews["delivery_days"].dt.days
+    
+    delivery_analysis = orders_with_reviews.groupby("review_score").agg(
+        avg_delivery_days=pd.NamedAgg(column="delivery_days", aggfunc="mean"),
+        num_orders=pd.NamedAgg(column="order_id", aggfunc="count")
+    ).reset_index()
 
-    delivery_analysis = orders_with_reviews.groupBy("review_score").agg(
-        avg("delivery_days").alias("avg_delivery_days"),
-        count("*").alias("num_orders")
-    ).orderBy("review_score")
-
-    delivery_pd = delivery_analysis.toPandas()
-    fig = px.bar(delivery_pd, x="review_score", y="avg_delivery_days",
+    fig = px.bar(delivery_analysis, x="review_score", y="avg_delivery_days",
                  text="avg_delivery_days", title="Delivery Days vs Review Score",
                  labels={"avg_delivery_days": "Avg Delivery Days", "review_score": "Review Score"})
     fig.update_traces(marker_color="tomato", texttemplate='%{text:.1f}')
@@ -93,27 +86,28 @@ with tab2:
 
     # Delay-based Worst Sellers
     st.subheader("Worst Sellers with Longest Delivery")
-    seller_delay = orders_with_reviews.groupBy("seller_id").agg(
-        count("*").alias("num_orders"),
-        avg("review_score").alias("avg_rating"),
-        avg("delivery_days").alias("avg_delivery_days")
-    ).filter((col("num_orders") >= 10) & (col("avg_rating") <= 2)) \
-     .orderBy(col("avg_delivery_days").desc()).limit(10)
+    seller_delay = orders_with_reviews.groupby("seller_id").agg(
+        num_orders=pd.NamedAgg(column="order_id", aggfunc="count"),
+        avg_rating=pd.NamedAgg(column="review_score", aggfunc="mean"),
+        avg_delivery_days=pd.NamedAgg(column="delivery_days", aggfunc="mean")
+    ).reset_index()
 
-    st.dataframe(seller_delay.toPandas())
+    seller_delay = seller_delay[(seller_delay["num_orders"] >= 10) & (seller_delay["avg_rating"] <= 2)]
+    seller_delay = seller_delay.sort_values("avg_delivery_days", ascending=False).head(10)
 
+    st.dataframe(seller_delay)
+    
 with tab3:
     st.header("🚚 Freight Charges vs Review Score")
 
-    freight_reviews = orders_with_reviews.groupBy("seller_id").agg(
-        count("*").alias("num_reviews"),
-        avg("review_score").alias("avg_rating"),
-        avg("freight_value").alias("avg_freight")
-    ).filter(col("num_reviews") > 10).orderBy("avg_rating")
+    freight_reviews = orders_with_reviews.groupby("seller_id").agg(
+        num_reviews=pd.NamedAgg(column="order_id", aggfunc="count"),
+        avg_rating=pd.NamedAgg(column="review_score", aggfunc="mean"),
+        avg_freight=pd.NamedAgg(column="freight_value", aggfunc="mean")
+    ).reset_index()
+    freight_reviews = freight_reviews[freight_reviews["num_reviews"] > 10]
 
-    freight_pd = freight_reviews.toPandas()
-
-    fig = px.scatter(freight_pd, x="avg_freight", y="avg_rating", size="num_reviews",
+    fig = px.scatter(freight_reviews, x="avg_freight", y="avg_rating", size="num_reviews",
                      hover_name="seller_id", title="Freight vs Average Rating",
                      labels={"avg_freight": "Average Freight", "avg_rating": "Average Rating"})
     fig.update_traces(marker=dict(opacity=0.7))
@@ -122,4 +116,4 @@ with tab3:
 with tab4:
     st.header("📂 Raw Data Snapshots")
     st.write("Preview of `orders_with_reviews`")
-    st.dataframe(orders_with_reviews.limit(10).toPandas())
+    st.dataframe(orders_with_reviews.head(10))
