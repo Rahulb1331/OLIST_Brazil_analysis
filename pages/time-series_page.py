@@ -1,11 +1,3 @@
-import sys
-import os
-
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../../')))
-
-from Scripts.config import setup_environment
-
-setup_environment()
 import streamlit as st
 from pyspark.sql.functions import to_date, date_format, sum as _sum, countDistinct, month
 from analysis.Preprocessing import full_orders
