@@ -14,8 +14,8 @@ from analysis.Preprocessing import full_orders
 from analysis.cltv import summary
 
 # 1. Last purchase date in the dataset
-max_date = full_orders.select(spark_max("order_purchase_timestamp")).first()[0]
-min_date = full_orders.select(min("order_purchase_timestamp")).first()[0]
+max_date = full_orders["order_purchase_timestamp"].max()
+min_date = full_orders["order_purchase_timestamp"].min()
 
 
 # 2. Latest purchase per customer
@@ -27,7 +27,7 @@ last_purchase_df = (
 )
 
 # 3. Churn Label: 1 if >180 days before max_date, else 0
-ast_purchase_df["churned"] = (max_date - last_purchase_df["last_purchase"]).dt.days > 180
+last_purchase_df["churned"] = (max_date - last_purchase_df["last_purchase"]).dt.days > 180
 last_purchase_df["churned"] = last_purchase_df["churned"].astype(int)
 
 
