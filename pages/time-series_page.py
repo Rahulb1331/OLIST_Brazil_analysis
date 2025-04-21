@@ -34,7 +34,7 @@ monthly_avg_revenue_pd["month"] = monthly_avg_revenue_pd["month"].apply(lambda x
 monthly_avg_orders_pd["month"] = monthly_avg_orders_pd["month"].apply(lambda x: calendar.month_abbr[x])
 
 # Tabs
-tab1, tab2, tab3 = st.tabs(["📊 Historical Trends", "📆 Seasonality", "🔮 Forecasts"])
+tab1, tab2, tab3, tab4 = st.tabs(["📊 Historical Trends", "📆 Seasonality", "🔮 Forecasts"])
 
 with tab1:
     st.subheader("Monthly Revenue and Order Trends")
