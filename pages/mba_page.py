@@ -110,3 +110,51 @@ if not multi_item_txns.empty:
 else:
     st.warning("Not enough multi-item transactions in this segment.")
 
+st.markdown("---")
+
+st.subheader("🔍 Filter Association Rules")
+
+# Filter sliders
+col1, col2, col3 = st.columns(3)
+with col1:
+    min_conf = st.slider("Min Confidence", 0.0, 1.0, 0.1, 0.01)
+with col2:
+    min_lift = st.slider("Min Lift", 0.0, float(rules_df['lift'].max()), 1.0, 0.1)
+with col3:
+    min_support = st.slider("Min Support", 0.0, float(rules_df['support'].max()), 0.01, 0.001)
+
+# Filter rules
+filtered_rules = rules_df[
+    (rules_df['confidence'] >= min_conf) &
+    (rules_df['lift'] >= min_lift) &
+    (rules_df['support'] >= min_support)
+]
+
+# Top N selector
+top_n = st.slider("Show Top N Rules", 5, 50, 10)
+top_rules = filtered_rules.head(top_n)
+
+# Display table
+st.dataframe(top_rules[["rule", "support", "confidence", "lift"]].reset_index(drop=True), use_container_width=True)
+
+st.markdown("---")
+
+st.subheader("💡 Rule-Based Product Recommendations")
+
+# Flatten antecedents and consequents to extract unique items
+unique_items = sorted(set(
+    item for subset in rules_df['antecedents'] for item in subset
+))
+
+selected_product = st.selectbox("Select a Product", unique_items)
+
+# Find rules where selected product is in antecedents
+reco_rules = rules_df[rules_df['antecedents'].apply(lambda x: selected_product in x)]
+
+if not reco_rules.empty:
+    reco_rules_display = reco_rules[["consequents", "confidence", "lift"]].copy()
+    reco_rules_display["consequents"] = reco_rules_display["consequents"].apply(lambda x: ', '.join(x))
+    st.write(f"📦 Products often bought with **{selected_product}**:")
+    st.dataframe(reco_rules_display.reset_index(drop=True), use_container_width=True)
+else:
+    st.info("No association rules found for this product.")
