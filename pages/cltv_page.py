@@ -44,6 +44,34 @@ fig = px.histogram(
 )
 st.plotly_chart(fig)
 
+import plotly.express as px
+
+
+fig = px.box(
+    cltv_pd,
+    x="CLTV_new_Segment",
+    y="normalized_cltv",
+    color="CLTV_new_Segment",
+    title="📦 CLTV Distribution by Segment",
+    labels={"normalized_cltv": "Normalized CLTV", "CLTV_new_Segment": "CLTV Segment"},
+    points="all",  # Show all individual points (optional)
+    template="plotly_white"
+)
+st.plotly_chart(fig, use_container_width=True)
+
+fig = px.violin(
+    df,
+    x="CLTV_new_Segment",
+    y="normalized_cltv",
+    color="CLTV_new_Segment",
+    box=True,  # show box inside
+    points="all",
+    title="📦 CLTV Distribution by Segment (Violin Plot)",
+    labels={"normalized_cltv": "Normalized CLTV", "CLTV_new_Segment": "CLTV Segment"},
+    template="plotly_white"
+)
+st.plotly_chart(fig, use_container_width=True)
+
 # Lifetimes Modeling
 st.subheader("🧪 BG/NBD + Gamma-Gamma CLTV Modeling")
 summary_df = model_cltv_lifetimes(orders_df)
