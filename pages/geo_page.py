@@ -134,8 +134,20 @@ pca_result = pca.fit_transform(scaled)
 cluster_df["pca1"] = pca_result[:, 0]
 cluster_df["pca2"] = pca_result[:, 1]
 
+# Summary statistics for each cluster
+cluster_summary = cluster_df.groupby("cluster")[["num_orders", "recency_days", "avg_order_value", "purchase_span_days"]].mean().round(2)
+st.dataframe(cluster_summary)
+
+cluster_labels = {
+    0: "Loyal High Spenders",
+    1: "Occasional Buyers",
+    2: "Inactive Low Spenders",
+    3: "New Customers"
+}
+cluster_df["segment"] = cluster_df["cluster"].map(cluster_labels)
+
 fig5 = px.scatter(
-    cluster_df, x="pca1", y="pca2", color="cluster",
+    cluster_df, x="pca1", y="pca2", color="segment",
     title="Customer Segments (PCA Projection)",
     hover_data=["num_orders", "avg_order_value", "recency_days"]
 )
