@@ -1,18 +1,10 @@
-import sys
-import os
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../../')))
-
-from Scripts.config import setup_environment
-setup_environment()
 # mba_app.py
 import streamlit as st
 import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
-from pyspark.sql.functions import collect_set, size
-from pyspark.ml.fpm import FPGrowth
 import networkx as nx
-from pyspark.sql import SparkSession
+from mlxtend.frequent_patterns import apriori, association_rules
 from analysis.Preprocessing import full_orders
 from analysis.cltv import summary
 
@@ -20,82 +12,86 @@ from analysis.cltv import summary
 st.set_page_config(page_title="Market Basket Analysis", layout="wide")
 st.title("🛒 Market Basket Analysis (MBA)")
 
-# Prepare Spark and data
-spark = SparkSession.builder.getOrCreate()
-summary_spark = spark.createDataFrame(summary)
+# Prepare Data
+transactions_df = full_orders.groupby(['order_id', 'customer_unique_id'])['product_category'] \
+    .apply(set).reset_index().rename(columns={'product_category': 'items'})
 
-transactions_df = full_orders.groupBy("order_id", "customer_unique_id") \
-    .agg(collect_set("product_category").alias("items"))
-
-segmented_txns = transactions_df.join(
-    summary_spark.select("customer_unique_id", "cltv_segment"),
-    on="customer_unique_id",
-    how="inner"
+segmented_txns = pd.merge(
+    transactions_df,
+    summary[['customer_unique_id', 'cltv_segment']],
+    on='customer_unique_id',
+    how='inner'
 )
 
-segments = segmented_txns.select("cltv_segment").distinct().rdd.flatMap(lambda x: x).collect()
-selected_segment = st.selectbox("Select CLTV Segment", segments)
+segments = segmented_txns['cltv_segment'].dropna().unique()
+selected_segment = st.selectbox("Select CLTV Segment", sorted(segments))
 
 # MBA for selected segment
-segment_df = segmented_txns.filter(segmented_txns["cltv_segment"] == selected_segment)
-multi_item_txns = segment_df.filter(size("items") > 1)
+segment_df = segmented_txns[segmented_txns['cltv_segment'] == selected_segment]
+multi_item_txns = segment_df[segment_df['items'].apply(lambda x: len(x) > 1)]
 
-if multi_item_txns.count() > 0:
-    fp_growth = FPGrowth(itemsCol="items", minSupport=0.001, minConfidence=0.1)
-    model = fp_growth.fit(multi_item_txns)
-    rules = model.associationRules.orderBy("lift", ascending=False)
-    rules_df = rules.toPandas()
+if not multi_item_txns.empty:
+    # One-hot encode for apriori
+    itemsets = multi_item_txns['items'].apply(lambda x: pd.Series(1, index=x))
+    itemsets = itemsets.fillna(0).astype(int)
 
-    rules_df["rule"] = rules_df["antecedent"].astype(str) + " → " + rules_df["consequent"].astype(str)
+    frequent_itemsets = apriori(itemsets, min_support=0.001, use_colnames=True)
+    rules_df = association_rules(frequent_itemsets, metric="lift", min_threshold=1.0)
+    rules_df = rules_df.sort_values("lift", ascending=False)
 
-    # Visuals
-    st.subheader(f"Association Rules for {selected_segment}")
-    fig1 = px.scatter(
-        rules_df,
-        x="support",
-        y="confidence",
-        size="lift",
-        color="lift",
-        hover_name="rule",
-        title=f"Rules Scatter Plot ({selected_segment})",
-        labels={"support": "Support", "confidence": "Confidence", "lift": "Lift"}
-    )
-    st.plotly_chart(fig1, use_container_width=True)
+    if not rules_df.empty:
+        rules_df["rule"] = rules_df["antecedents"].apply(lambda x: ', '.join(x)) + \
+                            " → " + rules_df["consequents"].apply(lambda x: ', '.join(x))
 
-    st.subheader("Network Graph of Rules")
-    rules_df["antecedent"] = rules_df["antecedent"].apply(lambda x: ", ".join(x))
-    rules_df["consequent"] = rules_df["consequent"].apply(lambda x: ", ".join(x))
+        # Visuals
+        st.subheader(f"Association Rules for {selected_segment}")
+        fig1 = px.scatter(
+            rules_df,
+            x="support",
+            y="confidence",
+            size="lift",
+            color="lift",
+            hover_name="rule",
+            title=f"Rules Scatter Plot ({selected_segment})",
+            labels={"support": "Support", "confidence": "Confidence", "lift": "Lift"}
+        )
+        st.plotly_chart(fig1, use_container_width=True)
 
-    G = nx.DiGraph()
-    for _, row in rules_df.iterrows():
-        G.add_edge(row["antecedent"], row["consequent"], weight=row["lift"])
+        st.subheader("Network Graph of Rules")
 
-    pos = nx.spring_layout(G, seed=42)
-    edge_x, edge_y, node_x, node_y = [], [], [], []
-    for edge in G.edges():
-        x0, y0 = pos[edge[0]]
-        x1, y1 = pos[edge[1]]
-        edge_x.extend([x0, x1, None])
-        edge_y.extend([y0, y1, None])
-    for node in G.nodes():
-        x, y = pos[node]
-        node_x.append(x)
-        node_y.append(y)
+        G = nx.DiGraph()
+        for _, row in rules_df.iterrows():
+            G.add_edge(', '.join(row["antecedents"]), ', '.join(row["consequents"]), weight=row["lift"])
 
-    edge_trace = go.Scatter(x=edge_x, y=edge_y, mode='lines', line=dict(width=1, color='#888'), hoverinfo='none')
-    node_trace = go.Scatter(
-        x=node_x,
-        y=node_y,
-        mode='markers+text',
-        text=list(G.nodes()),
-        hoverinfo='text',
-        marker=dict(size=20, color='skyblue'),
-        textposition='top center'
-    )
+        pos = nx.spring_layout(G, seed=42)
+        edge_x, edge_y, node_x, node_y = [], [], [], []
+        for edge in G.edges():
+            x0, y0 = pos[edge[0]]
+            x1, y1 = pos[edge[1]]
+            edge_x.extend([x0, x1, None])
+            edge_y.extend([y0, y1, None])
+        for node in G.nodes():
+            x, y = pos[node]
+            node_x.append(x)
+            node_y.append(y)
 
-    fig2 = go.Figure(data=[edge_trace, node_trace],
-                     layout=go.Layout(title='Association Rules Network', showlegend=False,
-                                      margin=dict(b=20, l=5, r=5, t=40)))
-    st.plotly_chart(fig2, use_container_width=True)
+        edge_trace = go.Scatter(x=edge_x, y=edge_y, mode='lines', line=dict(width=1, color='#888'), hoverinfo='none')
+        node_trace = go.Scatter(
+            x=node_x,
+            y=node_y,
+            mode='markers+text',
+            text=list(G.nodes()),
+            hoverinfo='text',
+            marker=dict(size=20, color='skyblue'),
+            textposition='top center'
+        )
+
+        fig2 = go.Figure(data=[edge_trace, node_trace],
+                         layout=go.Layout(title='Association Rules Network', showlegend=False,
+                                          margin=dict(b=20, l=5, r=5, t=40)))
+        st.plotly_chart(fig2, use_container_width=True)
+    else:
+        st.warning("No valid association rules found for this segment.")
 else:
     st.warning("Not enough multi-item transactions in this segment.")
+
