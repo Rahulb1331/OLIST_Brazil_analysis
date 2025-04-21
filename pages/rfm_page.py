@@ -104,14 +104,21 @@ product_pref = (
     .sort_values("count", ascending=False)
 )
 
+# Dropdown to select group
+available_groups = sorted(product_pref['CustomerGroup'].unique())
+selected_group = st.selectbox("Select Customer Group", available_groups)
+
+# Filter data based on selection
+filtered_pref = product_pref[product_pref["CustomerGroup"] == selected_group]
+
+# Plot
 fig_products = px.bar(
-    product_pref,
+    filtered_pref,
     x="product_category",
     y="count",
-    color="CustomerGroup",
-    barmode="group",
-    title="Top Product Categories by Customer Group",
+    color="product_category",
+    title=f"Top Product Categories - {selected_group} Customers",
     template="plotly_white"
 )
-fig_products.update_layout(xaxis_tickangle=-45)
-st.plotly_chart(fig_products)
+fig_products.update_layout(xaxis_tickangle=-45, showlegend=False)
+st.plotly_chart(fig_products, use_container_width=True)
