@@ -1,5 +1,4 @@
 import streamlit as st
-from pyspark.sql.functions import to_date, date_format, sum as _sum, countDistinct, month
 from analysis.Preprocessing import full_orders
 import pandas as pd
 import calendar
@@ -11,28 +10,23 @@ st.set_page_config(page_title="📈 Time Series Dashboard", layout="wide")
 st.title("📈 Time Series Analysis Dashboard")
 
 # Preprocess Spark DataFrame
-full_orders_with_month = full_orders.withColumn("order_month", date_format("order_purchase_timestamp", "yyyy-MM"))
+full_orders["order_purchase_timestamp"] = pd.to_datetime(full_orders["order_purchase_timestamp"])
+# Create month column
+full_orders["order_month"] = full_orders["order_purchase_timestamp"].dt.to_period("M").astype(str)
+
 
 # Aggregate Revenue & Orders
-monthly_revenue = full_orders_with_month.groupBy("order_month").agg(
-    _sum("price").alias("total_revenue")
-).orderBy("order_month").filter("total_revenue > 100000")
+monthly_revenue_pd = full_orders.groupby("order_month")["price"].sum().reset_index(name="total_revenue")
+monthly_revenue_pd = monthly_revenue_pd[monthly_revenue_pd["total_revenue"] > 100000]
 
-monthly_orders = full_orders_with_month.groupBy("order_month").agg(
-    countDistinct("order_id").alias("order_count")
-).orderBy("order_month").filter("order_count > 500")
-
-# Convert to Pandas
-monthly_revenue_pd = monthly_revenue.toPandas()
-monthly_orders_pd = monthly_orders.toPandas()
+monthly_orders_pd = full_orders.groupby("order_month")["order_id"].nunique().reset_index(name="order_count")
+monthly_orders_pd = monthly_orders_pd[monthly_orders_pd["order_count"] > 500]
 
 # Calendar month revenue & orders (seasonality)
-season_df = full_orders.withColumn("month", month("order_purchase_timestamp"))
-monthly_avg_revenue = season_df.groupBy("month").agg(_sum("price").alias("total_revenue")).orderBy("month")
-monthly_avg_orders = season_df.groupBy("month").agg(countDistinct("order_id").alias("order_count")).orderBy("month")
+full_orders["month"] = full_orders["order_purchase_timestamp"].dt.month
 
-monthly_avg_revenue_pd = monthly_avg_revenue.toPandas()
-monthly_avg_orders_pd = monthly_avg_orders.toPandas()
+monthly_avg_revenue_pd = full_orders.groupby("month")["price"].sum().reset_index(name="total_revenue")
+monthly_avg_orders_pd = full_orders.groupby("month")["order_id"].nunique().reset_index(name="order_count")
 
 monthly_avg_revenue_pd["month"] = monthly_avg_revenue_pd["month"].apply(lambda x: calendar.month_abbr[x])
 monthly_avg_orders_pd["month"] = monthly_avg_orders_pd["month"].apply(lambda x: calendar.month_abbr[x])
