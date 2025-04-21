@@ -44,7 +44,7 @@ if not st.session_state.log_applied:
 
 # Apply transformation
 if st.session_state.log_applied:
-    cltv_pd['cltv_transformed'] = np.log1p(cltv_pd['cltv_normalized'])
+    cltv_pd['cltv_transformed'] = np.log1p(cltv_pd['cltv_normalized'] * 1000)
     title_suffix = "(Log Scale)"
 else:
     cltv_pd['cltv_transformed'] = cltv_pd['cltv_normalized']
