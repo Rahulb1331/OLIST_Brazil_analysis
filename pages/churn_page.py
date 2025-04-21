@@ -23,9 +23,9 @@ st.header("📦 Data Preparation")
 # Ensure datetime type
 full_orders["order_purchase_timestamp"] = pd.to_datetime(full_orders["order_purchase_timestamp"])
 
-# Define cutoff date: 120 days before max date
+# Define cutoff date: 150 days before max date
 max_date = full_orders["order_purchase_timestamp"].max()
-cutoff_date = max_date - timedelta(days=120)
+cutoff_date = max_date - timedelta(days=150)
 
 # Filter transactions up to the cutoff date for feature engineering
 filtered_orders = full_orders[full_orders["order_purchase_timestamp"] <= cutoff_date]
