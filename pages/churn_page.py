@@ -43,6 +43,8 @@ last_purchase_df["churned"] = last_purchase_df["churned"].astype(int)
 churn_features_df = pd.merge(last_purchase_df, summary, on="customer_unique_id", how="inner")
 # Date calculations
 churn_features_df["days_since_last_purchase"] = (max_date - churn_features_df["last_purchase"]).dt.days
+st.write("Total rows in final training set:", churn_features_df.shape[0])
+st.write("Class distribution:", churn_features_df['churned'].value_counts())
 
 
 # Encode cltv_segment
