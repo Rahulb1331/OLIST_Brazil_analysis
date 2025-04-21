@@ -2,7 +2,7 @@ import streamlit as st
 import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
-from datetime import datetime
+from datetime import datetime, timedelta
 
 from sklearn.model_selection import train_test_split, cross_val_score
 from sklearn.ensemble import RandomForestClassifier
@@ -23,29 +23,35 @@ st.header("📦 Data Preparation")
 # Ensure datetime type
 full_orders["order_purchase_timestamp"] = pd.to_datetime(full_orders["order_purchase_timestamp"])
 
-# Max and min purchase dates
+# Define cutoff date: 120 days before max date
 max_date = full_orders["order_purchase_timestamp"].max()
-min_date = full_orders["order_purchase_timestamp"].min()
+cutoff_date = max_date - timedelta(days=120)
 
-# Last purchase per customer
+# Filter transactions up to the cutoff date for feature engineering
+filtered_orders = full_orders[full_orders["order_purchase_timestamp"] <= cutoff_date]
+
+# Last purchase per customer (before cutoff)
 last_purchase_df = (
-    full_orders.groupby("customer_unique_id")["order_purchase_timestamp"]
+    filtered_orders.groupby("customer_unique_id")["order_purchase_timestamp"]
     .max()
     .reset_index()
     .rename(columns={"order_purchase_timestamp": "last_purchase"})
 )
 
-# Churn label: 1 if no purchase in last 120 days
-last_purchase_df["churned"] = (max_date - last_purchase_df["last_purchase"]).dt.days > 120
-last_purchase_df["churned"] = last_purchase_df["churned"].astype(int)
+# Churn label: did NOT purchase in the 120 days *after* cutoff
+future_orders = full_orders[full_orders["order_purchase_timestamp"] > cutoff_date]
+churned_customers = set(last_purchase_df["customer_unique_id"]) - set(future_orders["customer_unique_id"])
+last_purchase_df["churned"] = last_purchase_df["customer_unique_id"].isin(churned_customers).astype(int)
 
 # Join churn labels with CLTV summary
 churn_features_df = pd.merge(last_purchase_df, summary, on="customer_unique_id", how="inner")
-# Date calculations
-churn_features_df["days_since_last_purchase"] = (max_date - churn_features_df["last_purchase"]).dt.days
-st.write("Total rows in final training set:", churn_features_df.shape[0])
-st.write("Class distribution:", churn_features_df['churned'].value_counts())
 
+# Calculate recency (relative to cutoff)
+churn_features_df["days_since_last_purchase"] = (cutoff_date - churn_features_df["last_purchase"]).dt.days
+
+# EDA summary
+st.write("Total rows in final training set:", churn_features_df.shape[0])
+st.write("Class distribution:", churn_features_df["churned"].value_counts())
 
 # Encode cltv_segment
 le = LabelEncoder()
