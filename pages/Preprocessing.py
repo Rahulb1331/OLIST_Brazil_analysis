@@ -3,6 +3,8 @@ import numpy as np
 from datetime import datetime
 import streamlit as st
 
+st.title("Preprocessed Datasets")
+
 # Helper to convert Google Drive links to direct download URLs
 def gdrive_to_direct_link(url):
     file_id = url.split("/d/")[1].split("/")[0]
@@ -89,7 +91,12 @@ orders_items_merged = orders_with_customers.merge(order_items, on="order_id", ho
 full_orders = orders_items_merged.merge(products, on="product_id", how="left")
 full_orders = full_orders.merge(order_payments, on="order_id", how="left")
 
-st.dataframe(full_orders)
+st.dataframe(full_orders.head(10))
+st.dataframe(geolocation.head(10))
+st.dataframe(order_reviews.head(10))
+st.dataframe(sellers.head(10))
+st.dataframe(order_items.head(10))
+
 
 # caching using a lightweight decorator 
 @st.cache_data
