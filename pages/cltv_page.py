@@ -60,7 +60,7 @@ fig = px.box(
 st.plotly_chart(fig, use_container_width=True)
 
 fig = px.violin(
-    df,
+    cltv_pd,
     x="CLTV_new_Segment",
     y="cltv_normalized",
     color="CLTV_new_Segment",
