@@ -24,6 +24,10 @@ monthly_revenue_pd = monthly_revenue_pd[monthly_revenue_pd["total_revenue"] > 10
 monthly_orders_pd = full_orders.groupby("order_month")["order_id"].nunique().reset_index(name="order_count")
 monthly_orders_pd = monthly_orders_pd[monthly_orders_pd["order_count"] > 500]
 
+# Rolling Averages
+monthly_revenue_pd["rolling_3mo"] = monthly_revenue_pd["total_revenue"].rolling(3).mean()
+monthly_orders_pd["rolling_3mo"] = monthly_orders_pd["order_count"].rolling(3).mean()
+
 # Calendar month revenue & orders (seasonality)
 full_orders["month"] = full_orders["order_purchase_timestamp"].dt.month
 
@@ -45,10 +49,10 @@ with tab1:
         fig = px.line(
             monthly_revenue_pd,
             x="order_month",
-            y="total_revenue",
-            title="📈 Monthly Revenue",
+            y=["total_revenue", "rolling_3mo"],
+            title="📈 Monthly Revenue (with 3-mo Rolling Avg)",
             markers=True,
-            labels={"order_month": "Month", "total_revenue": "Revenue"}
+            labels={"order_month": "Month", "value": "Revenue", "variable": "Legend"}
         )
         fig.update_layout(template="plotly_white")
         st.plotly_chart(fig, use_container_width=True)
@@ -57,10 +61,10 @@ with tab1:
         fig = px.line(
             monthly_orders_pd,
             x="order_month",
-            y="order_count",
-            title="🛒 Monthly Order Count",
+            y=["order_count", "rolling_3mo"],
+            title="🛒 Monthly Order Count (with 3-mo Rolling Avg)",
             markers=True,
-            labels={"order_month": "Month", "order_count": "Orders"}
+            labels={"order_month": "Month", "value": "Orders", "variable": "Legend"}
         )
         fig.update_layout(template="plotly_white")
         st.plotly_chart(fig, use_container_width=True)
