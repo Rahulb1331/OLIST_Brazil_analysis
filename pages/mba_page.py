@@ -131,7 +131,7 @@ filtered_rules = rules_df[
 ]
 
 # Top N selector
-top_n = st.slider("Show Top N Rules", 5, 50, 10)
+top_n = st.slider("Show Top N Rules", 5, 25, 10)
 top_rules = filtered_rules.head(top_n)
 
 # Display table
