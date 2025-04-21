@@ -33,10 +33,22 @@ multi_item_txns = segment_df[segment_df['items'].apply(lambda x: len(x) > 1)]
 
 if not multi_item_txns.empty:
     # One-hot encode for apriori
+    #mlb = MultiLabelBinarizer()
+    # Clean items: convert to string, drop NaNs, and sort
+    cleaned_items = multi_item_txns['items'].apply(
+        lambda items: sorted([str(i) for i in items if pd.notnull(i)])
+    )
+
     mlb = MultiLabelBinarizer()
-    itemsets = pd.DataFrame(mlb.fit_transform(multi_item_txns['items']),
-                            columns=mlb.classes_,
-                            index=multi_item_txns.index).astype(bool)
+    itemsets = pd.DataFrame(
+        mlb.fit_transform(cleaned_items),
+        columns=mlb.classes_,
+        index=multi_item_txns.index
+    ).astype(bool)
+    
+    #itemsets = pd.DataFrame(mlb.fit_transform(multi_item_txns['items']),
+     #                       columns=mlb.classes_,
+      #                      index=multi_item_txns.index).astype(bool)
 
     frequent_itemsets = apriori(itemsets, min_support=0.001, use_colnames=True)
     rules_df = association_rules(frequent_itemsets, metric="lift", min_threshold=1.0)
