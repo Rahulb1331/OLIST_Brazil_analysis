@@ -35,8 +35,8 @@ last_purchase_df = (
     .rename(columns={"order_purchase_timestamp": "last_purchase"})
 )
 
-# Churn label: 1 if no purchase in last 180 days
-last_purchase_df["churned"] = (max_date - last_purchase_df["last_purchase"]).dt.days > 180
+# Churn label: 1 if no purchase in last 60 days
+last_purchase_df["churned"] = (max_date - last_purchase_df["last_purchase"]).dt.days > 60
 last_purchase_df["churned"] = last_purchase_df["churned"].astype(int)
 
 # Join churn labels with CLTV summary
