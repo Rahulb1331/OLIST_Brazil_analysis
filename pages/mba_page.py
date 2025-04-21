@@ -5,6 +5,7 @@ import plotly.express as px
 import plotly.graph_objects as go
 import networkx as nx
 from mlxtend.frequent_patterns import apriori, association_rules
+from sklearn.preprocessing import MultiLabelBinarizer
 from analysis.Preprocessing import full_orders
 from analysis.cltv import summary
 
@@ -32,8 +33,10 @@ multi_item_txns = segment_df[segment_df['items'].apply(lambda x: len(x) > 1)]
 
 if not multi_item_txns.empty:
     # One-hot encode for apriori
-    itemsets = multi_item_txns['items'].apply(lambda x: pd.Series(1, index=x))
-    itemsets = itemsets.fillna(0).astype(int)
+    mlb = MultiLabelBinarizer()
+    itemsets = pd.DataFrame(mlb.fit_transform(multi_item_txns['items']),
+                            columns=mlb.classes_,
+                            index=multi_item_txns.index).astype(bool)
 
     frequent_itemsets = apriori(itemsets, min_support=0.001, use_colnames=True)
     rules_df = association_rules(frequent_itemsets, metric="lift", min_threshold=1.0)
