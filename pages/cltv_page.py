@@ -50,7 +50,7 @@ import plotly.express as px
 fig = px.box(
     cltv_pd,
     x="CLTV_new_Segment",
-    y="normalized_cltv",
+    y="cltv_normalized",
     color="CLTV_new_Segment",
     title="📦 CLTV Distribution by Segment",
     labels={"normalized_cltv": "Normalized CLTV", "CLTV_new_Segment": "CLTV Segment"},
@@ -62,7 +62,7 @@ st.plotly_chart(fig, use_container_width=True)
 fig = px.violin(
     df,
     x="CLTV_new_Segment",
-    y="normalized_cltv",
+    y="cltv_normalized",
     color="CLTV_new_Segment",
     box=True,  # show box inside
     points="all",
