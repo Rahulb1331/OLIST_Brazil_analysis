@@ -2,15 +2,15 @@ import streamlit as st
 import pandas as pd
 import numpy as np
 import plotly.express as px
+
+# Setup Streamlit
+st.set_page_config(page_title="Review Sentiment Analysis", layout="wide")
+st.title("📊 Review Sentiment Dashboard")
 @st.cache_data
 def load_data():
     from analysis.Preprocessing import full_orders, order_reviews
     return full_orders, order_reviews
 full_orders, order_reviews = load_data()
-
-# Setup Streamlit
-st.set_page_config(page_title="Review Sentiment Analysis", layout="wide")
-st.title("📊 Review Sentiment Dashboard")
 
 # Join data
 orders_with_reviews = pd.merge(full_orders, order_reviews, on="order_id", how="inner")
