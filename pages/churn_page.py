@@ -18,7 +18,7 @@ def load_data():
 
 full_orders, summary = load_data() 
 # Streamlit setup
-st.set_page_config(page_title="Customer Churn Prediction", layout="wide")
+#st.set_page_config(page_title="Customer Churn Prediction", layout="wide")
 st.title("🔁 Customer Churn Prediction Dashboard")
 
 # --- Data Preparation ---
