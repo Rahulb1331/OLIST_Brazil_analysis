@@ -38,7 +38,7 @@ last_purchase_df = (
     .rename(columns={"order_purchase_timestamp": "last_purchase"})
 )
 
-# Churn label: did NOT purchase in the 120 days *after* cutoff
+# Churn label: did NOT purchase in the 180 days *after* cutoff
 future_orders = full_orders[full_orders["order_purchase_timestamp"] > cutoff_date]
 churned_customers = set(last_purchase_df["customer_unique_id"]) - set(future_orders["customer_unique_id"])
 last_purchase_df["churned"] = last_purchase_df["customer_unique_id"].isin(churned_customers).astype(int)
