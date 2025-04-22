@@ -1,5 +1,4 @@
 import streamlit as st
-from analysis.Preprocessing import full_orders
 import pandas as pd
 import calendar
 from prophet import Prophet
@@ -7,7 +6,11 @@ import plotly.express as px
 from sklearn.metrics import mean_absolute_error, mean_squared_error
 import plotly.graph_objects as go
 import numpy as np
-
+@st.cache_data
+def load_data():
+    from analysis.Preprocessing import full_orders
+    return full_orders
+full_orders = load_data()
 st.set_page_config(page_title="📈 Time Series Dashboard", layout="wide")
 st.title("📈 Time Series Analysis Dashboard")
 
@@ -18,9 +21,11 @@ full_orders["order_month"] = full_orders["order_purchase_timestamp"].dt.to_perio
 
 
 # Aggregate Revenue & Orders
+@st.cache_data
 monthly_revenue_pd = full_orders.groupby("order_month")["price"].sum().reset_index(name="total_revenue")
 monthly_revenue_pd = monthly_revenue_pd[monthly_revenue_pd["total_revenue"] > 100000]
 
+@st.cache_data
 monthly_orders_pd = full_orders.groupby("order_month")["order_id"].nunique().reset_index(name="order_count")
 monthly_orders_pd = monthly_orders_pd[monthly_orders_pd["order_count"] > 500]
 
@@ -31,7 +36,9 @@ monthly_orders_pd["rolling_3mo"] = monthly_orders_pd["order_count"].rolling(3).m
 # Calendar month revenue & orders (seasonality)
 full_orders["month"] = full_orders["order_purchase_timestamp"].dt.month
 
+@st.cache_data
 monthly_avg_revenue_pd = full_orders.groupby("month")["price"].sum().reset_index(name="total_revenue")
+@st.cache_data
 monthly_avg_orders_pd = full_orders.groupby("month")["order_id"].nunique().reset_index(name="order_count")
 
 monthly_avg_revenue_pd["month"] = monthly_avg_revenue_pd["month"].apply(lambda x: calendar.month_abbr[x])
@@ -172,6 +179,7 @@ with tab4:
     selected_cat = st.selectbox("Select Product Category", categories)
 
     cat_df = full_orders[full_orders['product_category'] == selected_cat]
+    @st.cache_data
     cat_monthly = cat_df.groupby(cat_df['order_purchase_timestamp'].dt.to_period("M").astype(str))["price"].sum().reset_index()
     fig_cat = px.line(cat_monthly, x="order_purchase_timestamp", y="price", title=f"Revenue Trend: {selected_cat}",
                       labels={"order_purchase_timestamp": "Month", "price": "Revenue"})
