@@ -31,6 +31,7 @@ cutoff_date = max_date - timedelta(days=180)
 filtered_orders = full_orders[full_orders["order_purchase_timestamp"] <= cutoff_date]
 
 # Last purchase per customer (before cutoff)
+@st.cache_data
 last_purchase_df = (
     filtered_orders.groupby("customer_unique_id")["order_purchase_timestamp"]
     .max()
