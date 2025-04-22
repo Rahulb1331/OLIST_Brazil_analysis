@@ -11,6 +11,7 @@ import plotly.express as px
 st.title("💸 Customer Lifetime Value (CLTV) Analysis")
 
 # Load Data
+@st.cache_data
 orders_df = full_orders
 rfm_df = run_rfm_analysis(orders_df)
 
@@ -23,6 +24,7 @@ cltv_df = run_cltv_analysis(orders_df)
 cltv_df = enrich_cltv_with_segments(cltv_df)
 
 # Join with RFM
+@st.cache_data
 rfm_cltv_df = pd.merge(
     rfm_df,
     cltv_df[["customer_unique_id", "better_cltv", "cltv_normalized", "CLTV_new_Segment"]],
