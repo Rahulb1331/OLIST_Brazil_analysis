@@ -45,7 +45,6 @@ rfm_df['CustomerGroup'] = rfm_df['RFM_Score'].apply(
     lambda x: 'High-value' if int(x) >= 444 else ('Medium-value' if int(x) >= 222 else 'Low-value')
 )
 
-@st.cache_data
 rfm_summary = rfm_df.groupby("CustomerGroup").agg({
     "Recency": "mean",
     "Frequency": "mean",
@@ -68,7 +67,6 @@ fig1 = px.bar(
 st.plotly_chart(fig1)
 
 # --- Advanced Tagging ---
-@st.cache_data
 rfm_df['BehaviorSegment'] = rfm_df.apply(lambda row:
     "Champions" if row['R'] == 4 and row['F'] == 4 and row['M'] == 4 else
     "Loyal Customers" if row['R'] >= 3 and row['F'] >= 3 else
@@ -105,9 +103,7 @@ st.plotly_chart(plot_heatmap(rfm_pd, "M", "F", "Monetary vs Frequency", "Frequen
 
 # --- Product Preferences ---
 st.subheader("🛍️ Top Products by Customer Group")
-@st.cache_data
 rfm_orders = full_orders.merge(rfm_df[['customer_unique_id', 'CustomerGroup']], on='customer_unique_id', how='inner')
-@st.cache_data
 product_pref = (
     rfm_orders.groupby(["CustomerGroup", "product_category"]).size().reset_index(name='count')
     .sort_values("count", ascending=False)
