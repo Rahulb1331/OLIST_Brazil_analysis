@@ -39,7 +39,6 @@ def run_rfm_analysis(df):
     return rfm
 
 # --- Main RFM Execution ---
-@st.cache_data
 rfm_df = run_rfm_analysis(full_orders)
 
 rfm_df['CustomerGroup'] = rfm_df['RFM_Score'].apply(
