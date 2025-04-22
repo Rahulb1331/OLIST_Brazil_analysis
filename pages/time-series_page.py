@@ -10,6 +10,9 @@ import numpy as np
 st.set_page_config(page_title="📈 Time Series Dashboard", layout="wide")
 st.title("📈 Time Series Analysis Dashboard")
 
+from sidebar import render_sidebar
+render_sidebar()
+
 @st.cache_data
 def load_data():
     from analysis.Preprocessing import full_orders
