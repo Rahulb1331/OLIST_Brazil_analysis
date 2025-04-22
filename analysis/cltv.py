@@ -1,9 +1,15 @@
 import pandas as pd
 import numpy as np
 import plotly.express as px
-from analysis.Preprocessing import full_orders
-from analysis.rfm import rfm_df
+import streamlit as st
+@st.cache_data
+def load_data():
+    from analysis.Preprocessing import full_orders
+    from analysis.rfm import rfm_df
+    return full_orders, rfm_df
+full_orders, rfm_df = load_data()
 
+@st.cache_data
 def run_cltv_analysis(full_orders_df):
     # Step 1: Aggregate order stats by customer
     customer_metrics = full_orders_df.groupby("customer_unique_id").agg(
@@ -314,7 +320,7 @@ fig = px.histogram(
 )
 fig.show()
 
-
+@st.cache_data
 def enrich_cltv_with_segments(cltv_df):
     min_cltv = cltv_df["cltv"].min()
     max_cltv = cltv_df["cltv"].max()
@@ -339,7 +345,7 @@ def enrich_cltv_with_segments(cltv_df):
 
     return cltv_df
 
-
+@st.cache_data
 def model_cltv_lifetimes(df):
     
     orders_pd = df[["customer_unique_id", "order_id", "order_purchase_timestamp", "payment_value"]].copy()
