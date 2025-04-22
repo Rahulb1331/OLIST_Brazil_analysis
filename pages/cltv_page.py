@@ -22,8 +22,15 @@ if 'log_applied' not in st.session_state:
     st.session_state.log_applied = False
 
 # Run CLTV analysis
-cltv_df = run_cltv_analysis(full_orders)
-cltv_df = enrich_cltv_with_segments(cltv_df)
+@st.cache_data
+def run_cltv():
+    return run_cltv_analysis(full_orders)
+cltv_dff = run_cltv()
+
+@st.cache_data()
+def enrich_cltv():
+    return enrich_cltv_with_segments(cltv_dff)
+cltv_df = enrich_cltv()
 
 # Join with RFM
 rfm_cltv_df = pd.merge(
@@ -96,7 +103,11 @@ st.plotly_chart(fig, use_container_width=True)
 
 # Lifetimes Modeling
 st.subheader("🧪 BG/NBD + Gamma-Gamma CLTV Modeling")
-summary_df = model_cltv_lifetimes(full_orders)
+@st.cache_data
+def model_cltv():
+    return model_cltv_lifetimes(full_orders)
+summary_df = model_cltv()
+
 st.write("Top Customers by Predicted CLTV")
 st.dataframe(summary_df[["customer_unique_id", "predicted_cltv"]].sort_values(by="predicted_cltv", ascending=False).head(10))
 
