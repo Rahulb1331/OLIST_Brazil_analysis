@@ -66,7 +66,7 @@ log_toggle = st.toggle("Apply Log Transformation", value=st.session_state.log_ap
 st.session_state.log_applied = log_toggle
 
 # --- Visualization Section ---
-#cltv_pd = rfm_cltv_df[["cltv_normalized", "CLTV_new_Segment"]].copy()
+cltv_pd = rfm_cltv_df[["cltv_normalized", "CLTV_new_Segment"]].copy()
 #cltv_pd['cltv_transformed'] = np.log1p(cltv_pd['cltv_normalized'] * 1000) if st.session_state.log_applied else cltv_pd['cltv_normalized']
 #title_suffix = "(Log Scale)" if st.session_state.log_applied else "(Raw Scale)"
 
