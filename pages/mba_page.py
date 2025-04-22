@@ -6,17 +6,24 @@ import plotly.graph_objects as go
 import networkx as nx
 from mlxtend.frequent_patterns import apriori, association_rules
 from sklearn.preprocessing import MultiLabelBinarizer
-from analysis.Preprocessing import full_orders
-from analysis.cltv import summary
+@st.cache_data
+def load_data():
+    from analysis.Preprocessing import full_orders
+    from analysis.cltv import summary
+    return full_orders, summary
+
+full_orders, summary = load_data()
 
 # Setup
 st.set_page_config(page_title="Market Basket Analysis", layout="wide")
 st.title("🛒 Market Basket Analysis (MBA)")
 
 # Prepare Data
+@st.cache_data
 transactions_df = full_orders.groupby(['order_id', 'customer_unique_id'])['product_category'] \
     .apply(set).reset_index().rename(columns={'product_category': 'items'})
 
+@st.cache_data
 segmented_txns = pd.merge(
     transactions_df,
     summary[['customer_unique_id', 'cltv_segment']],
@@ -40,6 +47,7 @@ if not multi_item_txns.empty:
     )
 
     mlb = MultiLabelBinarizer()
+    @st.cache_resource
     itemsets = pd.DataFrame(
         mlb.fit_transform(cleaned_items),
         columns=mlb.classes_,
