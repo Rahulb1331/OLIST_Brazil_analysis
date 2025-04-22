@@ -13,7 +13,6 @@ st.set_page_config(page_title="Review Sentiment Analysis", layout="wide")
 st.title("📊 Review Sentiment Dashboard")
 
 # Join data
-@st.cache_data
 orders_with_reviews = pd.merge(full_orders, order_reviews, on="order_id", how="inner")
 orders_with_reviews = orders_with_reviews[orders_with_reviews["seller_id"].notna()]
 
@@ -28,19 +27,16 @@ tab1, tab2, tab3, tab4 = st.tabs([
 with tab1:
     st.header("📦 Product & Seller Ratings")
 
-    @st.cache_data
     top_sellers = orders_with_reviews.groupby("seller_id").agg(
         num_reviews=pd.NamedAgg(column="review_score", aggfunc="count"),
         avg_rating=pd.NamedAgg(column="review_score", aggfunc="mean")
     ).sort_values(by=["avg_rating", "num_reviews"], ascending=[False, False]).head(10)
 
-    @st.cache_data
     top_products = orders_with_reviews.groupby("product_category").agg(
         num_reviews=pd.NamedAgg(column="review_score", aggfunc="count"),
         avg_rating=pd.NamedAgg(column="review_score", aggfunc="mean")
     ).sort_values(by=["avg_rating", "num_reviews"], ascending=[False, False]).head(10)
 
-    @st.cache_data
     worst_sellers = orders_with_reviews.groupby("seller_id").agg(
         num_reviews=pd.NamedAgg(column="review_score", aggfunc="count"),
         avg_rating=pd.NamedAgg(column="review_score", aggfunc="mean")
@@ -48,7 +44,6 @@ with tab1:
     worst_sellers = worst_sellers[worst_sellers["num_reviews"] >= 10]
     worst_sellers = worst_sellers.sort_values("avg_rating").head(10)
 
-    @st.cache_data
     worst_products = orders_with_reviews.groupby("product_category").agg(
         num_reviews=pd.NamedAgg(column="review_score", aggfunc="count"),
         avg_rating=pd.NamedAgg(column="review_score", aggfunc="mean")
@@ -82,7 +77,6 @@ with tab2:
                                               pd.to_datetime(orders_with_reviews["order_purchase_timestamp"]))
     orders_with_reviews["delivery_days"] = orders_with_reviews["delivery_days"].dt.days
     
-    @st.cache_data
     delivery_analysis = orders_with_reviews.groupby("review_score").agg(
         avg_delivery_days=pd.NamedAgg(column="delivery_days", aggfunc="mean"),
         num_orders=pd.NamedAgg(column="order_id", aggfunc="count")
@@ -96,7 +90,6 @@ with tab2:
 
     # Delay-based Worst Sellers
     st.subheader("Worst Sellers with Longest Delivery")
-    @st.cache_data
     seller_delay = orders_with_reviews.groupby("seller_id").agg(
         num_orders=pd.NamedAgg(column="order_id", aggfunc="count"),
         avg_rating=pd.NamedAgg(column="review_score", aggfunc="mean"),
@@ -111,7 +104,6 @@ with tab2:
 with tab3:
     st.header("🚚 Freight Charges vs Review Score")
 
-    @st.cache_data
     freight_reviews = orders_with_reviews.groupby("seller_id").agg(
         num_reviews=pd.NamedAgg(column="order_id", aggfunc="count"),
         avg_rating=pd.NamedAgg(column="review_score", aggfunc="mean"),
