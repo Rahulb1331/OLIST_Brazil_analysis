@@ -6,6 +6,10 @@ import plotly.express as px
 # Setup Streamlit
 st.set_page_config(page_title="Review Sentiment Analysis", layout="wide")
 st.title("📊 Review Sentiment Dashboard")
+
+from sidebar import render_sidebar
+render_sidebar()
+
 @st.cache_data
 def load_data():
     from analysis.Preprocessing import full_orders, order_reviews
