@@ -8,6 +8,9 @@ from sklearn.decomposition import PCA
 st.set_page_config(page_title="Geolocation & CLTV Dashboard", layout="wide")
 st.title("📍 Geolocation Insights & Customer Segmentation")
 
+from sidebar import render_sidebar
+render_sidebar()
+
 # --- Caching heavy data loads ---
 @st.cache_data
 def load_data():
