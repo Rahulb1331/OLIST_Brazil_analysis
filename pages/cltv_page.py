@@ -15,25 +15,15 @@ full_orders = load_data()
 st.title("💸 Customer Lifetime Value (CLTV) Analysis")
 
 # Load Data
-@st.cache_data
-def rfm_df():
-    return run_rfm_analysis(full_orders)
-rfm_df = rfm_df()
+rfm_df = run_rfm_analysis(full_orders)
 
 # Initialize session state
 if 'log_applied' not in st.session_state:
     st.session_state.log_applied = False
 
 # Run CLTV analysis
-@st.cache_data
-def run_cltv():
-    return run_cltv_analysis(full_orders)
-cltv_df = run_cltv()
-
-@st.cache_data
-def enrich_cltv():
-    return enrich_cltv_with_segments(cltv_df)
-cltv_df = enrich_cltv()
+cltv_df = run_cltv_analysis(full_orders)
+cltv_df = enrich_cltv_with_segments(cltv_df)
 
 # Join with RFM
 rfm_cltv_df = pd.merge(
@@ -106,10 +96,7 @@ st.plotly_chart(fig, use_container_width=True)
 
 # Lifetimes Modeling
 st.subheader("🧪 BG/NBD + Gamma-Gamma CLTV Modeling")
-@st.cache_data
-def model_cltv():
-    return model_cltv_lifetimes(full_orders)
-summary_df = model_cltv()
+summary_df = model_cltv_lifetimes(full_orders)
 st.write("Top Customers by Predicted CLTV")
 st.dataframe(summary_df[["customer_unique_id", "predicted_cltv"]].sort_values(by="predicted_cltv", ascending=False).head(10))
 
