@@ -13,6 +13,9 @@ from sklearn.metrics import classification_report, confusion_matrix, roc_curve, 
 st.set_page_config(page_title="Customer Churn Prediction", layout="wide")
 st.title("🔁 Customer Churn Prediction Dashboard")
 
+from sidebar import render_sidebar
+render_sidebar()
+
 # Spark & data imports
 @st.cache_data
 def load_data():
