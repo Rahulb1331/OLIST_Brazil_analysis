@@ -15,7 +15,10 @@ full_orders = load_data()
 st.title("💸 Customer Lifetime Value (CLTV) Analysis")
 
 # Load Data
-rfm_df = run_rfm_analysis(full_orders)
+@st.cache_data
+def run_rfm():
+    return run_rfm_analysis(full_orders)
+rfm_df = run_rfm()
 
 # Initialize session state
 if 'log_applied' not in st.session_state:
