@@ -34,23 +34,14 @@ for name, url in dataset_links.items():
         dfs[name] = pd.read_csv(direct_url)
 
 # Assign to variables
-@st.cache_data
 orders = dfs["olist_orders_dataset"]
-@st.cache_data
 customers = dfs["olist_customers_dataset"]
-@st.cache_data
 geolocation = dfs["olist_geolocation_dataset"]
-@st.cache_data
 product_category = dfs["product_category_name_translation"]
-@st.cache_data
 sellers = dfs["olist_sellers_dataset"]
-@st.cache_data
 products = dfs["olist_products_dataset"]
-@st.cache_data
 order_reviews = dfs["olist_order_reviews_dataset"]
-@st.cache_data
 order_payments = dfs["olist_order_payments_dataset"]
-@st.cache_data
 order_items = dfs["olist_order_items_dataset"]
 
 # --- Preprocessing Steps ---
@@ -65,7 +56,6 @@ order_reviews["review_score"] = order_reviews["review_score"].astype(int)
 order_reviews.dropna(subset=["review_score", "review_id"], inplace=True)
 
 # Merge product categories
-@st.cache_data
 products = products.merge(
     product_category,
     how="left",
@@ -96,13 +86,9 @@ order_reviews["review_sentiment"] = order_reviews["review_score"].apply(get_sent
 order_items = order_items[(order_items["price"] > 0) & (order_items["freight_value"] >= 0)]
 
 # Build full_orders
-@st.cache_data
 orders_with_customers = orders.merge(customers, on="customer_id", how="left")
-@st.cache_data
 orders_items_merged = orders_with_customers.merge(order_items, on="order_id", how="left")
-@st.cache_data
 full_orders = orders_items_merged.merge(products, on="product_id", how="left")
-@st.cache_data
 full_orders = full_orders.merge(order_payments, on="order_id", how="left")
 
 st.subheader("Full Orders dataset")
