@@ -45,7 +45,6 @@ if not multi_item_txns.empty:
     )
 
     mlb = MultiLabelBinarizer()
-    @st.cache_resource
     itemsets = pd.DataFrame(
         mlb.fit_transform(cleaned_items),
         columns=mlb.classes_,
