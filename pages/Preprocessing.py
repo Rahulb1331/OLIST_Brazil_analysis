@@ -2,6 +2,8 @@ import streamlit as st
 
 st.title("Preprocessed Datasets")
 
+from sidebar import render_sidebar
+render_sidebar()
 
 # caching using a lightweight decorator 
 # --- Cached loading functions ---
