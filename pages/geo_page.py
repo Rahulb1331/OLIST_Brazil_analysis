@@ -19,7 +19,6 @@ st.title("📍 Geolocation Insights & Customer Segmentation")
 
 # Merge with CLTV
 st.header("1. CLTV by State and City")
-@st.cache_data
 cltv_geo_df = pd.merge(
     full_orders,
     summary[["customer_unique_id", "predicted_cltv"]],
@@ -27,7 +26,6 @@ cltv_geo_df = pd.merge(
     how="inner"
 )
 
-@st.cache_data
 top_states_pd = cltv_geo_df.groupby("customer_state").agg(
     total_cltv=("predicted_cltv", "sum"),
     unique_customers=("customer_unique_id", pd.Series.nunique)
@@ -47,7 +45,6 @@ st.plotly_chart(fig1, use_container_width=True)
 # Revenue by region
 st.header("2. Revenue by State")
 
-@st.cache_data
 revenue_by_state_pd = full_orders.groupby("customer_state").agg(
     total_revenue=("payment_value", "sum"),
     total_orders=("order_id", pd.Series.nunique)
@@ -67,7 +64,6 @@ st.plotly_chart(fig2, use_container_width=True)
 # Geo Bubble Map
 st.header("3. Geo Revenue Bubble Map")
 
-@st.cache_data
 grouped_geo = geolocation.groupby("geolocation_zip_code_prefix").agg(
     lat=("geolocation_lat", "mean"),
     lon=("geolocation_lng", "mean"),
@@ -75,13 +71,11 @@ grouped_geo = geolocation.groupby("geolocation_zip_code_prefix").agg(
     state=("geolocation_state", "first")
 ).reset_index()
 
-@st.cache_data
 orders_by_zip = full_orders.groupby("customer_zip_code_prefix").agg(
     total_revenue=("payment_value", "sum"),
     total_orders=("order_id", "count")
 ).reset_index()
 
-@st.cache_data
 geo_pd = pd.merge(
     orders_by_zip,
     grouped_geo,
@@ -121,7 +115,6 @@ st.plotly_chart(fig4, use_container_width=True)
 # Customer Segmentation
 st.header("5. Customer Behavioral Clustering (KMeans + PCA)")
 
-@st.cache_data
 cluster_df = customer_features.copy()
 cluster_df['first_purchase'] = pd.to_datetime(cluster_df['first_purchase'])
 cluster_df['last_purchase'] = pd.to_datetime(cluster_df['last_purchase'])
