@@ -10,13 +10,11 @@ import plotly.express as px
 def load_data():
     from analysis.Preprocessing import full_orders
     return full_orders
-
 full_orders = load_data()
 
 st.title("💸 Customer Lifetime Value (CLTV) Analysis")
 
 # Load Data
-@st.cache_data
 orders_df = full_orders
 rfm_df = run_rfm_analysis(orders_df)
 
@@ -25,13 +23,10 @@ if 'log_applied' not in st.session_state:
     st.session_state.log_applied = False
 
 # Run CLTV analysis
-@st.cache_data
 cltv_df = run_cltv_analysis(orders_df)
-@st.cache_data
 cltv_df = enrich_cltv_with_segments(cltv_df)
 
 # Join with RFM
-@st.cache_data
 rfm_cltv_df = pd.merge(
     rfm_df,
     cltv_df[["customer_unique_id", "better_cltv", "cltv_normalized", "CLTV_new_Segment"]],
@@ -102,7 +97,6 @@ st.plotly_chart(fig, use_container_width=True)
 
 # Lifetimes Modeling
 st.subheader("🧪 BG/NBD + Gamma-Gamma CLTV Modeling")
-@st.cache_data
 summary_df = model_cltv_lifetimes(orders_df)
 st.write("Top Customers by Predicted CLTV")
 st.dataframe(summary_df[["customer_unique_id", "predicted_cltv"]].sort_values(by="predicted_cltv", ascending=False).head(10))
