@@ -5,17 +5,15 @@ from sklearn.preprocessing import StandardScaler
 from sklearn.cluster import KMeans
 from sklearn.decomposition import PCA
 
+st.set_page_config(page_title="Geolocation & CLTV Dashboard", layout="wide")
+st.title("📍 Geolocation Insights & Customer Segmentation")
 @st.cache_data
 def load_data():
     from analysis.Preprocessing import full_orders, geolocation
     from analysis.cltv import summary
     from analysis.Others import customer_features
     return full_orders, geolocation, summary, customer_features
-
 full_orders, geolocation, summary, customer_features = load_data()
-#st.set_page_config(page_title="Geolocation & CLTV Dashboard", layout="wide")
-
-st.title("📍 Geolocation Insights & Customer Segmentation")
 
 # Merge with CLTV
 st.header("1. CLTV by State and City")
