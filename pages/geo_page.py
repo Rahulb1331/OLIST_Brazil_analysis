@@ -13,7 +13,7 @@ def load_data():
     return full_orders, geolocation, summary, customer_features
 
 full_orders, geolocation, summary, customer_features = load_data()
-st.set_page_config(page_title="Geolocation & CLTV Dashboard", layout="wide")
+#st.set_page_config(page_title="Geolocation & CLTV Dashboard", layout="wide")
 
 st.title("📍 Geolocation Insights & Customer Segmentation")
 
