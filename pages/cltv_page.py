@@ -54,17 +54,28 @@ st.subheader("🔍 CLTV Segmentation")
 st.dataframe(cltv_df.head(10))
 
 # --- Log Transformation Toggle ---
-st.session_state.setdefault("log_applied", False)
+if 'log_applied' not in st.session_state:
+    st.session_state.log_applied = False
 
-if not st.session_state.log_applied:
-    if st.button("Apply Log Transformation"):
-        st.session_state.log_applied = True
-        st.success("Log transformation applied.")
+#if not st.session_state.log_applied:
+    #if st.button("Apply Log Transformation"):
+        #st.session_state.log_applied = True
+        #st.success("Log transformation applied.")
+
+log_toggle = st.toggle("Apply Log Transformation", value=st.session_state.log_applied)
+st.session_state.log_applied = log_toggle
 
 # --- Visualization Section ---
-cltv_pd = rfm_cltv_df[["cltv_normalized", "CLTV_new_Segment"]].copy()
-cltv_pd['cltv_transformed'] = np.log1p(cltv_pd['cltv_normalized'] * 1000) if st.session_state.log_applied else cltv_pd['cltv_normalized']
-title_suffix = "(Log Scale)" if st.session_state.log_applied else "(Raw Scale)"
+#cltv_pd = rfm_cltv_df[["cltv_normalized", "CLTV_new_Segment"]].copy()
+#cltv_pd['cltv_transformed'] = np.log1p(cltv_pd['cltv_normalized'] * 1000) if st.session_state.log_applied else cltv_pd['cltv_normalized']
+#title_suffix = "(Log Scale)" if st.session_state.log_applied else "(Raw Scale)"
+
+if st.session_state.log_applied:
+    cltv_pd['cltv_transformed'] = np.log1p(cltv_pd['cltv_normalized'] * 1000)
+    title_suffix = "(Log Scale)"
+else:
+    cltv_pd['cltv_transformed'] = cltv_pd['cltv_normalized']
+    title_suffix = "(Raw Scale)"
 
 with st.expander("🌍 CLTV Distribution Histogram"):
     fig = px.histogram(
