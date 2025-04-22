@@ -3,17 +3,18 @@ from datetime import timedelta
 import pandas as pd
 import plotly.express as px
 
+st.title("🧮 RFM Analysis - Customer Segmentation")
+
+# --- Load Raw Data ---
 @st.cache_data
 def load_data():
     from analysis.Preprocessing import full_orders
     return full_orders
-full_orders= load_data()
+full_orders = load_data()
 
-st.title("🧮 RFM Analysis - Customer Segmentation")
-
-# --- RFM Calculation Function ---
-@st.cache_resource
-def run_rfm_analysis(df):
+# --- RFM Calculation ---
+@st.cache_data
+def calculate_rfm(df):
     df['order_purchase_date'] = pd.to_datetime(df['order_purchase_timestamp']).dt.date
     reference_date = df['order_purchase_date'].max() + timedelta(days=1)
 
@@ -38,50 +39,60 @@ def run_rfm_analysis(df):
 
     return rfm
 
-# --- Main RFM Execution ---
-rfm_df = run_rfm_analysis(full_orders)
+rfm_df = calculate_rfm(full_orders)
 
-rfm_df['CustomerGroup'] = rfm_df['RFM_Score'].apply(
-    lambda x: 'High-value' if int(x) >= 444 else ('Medium-value' if int(x) >= 222 else 'Low-value')
-)
+# --- Customer Group Tagging ---
+@st.cache_data
+def add_rfm_tags(rfm_df):
+    rfm_df['CustomerGroup'] = rfm_df['RFM_Score'].apply(
+        lambda x: 'High-value' if int(x) >= 444 else ('Medium-value' if int(x) >= 222 else 'Low-value')
+    )
+    rfm_df['BehaviorSegment'] = rfm_df.apply(lambda row:
+        "Champions" if row['R'] == 4 and row['F'] == 4 and row['M'] == 4 else
+        "Loyal Customers" if row['R'] >= 3 and row['F'] >= 3 else
+        "Recent Customers" if row['R'] == 4 else
+        "Frequent Buyers" if row['F'] == 4 else
+        "Big Spenders" if row['M'] == 4 else
+        "Others", axis=1)
+    return rfm_df
 
-rfm_summary = rfm_df.groupby("CustomerGroup").agg({
-    "Recency": "mean",
-    "Frequency": "mean",
-    "Monetary": "mean",
-    "customer_unique_id": "count"
-}).rename(columns={"customer_unique_id": "CustomerCount"}).round(2).reset_index()
+rfm_df = add_rfm_tags(rfm_df)
 
+# --- RFM Summary Table ---
+@st.cache_data
+def get_rfm_summary(df):
+    return df.groupby("CustomerGroup").agg({
+        "Recency": "mean",
+        "Frequency": "mean",
+        "Monetary": "mean",
+        "customer_unique_id": "count"
+    }).rename(columns={"customer_unique_id": "CustomerCount"}).round(2).reset_index()
+
+rfm_summary = get_rfm_summary(rfm_df)
 st.subheader("📊 RFM Segment Summary")
 st.dataframe(rfm_summary)
 
-# --- Distribution of Customer Segments ---
+# --- Segment Distribution Plot ---
 fig1 = px.bar(
     rfm_df,
     x="CustomerGroup",
     title="Customer Segments Distribution",
-    labels={"CustomerGroup": "Customer Group", "count": "Count"},
+    labels={"CustomerGroup": "Customer Group"},
     color="CustomerGroup",
     color_discrete_sequence=px.colors.qualitative.Set2
 )
 st.plotly_chart(fig1)
 
-# --- Advanced Tagging ---
-rfm_df['BehaviorSegment'] = rfm_df.apply(lambda row:
-    "Champions" if row['R'] == 4 and row['F'] == 4 and row['M'] == 4 else
-    "Loyal Customers" if row['R'] >= 3 and row['F'] >= 3 else
-    "Recent Customers" if row['R'] == 4 else
-    "Frequent Buyers" if row['F'] == 4 else
-    "Big Spenders" if row['M'] == 4 else
-    "Others", axis=1)
+# --- Behavior Segments Table ---
+@st.cache_data
+def get_behavior_segment_summary(df):
+    return df.groupby("BehaviorSegment").size().reset_index(name='count')
 
 st.subheader("🧠 Behavioral Segments")
-st.dataframe(rfm_df.groupby("BehaviorSegment").size().reset_index(name='count'))
+st.dataframe(get_behavior_segment_summary(rfm_df))
 
-# --- Heatmaps ---
+# --- RFM Heatmaps ---
 st.subheader("🔥 RFM Heatmaps")
-
-rfm_pd = rfm_df[['R', 'F', 'M']]
 
 def plot_heatmap(data, index, columns, title, xlab, ylab):
     heatmap_data = data.groupby([index, columns]).size().reset_index(name='count')
@@ -97,26 +108,30 @@ def plot_heatmap(data, index, columns, title, xlab, ylab):
     fig.update_layout(title=title)
     return fig
 
-st.plotly_chart(plot_heatmap(rfm_pd, "R", "F", "Recency vs Frequency", "Frequency Score", "Recency Score"))
-st.plotly_chart(plot_heatmap(rfm_pd, "R", "M", "Recency vs Monetary", "Monetary Score", "Recency Score"))
-st.plotly_chart(plot_heatmap(rfm_pd, "M", "F", "Monetary vs Frequency", "Frequency Score", "Monetary Score"))
+rfm_scores = rfm_df[['R', 'F', 'M']].copy()
+
+st.plotly_chart(plot_heatmap(rfm_scores, "R", "F", "Recency vs Frequency", "Frequency Score", "Recency Score"))
+st.plotly_chart(plot_heatmap(rfm_scores, "R", "M", "Recency vs Monetary", "Monetary Score", "Recency Score"))
+st.plotly_chart(plot_heatmap(rfm_scores, "M", "F", "Monetary vs Frequency", "Frequency Score", "Monetary Score"))
 
 # --- Product Preferences ---
-st.subheader("🛍️ Top Products by Customer Group")
-rfm_orders = full_orders.merge(rfm_df[['customer_unique_id', 'CustomerGroup']], on='customer_unique_id', how='inner')
-product_pref = (
-    rfm_orders.groupby(["CustomerGroup", "product_category"]).size().reset_index(name='count')
-    .sort_values("count", ascending=False)
-)
+@st.cache_data
+def get_product_preferences(full_orders, rfm_df):
+    rfm_orders = full_orders.merge(rfm_df[['customer_unique_id', 'CustomerGroup']], on='customer_unique_id', how='inner')
+    product_pref = (
+        rfm_orders.groupby(["CustomerGroup", "product_category"]).size().reset_index(name='count')
+        .sort_values("count", ascending=False)
+    )
+    return product_pref
 
-# Dropdown to select group
+st.subheader("🛍️ Top Products by Customer Group")
+product_pref = get_product_preferences(full_orders, rfm_df)
+
 available_groups = sorted(product_pref['CustomerGroup'].unique())
 selected_group = st.selectbox("Select Customer Group", available_groups)
 
-# Filter data based on selection
 filtered_pref = product_pref[product_pref["CustomerGroup"] == selected_group]
 
-# Plot
 fig_products = px.bar(
     filtered_pref,
     x="product_category",
