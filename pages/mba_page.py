@@ -19,11 +19,9 @@ st.set_page_config(page_title="Market Basket Analysis", layout="wide")
 st.title("🛒 Market Basket Analysis (MBA)")
 
 # Prepare Data
-@st.cache_data
 transactions_df = full_orders.groupby(['order_id', 'customer_unique_id'])['product_category'] \
     .apply(set).reset_index().rename(columns={'product_category': 'items'})
 
-@st.cache_data
 segmented_txns = pd.merge(
     transactions_df,
     summary[['customer_unique_id', 'cltv_segment']],
