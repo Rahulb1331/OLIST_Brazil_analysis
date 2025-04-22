@@ -6,6 +6,11 @@ import plotly.graph_objects as go
 import networkx as nx
 from mlxtend.frequent_patterns import apriori, association_rules
 from sklearn.preprocessing import MultiLabelBinarizer
+
+
+# Setup
+st.set_page_config(page_title="Market Basket Analysis", layout="wide")
+st.title("🛒 Market Basket Analysis (MBA)")
 @st.cache_data
 def load_data():
     from analysis.Preprocessing import full_orders
@@ -13,11 +18,6 @@ def load_data():
     return full_orders, summary
 
 full_orders, summary = load_data()
-
-# Setup
-st.set_page_config(page_title="Market Basket Analysis", layout="wide")
-st.title("🛒 Market Basket Analysis (MBA)")
-
 # Prepare Data
 transactions_df = full_orders.groupby(['order_id', 'customer_unique_id'])['product_category'] \
     .apply(set).reset_index().rename(columns={'product_category': 'items'})
