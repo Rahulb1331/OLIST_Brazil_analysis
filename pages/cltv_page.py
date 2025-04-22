@@ -54,8 +54,7 @@ st.subheader("🔍 CLTV Segmentation")
 st.dataframe(cltv_df.head(10))
 
 # --- Log Transformation Toggle ---
-if 'log_applied' not in st.session_state:
-    st.session_state.log_applied = False
+st.session_state.setdefault("log_applied", False)
 
 if not st.session_state.log_applied:
     if st.button("Apply Log Transformation"):
