@@ -7,6 +7,8 @@ from analysis.cltv import run_cltv_analysis, enrich_cltv_with_segments, model_cl
 import plotly.express as px
 
 st.title("💸 Customer Lifetime Value (CLTV) Analysis")
+from sidebar import render_sidebar
+render_sidebar()
 
 # --- Caching heavy processing functions ---
 @st.cache_data
