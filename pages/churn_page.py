@@ -10,9 +10,13 @@ from sklearn.preprocessing import LabelEncoder
 from sklearn.metrics import classification_report, confusion_matrix, roc_curve, roc_auc_score
 
 # Spark & data imports
-from analysis.Preprocessing import full_orders
-from analysis.cltv import summary
+@st.cache_data
+def load_data():
+    from analysis.Preprocessing import full_orders
+    from analysis.cltv import summary
+    return full_orders, summary
 
+full_orders, summary = load_data() 
 # Streamlit setup
 st.set_page_config(page_title="Customer Churn Prediction", layout="wide")
 st.title("🔁 Customer Churn Prediction Dashboard")
