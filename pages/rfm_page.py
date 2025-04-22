@@ -3,11 +3,16 @@ from datetime import timedelta
 import pandas as pd
 import plotly.express as px
 
-from analysis.Preprocessing import full_orders
+@st.cache_data
+def load_data():
+    from analysis.Preprocessing import full_orders
+    return full_orders
+full_orders= load_data()
 
 st.title("🧮 RFM Analysis - Customer Segmentation")
 
 # --- RFM Calculation Function ---
+@st.cache_resource
 def run_rfm_analysis(df):
     df['order_purchase_date'] = pd.to_datetime(df['order_purchase_timestamp']).dt.date
     reference_date = df['order_purchase_date'].max() + timedelta(days=1)
@@ -34,12 +39,14 @@ def run_rfm_analysis(df):
     return rfm
 
 # --- Main RFM Execution ---
+@st.cache_data
 rfm_df = run_rfm_analysis(full_orders)
 
 rfm_df['CustomerGroup'] = rfm_df['RFM_Score'].apply(
     lambda x: 'High-value' if int(x) >= 444 else ('Medium-value' if int(x) >= 222 else 'Low-value')
 )
 
+@st.cache_data
 rfm_summary = rfm_df.groupby("CustomerGroup").agg({
     "Recency": "mean",
     "Frequency": "mean",
@@ -62,6 +69,7 @@ fig1 = px.bar(
 st.plotly_chart(fig1)
 
 # --- Advanced Tagging ---
+@st.cache_data
 rfm_df['BehaviorSegment'] = rfm_df.apply(lambda row:
     "Champions" if row['R'] == 4 and row['F'] == 4 and row['M'] == 4 else
     "Loyal Customers" if row['R'] >= 3 and row['F'] >= 3 else
@@ -98,7 +106,9 @@ st.plotly_chart(plot_heatmap(rfm_pd, "M", "F", "Monetary vs Frequency", "Frequen
 
 # --- Product Preferences ---
 st.subheader("🛍️ Top Products by Customer Group")
+@st.cache_data
 rfm_orders = full_orders.merge(rfm_df[['customer_unique_id', 'CustomerGroup']], on='customer_unique_id', how='inner')
+@st.cache_data
 product_pref = (
     rfm_orders.groupby(["CustomerGroup", "product_category"]).size().reset_index(name='count')
     .sort_values("count", ascending=False)
