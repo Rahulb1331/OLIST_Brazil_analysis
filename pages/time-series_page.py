@@ -6,13 +6,16 @@ import plotly.express as px
 from sklearn.metrics import mean_absolute_error, mean_squared_error
 import plotly.graph_objects as go
 import numpy as np
+
+st.set_page_config(page_title="📈 Time Series Dashboard", layout="wide")
+st.title("📈 Time Series Analysis Dashboard")
+
 @st.cache_data
 def load_data():
     from analysis.Preprocessing import full_orders
     return full_orders
 full_orders = load_data()
-st.set_page_config(page_title="📈 Time Series Dashboard", layout="wide")
-st.title("📈 Time Series Analysis Dashboard")
+
 
 # Preprocess Spark DataFrame
 full_orders["order_purchase_timestamp"] = pd.to_datetime(full_orders["order_purchase_timestamp"])
