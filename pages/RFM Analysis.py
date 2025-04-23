@@ -4,8 +4,6 @@ import pandas as pd
 import plotly.express as px
 
 st.title("🧮 RFM Analysis - Customer Segmentation")
-from sidebar import render_sidebar
-render_sidebar()
 
 # --- Load Raw Data ---
 @st.cache_data
