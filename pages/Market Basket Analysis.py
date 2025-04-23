@@ -10,8 +10,7 @@ from sklearn.preprocessing import MultiLabelBinarizer
 # Setup
 st.set_page_config(page_title="Market Basket Analysis", layout="wide")
 st.title("🛒 Market Basket Analysis (MBA)")
-from sidebar import render_sidebar
-render_sidebar()
+
 @st.cache_data
 def load_data():
     from analysis.Preprocessing import full_orders
