@@ -33,17 +33,7 @@ st.markdown("""
 st.markdown("---")
 
 # Sidebar Navigation (Multi-page Streamlit app)
-st.sidebar.title("Navigation")
-st.sidebar.markdown("Use the links below to explore each section:")
 
-st.sidebar.page_link("pages/rfm_page.py", label="RFM Analysis")
-st.sidebar.page_link("pages/cltv_page.py", label="CLTV Prediction")
-st.sidebar.page_link("pages/churn_page.py", label="Churn Prediction")
-st.sidebar.page_link("pages/sentiment_page.py", label="Sentiment Analysis")
-st.sidebar.page_link("pages/mba_page.py", label="Market Basket Analysis")
-st.sidebar.page_link("pages/geo_page.py", label="Geolocation Analysis")
-st.sidebar.page_link("pages/time-series_page.py", label="Time Series")
-st.sidebar.page_link("pages/Preprocessing.py", label="Preprocessing & EDA")
 
 # Optional: Project Image (add an image to the folder if you want)
 # image = Image.open("images/olist_banner.png")
