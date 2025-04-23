@@ -102,7 +102,7 @@ st.caption("Insight: Monitor growth of High-value segment monthly to measure ret
 
 # --- Behavior Segments Table ---
 st.subheader("🧠 Behavioral Segments")
-st.dataframe(rfm_df["BehaviorSegment"].value_counts().reset_index().rename(columns={"index": "Segment", "BehaviorSegment": "Count"}))
+st.dataframe(rfm_df["BehaviorSegment"].value_counts().reset_index().rename(columns={"index": "Segment", "BehaviorSegment": "Segment"}))
 #Change20 - Add Collapsible Segment Definitions Table using st.expander + st.table
 segment_definitions = {
     "Segment": [
