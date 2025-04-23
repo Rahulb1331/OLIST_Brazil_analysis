@@ -5,8 +5,6 @@ import numpy as np
 from analysis.rfm import run_rfm_analysis
 from analysis.cltv import run_cltv_analysis, enrich_cltv_with_segments, model_cltv_lifetimes
 import plotly.express as px
-from sidebar import render_sidebar
-render_sidebar()
 
 st.title("💸 Customer Lifetime Value (CLTV) Analysis")
 
