@@ -30,7 +30,7 @@ selected_date = st.sidebar.slider("Select reference end date for RFM", min_value
 # --- RFM Calculation ---
 @st.cache_data
 def calculate_rfm(df, ref_date):
-    df['order_purchase_date'] = df['order_purchase_timestamp'].dt.date
+    df['order_purchase_date'] = pd.to_datetime(df['order_purchase_timestamp'])
     reference_date = pd.to_datetime(ref_date)
 
     rfm = df.groupby('customer_unique_id').agg({
