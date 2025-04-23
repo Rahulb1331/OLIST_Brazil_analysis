@@ -1,37 +1,26 @@
-# RFM Page.py
-
 import streamlit as st
 from datetime import timedelta
 import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
 
-st.set_page_config(page_title="RFM Analysis", layout="wide")
 st.title("🧮 RFM Analysis - Customer Segmentation")
 
+# Change1: Add date input for dynamic RFM calculations
+selected_date = st.date_input("Select RFM Reference Date", pd.to_datetime("2018-09-04"))
+
 # --- Load Raw Data ---
-# Change1: Added order timestamp extraction
 @st.cache_data
 def load_data():
     from analysis.Preprocessing import full_orders
-    full_orders['order_purchase_timestamp'] = pd.to_datetime(full_orders['order_purchase_timestamp'])
-    full_orders['order_month'] = full_orders['order_purchase_timestamp'].dt.to_period("M").astype(str)
     return full_orders
-
 full_orders = load_data()
-
-# Change2: Added date filtering for dynamic RFM analysis
-min_date = full_orders['order_purchase_timestamp'].min()
-max_date = full_orders['order_purchase_timestamp'].max()
-
-st.sidebar.header("🗓️ RFM Timeframe")
-selected_date = st.sidebar.slider("Select reference end date for RFM", min_value=min_date.date(), max_value=max_date.date(), value=max_date.date())
 
 # --- RFM Calculation ---
 @st.cache_data
-def calculate_rfm(df, ref_date):
+def calculate_rfm(df, reference_date):
+    # ChangeX: Keep as Timestamp to avoid type mismatch
     df['order_purchase_date'] = pd.to_datetime(df['order_purchase_timestamp'])
-    reference_date = pd.to_datetime(ref_date)
 
     rfm = df.groupby('customer_unique_id').agg({
         'order_purchase_date': lambda x: (reference_date - x.max()).days,
@@ -54,6 +43,7 @@ def calculate_rfm(df, ref_date):
 
     return rfm
 
+# Change2: Pass selected date for time control
 rfm_df = calculate_rfm(full_orders, selected_date)
 
 # --- Customer Group Tagging ---
@@ -73,7 +63,7 @@ def add_rfm_tags(rfm_df):
 
 rfm_df = add_rfm_tags(rfm_df)
 
-# --- Segment Summary ---
+# --- RFM Summary Table ---
 @st.cache_data
 def get_rfm_summary(df):
     return df.groupby("CustomerGroup").agg({
@@ -85,8 +75,9 @@ def get_rfm_summary(df):
 
 rfm_summary = get_rfm_summary(rfm_df)
 st.subheader("📊 RFM Segment Summary")
+# Change3: Insight under summary
+st.caption("High-value customers are your most engaged and profitable. Focus retention strategies here.")
 st.dataframe(rfm_summary)
-st.caption("Insight: High-value customers are frequent, recent, and big spenders. Target them with loyalty perks.")  # Change3
 
 # --- Segment Distribution Plot ---
 fig1 = px.bar(
@@ -98,15 +89,46 @@ fig1 = px.bar(
     color_discrete_sequence=px.colors.qualitative.Set2
 )
 st.plotly_chart(fig1)
-st.caption("Insight: Monitor growth of High-value segment monthly to measure retention success.")  # Change4
+
+# Change4: Add caption to guide user on next actions
+st.caption("Target 'High-value' customers for loyalty programs and VIP offers.")
 
 # --- Behavior Segments Table ---
+@st.cache_data
+def get_behavior_segment_summary(df):
+    return df.groupby("BehaviorSegment").size().reset_index(name='count')
+
 st.subheader("🧠 Behavioral Segments")
-st.dataframe(rfm_df["BehaviorSegment"].value_counts().reset_index().rename(columns={"index": "Segment", "BehaviorSegment": "Count"}))
-st.caption("Insight: Champions and Loyal Customers deserve exclusive offers.")  # Change5
+st.caption("Behavioral segmentation helps personalize communication.")
+st.dataframe(get_behavior_segment_summary(rfm_df))
+#Change20 - Add Collapsible Segment Definitions Table using st.expander + st.table
+segment_definitions = {
+    "Segment": [
+        "Champions",
+        "Loyal Customers",
+        "Recent Customers",
+        "Frequent Buyers",
+        "Big Spenders",
+        "Others"
+    ],
+    "Definition": [
+        "High Recency (R=4), Frequency (F=4), and Monetary (M=4). Most valuable, loyal, and recent customers.",
+        "Visit and purchase often (R ≥ 3, F ≥ 3). Strong candidates for loyalty programs.",
+        "Purchased very recently (R = 4), but may not yet be frequent or high spenders.",
+        "Shop often (F = 4), not necessarily recent or high spenders.",
+        "High spenders (M = 4), regardless of frequency or recency.",
+        "Customers that don’t strongly qualify in other categories — potential to nurture or churn."
+    ]
+}
+
+st.expander("📘 Click to view Segment Definitions").table(pd.DataFrame(segment_definitions))
+
 
 # --- RFM Heatmaps ---
 st.subheader("🔥 RFM Heatmaps")
+
+# Change5: Add insights above heatmaps
+st.caption("Identify clusters of frequent, recent, and high-spending users for targeted campaigns.")
 
 def plot_heatmap(data, index, columns, title, xlab, ylab):
     heatmap_data = data.groupby([index, columns]).size().reset_index(name='count')
@@ -127,9 +149,8 @@ rfm_scores = rfm_df[['R', 'F', 'M']].copy()
 st.plotly_chart(plot_heatmap(rfm_scores, "R", "F", "Recency vs Frequency", "Frequency Score", "Recency Score"))
 st.plotly_chart(plot_heatmap(rfm_scores, "R", "M", "Recency vs Monetary", "Monetary Score", "Recency Score"))
 st.plotly_chart(plot_heatmap(rfm_scores, "M", "F", "Monetary vs Frequency", "Frequency Score", "Monetary Score"))
-st.caption("Insight: Use these combos to find likely churners (e.g., R=1, F=4).")  # Change6
 
-# --- Product Preferences by Group ---
+# --- Product Preferences ---
 @st.cache_data
 def get_product_preferences(full_orders, rfm_df):
     rfm_orders = full_orders.merge(rfm_df[['customer_unique_id', 'CustomerGroup']], on='customer_unique_id', how='inner')
@@ -140,6 +161,7 @@ def get_product_preferences(full_orders, rfm_df):
     return product_pref
 
 st.subheader("🛍️ Top Products by Customer Group")
+st.caption("Use this to tailor product bundles and promotions.")
 product_pref = get_product_preferences(full_orders, rfm_df)
 
 available_groups = sorted(product_pref['CustomerGroup'].unique())
@@ -157,28 +179,18 @@ fig_products = px.bar(
 )
 fig_products.update_layout(xaxis_tickangle=-45, showlegend=False)
 st.plotly_chart(fig_products, use_container_width=True)
-st.caption("Insight: Align marketing campaigns with category preferences per group.")  # Change7
 
-# --- Export CSV ---
-# Change8: CSV download for marketing/export purposes
-st.download_button(
-    label="📥 Download RFM Segments as CSV",
-    data=rfm_df.to_csv(index=False).encode('utf-8'),
-    file_name='rfm_segments.csv',
-    mime='text/csv'
-)
+# Change6: Add CSV download button for business users
+st.download_button("📥 Download RFM Segments", rfm_df.to_csv(index=False), file_name="rfm_segments.csv")
 
-# --- Customer Segment Trend Over Time ---
-# Change9: Time trend visualization
-st.subheader("📈 Segment Trends Over Time")
-time_trend = full_orders.merge(rfm_df[['customer_unique_id', 'CustomerGroup']], on='customer_unique_id', how='inner')
-segment_month = time_trend.groupby(['order_month', 'CustomerGroup']).size().reset_index(name='count')
-fig_trend = px.line(
-    segment_month,
-    x='order_month',
-    y='count',
-    color='CustomerGroup',
-    title='Customer Group Trend Over Time'
-)
+# Change7: Add Customer Segment Trend Visualization
+@st.cache_data
+def segment_trend(df):
+    df['order_month'] = df['order_purchase_date'].dt.to_period("M").astype(str)
+    trend_data = df.merge(rfm_df[['customer_unique_id', 'CustomerGroup']], on='customer_unique_id', how='inner')
+    return trend_data.groupby(['order_month', 'CustomerGroup']).size().reset_index(name='count')
+
+trend_df = segment_trend(full_orders)
+fig_trend = px.line(trend_df, x='order_month', y='count', color='CustomerGroup',
+                    title="📈 Monthly Customer Group Trend")
 st.plotly_chart(fig_trend, use_container_width=True)
-st.caption("Insight: Observe whether High-value segment is growing. Adjust retention strategy accordingly.")
