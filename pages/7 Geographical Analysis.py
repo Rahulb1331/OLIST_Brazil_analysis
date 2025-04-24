@@ -247,6 +247,7 @@ with st.expander("🌍 2. Monthly Revenue/Orders Map", expanded=True):
         **Insights**:
         - Larger bubbles in regions like São Paulo, Rio de Janeiro, or Belo Horizonte indicate economic hubs.
         - A larger radius bubble can be seen for Rio de Janeiro, even though it is the second most contributing city after São Paulo, this is because the grouping is done on the city name to identify the city-wise total {metric.replace('_', ' ')} and for Rio de Janeiro the lat, lon values are the same, while for São Paulo the different transactions have similar but varying lat, lon values showing that there is more granularity in capturing the locations for the transactions made from São Paulo.  
+        - In the initial few months the total revenue was on the lower range, across Brazil but around March and April 2017 the revenue picked up, not only in the major cities like São Paulo, Rio de Janeiro, or Belo Horizonte, but also across the other cities in Brazil. This might suggest that either the OList operations picked up pace during these months, or that the transactions for earlier periods are not as extensively available as in this period.
         - Seasonal fluctuations may be observed in specific cities, useful for promotions or supply chain adjustments.
         """)
 
@@ -315,7 +316,7 @@ with st.expander("🧭 3. Geo Segmentation (KMeans Clustering)", expanded=False)
         Each color on the map represents a unique cluster, helping to identify regional similarities or differences in performance.
 
         **Interpretations**:
-        - A cluster of high-revenue cities is represented by cluster 2 (yellow color) and represents economic hotspots.
+        - A cluster of high-revenue cities is represented by cluster indexed 1 (yellow color) and represents economic hotspots.
         - Geographically close cities may still belong to different clusters if their revenues differ significantly. case in point we have cities like Caceres which belong to cluster 2 even when it is in proximity with the cities in Cluster 4 (purple color) due to its higher revenue.
         """)
         @st.cache_data
