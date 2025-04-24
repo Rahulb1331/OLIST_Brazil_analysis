@@ -231,7 +231,48 @@ with st.expander("🧭 3. Geo Segmentation (KMeans Clustering)", expanded=False)
     
     geo_clustered = run_geo_clustering(sta_agg)
 
-    st.map(geo_clustered, latitude="lat", longitude="lon")
+    # Assign a color to each cluster
+    cluster_colors = {
+        0: [255, 99, 132],   # Red
+        1: [54, 162, 235],   # Blue
+        2: [255, 206, 86],   # Yellow
+        3: [75, 192, 192],   # Teal
+        4: [153, 102, 255],  # Purple
+    }
+    geo_clustered["color"] = geo_clustered["cluster"].map(cluster_colors)
+
+    st.pydeck_chart(pdk.Deck(
+        initial_view_state=pdk.ViewState(
+            latitude=-14.2350,
+            longitude=-51.9253,
+            zoom=4.5,
+            pitch=40,
+        ),
+        layers=[
+            pdk.Layer(
+                "ScatterplotLayer",
+                data=geo_clustered,
+                get_position='[lon, lat]',
+                get_fill_color="color",
+                get_radius=30000,
+                pickable=True
+            )
+        ],
+        tooltip={
+            "html": """
+                <b>City:</b> {city}<br/>
+                <b>State:</b> {state}<br/>
+                <b>Total Revenue:</b> {total_revenue:.2f}<br/>
+                <b>Cluster:</b> {cluster}
+            """,
+            "style": {
+                "backgroundColor": "black",
+                "color": "white",
+                "fontSize": "13px",
+                "padding": "8px",
+            },
+        }
+    ))
 
 # --- Section 4: Customer Behavioral Clustering ---
 with st.expander("🧠 4. Customer Behavioral Clustering (KMeans + PCA)", expanded=False):
