@@ -118,7 +118,7 @@ with st.expander("🌍 2. Monthly Revenue/Orders Map", expanded=True):
     filtered = geo_pd[(geo_pd['year_month'] >= pd.to_datetime(start)) & (geo_pd['year_month'] <= pd.to_datetime(end))]
     filtered = filtered.rename(columns={"state_x": "state", "city_x": "city"})
     filtered = filtered.drop(columns=["city_y", "state_y"])
-    state_agg = filtered.groupby(["state", "lat", "lon"]).agg({metric: "sum"}).reset_index()
+    state_agg = filtered.groupby(["state", "city", "lat", "lon"]).agg({metric: "sum"}).reset_index()
     if metric == "total_orders":
         # Scale orders to a reasonable visual range
         state_agg["scaled_metric"] = state_agg[metric].apply(lambda x: (x / 18735) * 40000 + 1000)
