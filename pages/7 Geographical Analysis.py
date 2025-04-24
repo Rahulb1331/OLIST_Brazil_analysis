@@ -275,7 +275,7 @@ with st.expander("🧭 3. Geo Segmentation (KMeans Clustering)", expanded=False)
             },
         }
     ))
-    @st.cache_data
+    
     with st.expander("Show Insights", expanded = False):
         st.info("""
         The map below shows geospatial clusters of cities based on three features:
@@ -289,6 +289,7 @@ with st.expander("🧭 3. Geo Segmentation (KMeans Clustering)", expanded=False)
         - A cluster of high-revenue cities may represent economic hotspots.
         - Geographically close cities may still belong to different clusters if their revenues differ significantly.
         """)
+        @st.cache_data
         def explain_geo_clusters(geo_clustered):
             return geo_clustered.groupby("cluster")[["lat", "lon", "total_revenue"]].mean().round(2)
 
