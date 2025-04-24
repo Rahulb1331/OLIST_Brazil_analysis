@@ -247,8 +247,8 @@ with st.expander("🌍 2. Monthly Revenue/Orders Map", expanded=True):
         **Insights**:
         - Larger bubbles in regions like São Paulo, Rio de Janeiro, or Belo Horizonte indicate economic hubs.
         - A larger radius bubble can be seen for Rio de Janeiro, even though it is the second most contributing city after São Paulo, this is because the grouping is done on the city name to identify the city-wise total {metric.replace('_', ' ')} and for Rio de Janeiro the lat, lon values are the same, while for São Paulo the different transactions have similar but varying lat, lon values showing that there is more granularity in capturing the locations for the transactions made from São Paulo.  
-        - In the initial few months the total revenue was on the lower range, across Brazil but around March and April 2017 the revenue picked up, not only in the major cities like São Paulo, Rio de Janeiro, or Belo Horizonte, but also across the other cities in Brazil. This might suggest that either the OList operations picked up pace during these months, or that the transactions for earlier periods are not as extensively available as in this period.
-        - Seasonal fluctuations may be observed in specific cities, useful for promotions or supply chain adjustments.
+        - In the initial few months the total revenue was in the lower range all across Brazil but around March and April 2017 the revenue picked up, not only in the major cities like São Paulo, Rio de Janeiro, or Belo Horizonte, but also across the other cities in Brazil. This might suggest that either the OList operations picked up pace during these months, or that the transactions for earlier periods are not as extensively available as in this period.
+        - Seasonal fluctuations can be observed in the major cities, especially during the Christmas and New Year period from Dec 2017 to Jan 2018, useful for promotions in cities like Mogi das Cruzes, to drive revenue during the off-season period as well.
         """)
 
 
