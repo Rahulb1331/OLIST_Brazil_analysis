@@ -246,7 +246,7 @@ with st.expander("🌍 2. Monthly Revenue/Orders Map", expanded=True):
 
         **Insights**:
         - Larger bubbles in regions like São Paulo, Rio de Janeiro, or Belo Horizonte indicate economic hubs.
-        - A larger radius bubble can be seen for Rio de Janeiro, even though it is the second most contributing city after São Paulo, this is because the grouping is done on the latitudes and longitudes to identify the citywise total {metric.replace('_', ' ')} and for Rio de Janeiro the lat, lon values are the same, while for São Paulo the different transactions have similar but varying lat, lon values showing that there is more granularity in capturing the locations for the transactions made from São Paulo.  
+        - A larger radius bubble can be seen for Rio de Janeiro, even though it is the second most contributing city after São Paulo, this is because the grouping is done on the city name to identify the city-wise total {metric.replace('_', ' ')} and for Rio de Janeiro the lat, lon values are the same, while for São Paulo the different transactions have similar but varying lat, lon values showing that there is more granularity in capturing the locations for the transactions made from São Paulo.  
         - Seasonal fluctuations may be observed in specific cities, useful for promotions or supply chain adjustments.
         """)
 
