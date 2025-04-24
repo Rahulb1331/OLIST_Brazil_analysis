@@ -272,6 +272,18 @@ with st.expander("🧭 3. Geo Segmentation (KMeans Clustering)", expanded=False)
     }
     geo_clustered["color"] = geo_clustered["cluster"].map(cluster_colors)
 
+    # NEW: Let user filter which clusters to show
+    unique_clusters = sorted(geo_clustered["cluster"].unique())
+    selected_clusters = st.multiselect(
+        "Select clusters to display:",
+        options=unique_clusters,
+        default=unique_clusters,
+        format_func=lambda x: f"Cluster {x}"
+    )
+
+    # Filter data based on selection
+    visible_data = geo_clustered[geo_clustered["cluster"].isin(selected_clusters)]
+    
     st.pydeck_chart(pdk.Deck(
         initial_view_state=pdk.ViewState(
             latitude=-14.2350,
