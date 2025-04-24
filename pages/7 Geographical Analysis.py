@@ -88,10 +88,27 @@ def run_customer_segmentation(customer_features):
     pca_result = pca.fit_transform(scaled)
     df["pca1"] = pca_result[:, 0]
     df["pca2"] = pca_result[:, 1]
+    # Calculating the summary
+    summary = df.groupby("cluster")[["num_orders", "recency_days", "avg_order_value", "purchase_span_days"]].mean().round(2)
+    # Step 2: Assign human-readable segment labels based on patterns
+    segment_map = {}
+    
+    for idx, row in summary.iterrows():
+        if row["num_orders"] > 10 and row["avg_order_value"] > 200:
+            segment_map[idx] = "Loyal High Spenders"
+        elif row["recency_days"] > 300:
+            segment_map[idx] = "Inactive Low Spenders"
+        elif row["purchase_span_days"] < 5 and row["num_orders"] <= 2:
+            segment_map[idx] = "New Customers"
+        else:
+            segment_map[idx] = "Occasional Buyers"
+   
+    # Step 3: Apply labels
+    df["segment"] = df["cluster"].map(segment_map)
+    summary["segment"] = summary.index.map(segment_map)
+    summary = summary.reset_index()[["cluster", "segment", "num_orders", "recency_days", "avg_order_value", "purchase_span_days"]]
 
-    labels = {0: "Loyal High Spenders", 1: "Occasional Buyers", 2: "Inactive Low Spenders", 3: "New Customers"}
-    df["segment"] = df["cluster"].map(labels)
-    return df, df.groupby(["cluster", "segment"])[["num_orders", "recency_days", "avg_order_value", "purchase_span_days"]].mean().round(2)
+    return df, summary   
 
 # --- Section 1: CLTV by State ---
 with st.expander("📦 1. CLTV by State and City", expanded=False):
