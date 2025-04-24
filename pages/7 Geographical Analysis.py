@@ -262,7 +262,7 @@ with st.expander("🧭 3. Geo Segmentation (KMeans Clustering)", expanded=False)
             "html": """
                 <b>City:</b> {city}<br/>
                 <b>State:</b> {state}<br/>
-                <b>Total Revenue:</b> {total_revenue:.2f}<br/>
+                <b>Total Revenue:</b> {""" + total_revenue:.2f + """}<br/>
                 <b>Cluster:</b> {cluster}
             """,
             "style": {
@@ -284,9 +284,9 @@ with st.expander("🧭 3. Geo Segmentation (KMeans Clustering)", expanded=False)
         Using KMeans clustering, the cities were grouped into 5 distinct clusters based on the **proximity and revenue behavior**.  
         Each color on the map represents a unique cluster, helping to identify regional similarities or differences in performance.
 
-        **Example Interpretations**:
-        - A cluster of high-revenue cities may represent economic hotspots.
-        - Geographically close cities may still belong to different clusters if their revenues differ significantly.
+        **Interpretations**:
+        - A cluster of high-revenue cities is represented by cluster 2 (yellow color) and represents economic hotspots.
+        - Geographically close cities may still belong to different clusters if their revenues differ significantly. case in point we have cities like Caceres which belong to cluster 2 even when it is in proximity with the cities in Cluster 4 (purple color) due to its higher revenue.
         """)
         @st.cache_data
         def explain_geo_clusters(geo_clustered):
