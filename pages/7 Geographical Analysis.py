@@ -91,15 +91,36 @@ def run_customer_segmentation(customer_features):
     # Calculating the summary
     summary = df.groupby("cluster")[["num_orders", "recency_days", "avg_order_value", "purchase_span_days"]].mean().round(2)
     # Step 2: Assign human-readable segment labels based on patterns
+    # Compute averages for use in thresholding
+    mean_orders = summary["num_orders"].mean()
+    mean_recency = summary["recency_days"].mean()
+    mean_order_value = summary["avg_order_value"].mean()
+    mean_span = summary["purchase_span_days"].mean()
+
     segment_map = {}
-    
+
     for idx, row in summary.iterrows():
-        if row["num_orders"] > 10 and row["avg_order_value"] > 200:
-            segment_map[idx] = "Loyal High Spenders"
-        elif row["recency_days"] > 300:
-            segment_map[idx] = "Inactive Low Spenders"
-        elif row["purchase_span_days"] < 5 and row["num_orders"] <= 2:
+        if (
+            row["num_orders"] > mean_orders and
+            row["avg_order_value"] > mean_order_value and
+            row["purchase_span_days"] > mean_span and
+            row["recency_days"] < mean_recency
+        ):
+            segment_map[idx] = "Loyal Customers"
+        
+        elif row["avg_order_value"] > mean_order_value * 2:
+            segment_map[idx] = "High Value Buyers"
+        
+        elif (
+            row["num_orders"] <= 2 and 
+            row["purchase_span_days"] < 5 and 
+            row["recency_days"] < mean_recency
+        ):
             segment_map[idx] = "New Customers"
+        
+        elif row["recency_days"] > mean_recency * 1.2:
+            segment_map[idx] = "Inactive Customers"
+        
         else:
             segment_map[idx] = "Occasional Buyers"
    
