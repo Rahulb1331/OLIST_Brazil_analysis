@@ -161,10 +161,10 @@ with st.expander("📦 1. CLTV by State and City", expanded=False):
     
         - **CLTV** estimates how much revenue a customer will generate over their relationship with the business.
         - By aggregating CLTV across regions, we are identifying the **high-value markets**.
-        - This can guide help us do **targeted marketing**, **logistics planning**, or **inventory decisions**.
+        - This can help us do **targeted marketing**, **logistics planning**, or **inventory decisions**.
     
         **Insights**:
-        - States/cities with high CLTV might have strong customer engagement, loyalty, or purchasing power.
+        - States/cities with high CLTV might have stronger customer engagement, loyalty, or purchasing power.
         - A lower number of unique customers but high CLTV indicates **fewer but very valuable customers**.
         """)
 
