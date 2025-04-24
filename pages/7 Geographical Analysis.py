@@ -225,19 +225,6 @@ with st.expander("🌍 2. Monthly Revenue/Orders Map", expanded=True):
 with st.expander("🧭 3. Geo Segmentation (KMeans Clustering)", expanded=False):
     st.markdown("### 🧭 Geo Clustering Insight")
 
-    st.info("""
-    The map below shows geospatial clusters of cities based on three features:
-    - **Latitude & Longitude** (location)
-    - **Total Revenue** (economic activity)
-
-    Using KMeans clustering, the cities were grouped into 5 distinct clusters based on the **proximity and revenue behavior**.  
-    Each color on the map represents a unique cluster, helping to identify regional similarities or differences in performance.
-
-    **Example Interpretations**:
-    - A cluster of high-revenue cities may represent economic hotspots.
-    - Geographically close cities may still belong to different clusters if their revenues differ significantly.
-    """)
-
     sta_agg = filtered.groupby(["state", "city", "lat", "lon"]).agg({"total_revenue": "sum"}).reset_index()
     anomal = ["porto trombetas", "ibiajara", "vila dos cabanos", "pau d'arco", "santana do sobrado", "santo antonio do canaa"]
 
@@ -289,11 +276,24 @@ with st.expander("🧭 3. Geo Segmentation (KMeans Clustering)", expanded=False)
         }
     ))
     @st.cache_data
-    def explain_geo_clusters(geo_clustered):
-        return geo_clustered.groupby("cluster")[["lat", "lon", "total_revenue"]].mean().round(2)
+    with st.expander("Show Insights", expanded = False):
+        st.info("""
+        The map below shows geospatial clusters of cities based on three features:
+        - **Latitude & Longitude** (location)
+        - **Total Revenue** (economic activity)
 
-    st.subheader("🧩 Cluster Averages Overview")
-    st.dataframe(explain_geo_clusters(geo_clustered))
+        Using KMeans clustering, the cities were grouped into 5 distinct clusters based on the **proximity and revenue behavior**.  
+        Each color on the map represents a unique cluster, helping to identify regional similarities or differences in performance.
+
+        **Example Interpretations**:
+        - A cluster of high-revenue cities may represent economic hotspots.
+        - Geographically close cities may still belong to different clusters if their revenues differ significantly.
+        """)
+        def explain_geo_clusters(geo_clustered):
+            return geo_clustered.groupby("cluster")[["lat", "lon", "total_revenue"]].mean().round(2)
+
+        st.subheader("🧩 Cluster Averages Overview")
+        st.dataframe(explain_geo_clusters(geo_clustered))
 
 
 # --- Section 4: Customer Behavioral Clustering ---
