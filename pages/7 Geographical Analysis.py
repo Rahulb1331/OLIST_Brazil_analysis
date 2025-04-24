@@ -135,9 +135,24 @@ with st.expander("🌍 2. Monthly Revenue/Orders Map", expanded=True):
                 pickable=True,
                 elevation_range=[0, 3000],
                 extruded=True,
-            )
-        ]
+            ),
+        tooltip={
+            "html": f"""
+                <b>State:</b> {{state}}<br/>
+                <b>{metric.replace('_', ' ').title()}:</b> {{{metric}}}<br/>
+                <b>Lat:</b> {{lat}}<br/>
+                <b>Lon:</b> {{lon}}
+            """,
+            "style": {
+                "backgroundColor": "rgba(0, 0, 0, 0.8)",
+                "color": "white",
+                "fontSize": "13px",
+                "padding": "8px",
+                "borderRadius": "5px"
+            }
+        }
     ))
+       
 
     top_cities = filtered.groupby("city")[metric].sum().sort_values(ascending=False).head(10).reset_index()
     st.subheader("Top Contributing Cities")
