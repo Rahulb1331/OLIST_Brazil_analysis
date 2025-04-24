@@ -91,7 +91,7 @@ def run_customer_segmentation(customer_features):
 
     labels = {0: "Loyal High Spenders", 1: "Occasional Buyers", 2: "Inactive Low Spenders", 3: "New Customers"}
     df["segment"] = df["cluster"].map(labels)
-    return df, df.groupby("cluster")[["num_orders", "recency_days", "avg_order_value", "purchase_span_days"]].mean().round(2)
+    return df, df.groupby(["cluster", "segment"])[["num_orders", "recency_days", "avg_order_value", "purchase_span_days"]].mean().round(2)
 
 # --- Section 1: CLTV by State ---
 with st.expander("📦 1. CLTV by State and City", expanded=False):
