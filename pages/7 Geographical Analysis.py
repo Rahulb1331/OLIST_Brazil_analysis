@@ -155,7 +155,7 @@ with st.expander("📦 1. CLTV by State and City", expanded=False):
 
         st.subheader(f"Top {top_n} Cities by CLTV")
         st.bar_chart(top_df.set_index("customer_city")["total_cltv"])
-    if st.checkbox("Show Insights"):
+    if st.checkbox("Show Insights", key="unique_key_1"):
         st.info("""
         This chart ranks states or cities based on their **total Customer Lifetime Value (CLTV)**.  
     
@@ -233,7 +233,7 @@ with st.expander("🌍 2. Monthly Revenue/Orders Map", expanded=True):
     st.subheader("Top Contributing Cities")
     st.dataframe(top_cities)
 
-    if st.checkbox("Show Insights"):
+    if st.checkbox("Show Insights", key="unique_key_2"):
         st.info(f"""
         The map above visualizes **{metric.replace('_', ' ').title()}** across Brazilian cities over time.
 
@@ -304,7 +304,7 @@ with st.expander("🧭 3. Geo Segmentation (KMeans Clustering)", expanded=False)
         }
     ))
     
-    show_insights = st.checkbox("Show Insights")
+    show_insights = st.checkbox("Show Insights", key="unique_key_3")
     if show_insights:
         st.info("""
         The map above shows geospatial clusters of cities based on three features:
