@@ -115,7 +115,7 @@ with st.expander("🌍 2. Monthly Revenue/Orders Map", expanded=True):
     max_month = geo_pd['year_month'].max().date()
     start, end = st.slider("Select Month Range", min_value=min_month, max_value=max_month, value=(min_month, max_month), format="MMM YYYY")
 
-    filtered = geo_pd[(geo_pd['year_month'] >= start) & (geo_pd['year_month'] <= end)]
+    filtered = geo_pd[(geo_pd['year_month'] >= pd.to_datetime(start)) & (geo_pd['year_month'] <= pd.to_datetime(end))]
     state_agg = filtered.groupby(["state", "lat", "lon"]).agg({metric: "sum"}).reset_index()
 
     st.pydeck_chart(pdk.Deck(
