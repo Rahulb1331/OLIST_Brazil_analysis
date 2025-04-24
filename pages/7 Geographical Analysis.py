@@ -171,7 +171,12 @@ with st.expander("🌍 2. Monthly Revenue/Orders Map", expanded=True):
 
 # --- Section 3: Geo Clustering ---
 with st.expander("🧭 3. Geo Segmentation (KMeans Clustering)", expanded=False):
-    sta_agg = filtered.groupby(["state", "lat", "lon"]).agg({"total_revenue": "sum"}).reset_index()
+    sta_agg = filtered.groupby(["state", "city", "lat", "lon"]).agg({"total_revenue": "sum"}).reset_index()
+    anomal = ["porto trombetas", "ibiajara", "vila dos cabanos", "pau d'arco", "santana do sobrado"]
+
+    # Filter out rows where the city column matches any city in the anomal list
+    sta_agg = sta_agg[~sta_agg["city"].isin(anomal)]
+    
     geo_clustered = run_geo_clustering(sta_agg)
 
     st.map(geo_clustered, latitude="lat", longitude="lon")
