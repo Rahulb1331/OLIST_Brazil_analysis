@@ -4,6 +4,7 @@ import pydeck as pdk
 from sklearn.preprocessing import StandardScaler
 from sklearn.cluster import KMeans
 from sklearn.decomposition import PCA
+from datetime import datetime
 
 st.set_page_config(page_title="Geolocation & CLTV Dashboard", layout="wide")
 st.title("📍 Geolocation Insights & Customer Segmentation")
@@ -110,9 +111,9 @@ with st.expander("🌍 2. Monthly Revenue/Orders Map", expanded=True):
 
     metric = st.selectbox("Select Metric", ["total_revenue", "total_orders"], index=0)
 
-    min_month = geo_pd['year_month'].min()
-    max_month = geo_pd['year_month'].max()
-    start, end = st.slider("Select Month Range", min_value=min_month, max_value=max_month, value=(min_month, max_month), format="%b %Y")
+    min_month = geo_pd['year_month'].min().date()
+    max_month = geo_pd['year_month'].max().date()
+    start, end = st.slider("Select Month Range", min_value=min_month, max_value=max_month, value=(min_month, max_month), format="MMM YYYY")
 
     filtered = geo_pd[(geo_pd['year_month'] >= start) & (geo_pd['year_month'] <= end)]
     state_agg = filtered.groupby(["state", "lat", "lon"]).agg({metric: "sum"}).reset_index()
