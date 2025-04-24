@@ -339,10 +339,93 @@ with st.expander("🧭 3. Geo Segmentation (KMeans Clustering)", expanded=False)
         st.dataframe(explain_geo_clusters(geo_clustered))
 
 
-# --- Section 4: Customer Behavioral Clustering ---
-with st.expander("🧠 4. Customer Behavioral Clustering (KMeans + PCA)", expanded=False):
+# --- Section 4: Monthly Revenue Trend by State ---
+
+with st.expander("📈 4. Monthly Revenue Trend by State", expanded=False):
+    monthly_state = full_orders.copy()
+    monthly_state['order_purchase_timestamp'] = pd.to_datetime(monthly_state['order_purchase_timestamp'])
+    monthly_state['year_month'] = monthly_state['order_purchase_timestamp'].dt.to_period('M').astype(str)
+
+    revenue_by_state = monthly_state.groupby(['customer_state', 'year_month']).agg(
+        total_revenue=('payment_value', 'sum')
+    ).reset_index()
+
+    selected_states = st.multiselect(
+        "Select states to compare:",
+        options=sorted(revenue_by_state["customer_state"].unique()),
+        default=["SP", "RJ", "MG"]
+    )
+
+    chart_data = revenue_by_state[revenue_by_state["customer_state"].isin(selected_states)]
+    pivot_chart = chart_data.pivot(index="year_month", columns="customer_state", values="total_revenue")
+
+    st.line_chart(pivot_chart)
+
+    if st.checkbox("Show Insights", key="insights_trend_state"):
+        st.info("""
+        This time-series line chart shows **monthly revenue trends per state**.
+        
+        - Great for spotting **growth patterns**, **seasonality**, and **sales dips**.
+        - Useful for planning campaigns by region or evaluating state-level performance over time.
+        """)
+
+# --- Section 5: Top Customer Segments per State ---
+with st.expander("🧭 5. Top Customer Segments per State", expanded=False):
     cluster_df, cluster_summary = run_customer_segmentation(customer_features)
+    merged_seg = pd.merge(full_orders, cluster_df[['segment']], left_on='customer_unique_id', right_index=True)
+    
+    state_segment = merged_seg.groupby(['customer_state', 'segment']).agg(
+        customer_count=('customer_unique_id', 'count')
+    ).reset_index()
 
-    st.dataframe(cluster_summary)
+    top_segments = state_segment.sort_values(['customer_state', 'customer_count'], ascending=[True, False])
+    top_segment_per_state = top_segments.groupby("customer_state").first().reset_index()
 
-    st.scatter_chart(cluster_df, x="pca1", y="pca2", color="segment")
+    st.dataframe(top_segment_per_state.rename(columns={"segment": "Top Segment", "customer_count": "Customer Count"}))
+
+    if st.checkbox("Show Insights", key="insights_seg_state"):
+        st.info("""
+        For each state, we identify the **dominant customer behavior segment**:
+        - Enables **geo-targeted strategies** (e.g., promos for "Loyal" vs "Inactive").
+        - Powerful for aligning marketing with **regional behavior profiles**.
+        """)
+
+# --- Section 6: CLTV vs Revenue by State ---
+with st.expander("📊 6. CLTV vs Revenue by State + 🚨 Drop Detection", expanded=False):
+    cltv_geo_df = prepare_cltv_geo_df(full_orders, summary)
+    cltv_geo_df["order_purchase_timestamp"] = pd.to_datetime(cltv_geo_df["order_purchase_timestamp"])
+    cltv_geo_df["year_month"] = cltv_geo_df["order_purchase_timestamp"].dt.to_period('M').astype(str)
+
+    cltv_rev = cltv_geo_df.groupby("customer_state").agg(
+        total_revenue=("payment_value", "sum"),
+        avg_cltv=("predicted_cltv", "mean"),
+        customer_count=("customer_unique_id", "nunique")
+    ).reset_index()
+
+    st.subheader("📉 Revenue vs CLTV by State")
+    st.dataframe(cltv_rev.sort_values("total_revenue", ascending=False))
+
+    # Simple drop detector: compare revenue in last month vs average
+    last_month = cltv_geo_df["year_month"].max()
+    recent_revenue = cltv_geo_df[cltv_geo_df["year_month"] == last_month].groupby("customer_state")["payment_value"].sum()
+    avg_revenue = cltv_geo_df.groupby("customer_state")["payment_value"].mean()
+
+    drop_zones = pd.DataFrame({
+        "last_month_revenue": recent_revenue,
+        "avg_monthly_revenue": avg_revenue
+    }).dropna()
+    drop_zones["drop_flag"] = drop_zones["last_month_revenue"] < (0.75 * drop_zones["avg_monthly_revenue"])
+
+    risky_states = drop_zones[drop_zones["drop_flag"]].reset_index()
+
+    st.subheader("🚨 Revenue Drop Detected in These States")
+    st.dataframe(risky_states[["customer_state", "last_month_revenue", "avg_monthly_revenue"]])
+
+    if st.checkbox("Show Insights", key="insights_drop_flag"):
+        st.info("""
+        This section:
+        - Compares **CLTV vs Revenue** to spot **misaligned value generation**.
+        - Flags **states with revenue drop-offs**, useful for early warnings or churn risk.
+
+        **Use Case**: Business teams can prioritize retention efforts where high CLTV doesn’t match recent revenue.
+        """)
