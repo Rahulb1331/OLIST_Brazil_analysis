@@ -330,6 +330,7 @@ with st.expander("🧭 3. Geo Segmentation (KMeans Clustering)", expanded=False)
         **Interpretations**:
         - A cluster of high-revenue cities is represented by cluster indexed 1 (yellow color) and represents economic hotspots.
         - Geographically close cities may still belong to different clusters if their revenues differ significantly. 
+        """)
         @st.cache_data
         def explain_geo_clusters(geo_clustered):
             return geo_clustered.groupby("cluster")[["lat", "lon", "total_revenue"]].mean().round(2)
