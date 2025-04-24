@@ -125,6 +125,10 @@ with st.expander("🌍 2. Monthly Revenue/Orders Map", expanded=True):
     else:
         # Use raw values for total_revenue, or slight scaling if needed
         state_agg["scaled_metric"] = state_agg[metric] / 10
+    anomal = ["porto trombetas", "ibiajara", "vila dos cabanos", "pau d'arco", "santana do sobrado"]
+
+    # Filter out rows where the city column matches any city in the anomal list
+    state_agg = state_agg[~state_agg["city"].isin(anomal)]
 
     st.pydeck_chart(pdk.Deck(
         initial_view_state=pdk.ViewState(
