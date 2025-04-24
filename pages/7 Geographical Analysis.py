@@ -262,7 +262,7 @@ with st.expander("🧭 3. Geo Segmentation (KMeans Clustering)", expanded=False)
             "html": """
                 <b>City:</b> {city}<br/>
                 <b>State:</b> {state}<br/>
-                <b>Total Revenue:</b> {""" + total_revenue + """}<br/>
+                <b>Total Revenue:</b> {total_revenue}<br/>
                 <b>Cluster:</b> {cluster}
             """,
             "style": {
