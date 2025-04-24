@@ -155,13 +155,13 @@ with st.expander("📦 1. CLTV by State and City", expanded=False):
 
         st.subheader(f"Top {top_n} Cities by CLTV")
         st.bar_chart(top_df.set_index("customer_city")["total_cltv"])
-    if st.checkbox("Show CLTV Insights"):
+    if st.checkbox("Show Insights"):
         st.info("""
-        This chart ranks states or cities based on their **total predicted Customer Lifetime Value (CLTV)**.  
+        This chart ranks states or cities based on their **total Customer Lifetime Value (CLTV)**.  
     
         - **CLTV** estimates how much revenue a customer will generate over their relationship with the business.
-        - By aggregating CLTV across regions, we identify **high-value markets**.
-        - This can guide **targeted marketing**, **logistics planning**, or **inventory decisions**.
+        - By aggregating CLTV across regions, we are identifying the **high-value markets**.
+        - This can guide help us do **targeted marketing**, **logistics planning**, or **inventory decisions**.
     
         **Insights**:
         - States/cities with high CLTV might have strong customer engagement, loyalty, or purchasing power.
@@ -233,19 +233,20 @@ with st.expander("🌍 2. Monthly Revenue/Orders Map", expanded=True):
     st.subheader("Top Contributing Cities")
     st.dataframe(top_cities)
 
-    if st.checkbox("Show Map Insights"):
+    if st.checkbox("Show Insights"):
         st.info(f"""
         The map above visualizes **{metric.replace('_', ' ').title()}** across Brazilian cities over time.
 
         - **Bubble size** reflects the magnitude of {metric.replace('_', ' ')}.
-        - You can explore changes over months using the slider above.
+        - And we can explore changes over months using the slider above.
     
         **Use Cases**:
         - Spotting **sales surges** or **drops** over time.
-        - Identifying **regional demand trends** for strategic planning.
+        - Identifying the **regional demand trends** for strategic planning.
 
         **Insights**:
-        - Larger bubbles in regions like São Paulo, Rio de Janeiro, or Belo Horizonte likely indicate economic hubs.
+        - Larger bubbles in regions like São Paulo, Rio de Janeiro, or Belo Horizonte indicate economic hubs.
+        - A larger radius bubble can be seen for Rio de Janeiro, even though it is the second most contributing city after São Paulo, this is because the grouping is done on the latitudes and longitudes to identify the citywise total {metric.replace('_', ' ')} and for Rio de Janeiro the lat, lon values are the same, while for São Paulo the different transactions have similar but varying lat, lon values showing that there is more granularity in capturing the locations for the transactions made from São Paulo.  
         - Seasonal fluctuations may be observed in specific cities, useful for promotions or supply chain adjustments.
         """)
 
