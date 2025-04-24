@@ -138,9 +138,9 @@ with st.expander("🌍 2. Monthly Revenue/Orders Map", expanded=True):
             )
         ],
         tooltip={
-            "html": f"""
+            "html": """
                 <b>State:</b> {{state}}<br/>
-                <b>{metric.replace('_', ' ').title()}:</b> {{{metric}}}<br/>
+                <b>Total Value:</b> {{""" + metric + """}}<br/>
                 <b>Lat:</b> {{lat}}<br/>
                 <b>Lon:</b> {{lon}}
             """,
