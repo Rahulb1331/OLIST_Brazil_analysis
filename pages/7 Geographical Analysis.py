@@ -107,7 +107,6 @@ with st.expander("📦 1. CLTV by State and City", expanded=False):
 # --- Section 2: Monthly Sales/Orders Map with Pydeck ---
 with st.expander("🌍 2. Monthly Revenue/Orders Map", expanded=True):
     geo_pd = get_geo_bubble_data(full_orders, geolocation)
-    st.write("geo_pd columns:", geo_pd.columns.tolist())
     geo_pd['year_month'] = pd.to_datetime(geo_pd['year_month'])
 
     metric = st.selectbox("Select Metric", ["total_revenue", "total_orders"], index=0)
@@ -117,6 +116,8 @@ with st.expander("🌍 2. Monthly Revenue/Orders Map", expanded=True):
     start, end = st.slider("Select Month Range", min_value=min_month, max_value=max_month, value=(min_month, max_month), format="MMM YYYY")
 
     filtered = geo_pd[(geo_pd['year_month'] >= pd.to_datetime(start)) & (geo_pd['year_month'] <= pd.to_datetime(end))]
+    filtered = filtered.rename(columns={"state_x": "state", "city_x": "city"})
+    filtered = filtered.drop(columns=["city_y", "state_y"])
     state_agg = filtered.groupby(["state", "lat", "lon"]).agg({metric: "sum"}).reset_index()
 
     st.pydeck_chart(pdk.Deck(
