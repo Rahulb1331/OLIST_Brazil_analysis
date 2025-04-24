@@ -1,5 +1,6 @@
 import streamlit as st
 import pandas as pd
+import pydeck as pdk
 import plotly.express as px
 from sklearn.preprocessing import StandardScaler
 from sklearn.cluster import KMeans
@@ -39,7 +40,9 @@ def get_geo_bubble_data(full_orders, geolocation):
 
     orders_by_zip = full_orders.groupby("customer_zip_code_prefix").agg(
         total_revenue=("payment_value", "sum"),
-        total_orders=("order_id", "count")
+        total_orders=("order_id", "count"),
+        first_order_date=("order_purchase_timestamp", "min"),
+        last_order_date=("order_purchase_timestamp", "max")
     ).reset_index()
 
     return pd.merge(
@@ -123,34 +126,60 @@ with st.expander("💰 2. Revenue by State", expanded=False):
     fig2.update_layout(template="plotly_white")
     st.plotly_chart(fig2, use_container_width=True)
 
-# --- Section 3: Geo Bubble Map ---
-with st.expander("🗺️ 3. Geo Revenue Bubble Map", expanded=False):
+# --- Section 3: Pydeck Hex Grid & Daily Revenue Bar Plot ---
+with st.expander("🗺️ 3. Interactive Geo Revenue View", expanded=True):
     geo_pd = get_geo_bubble_data(full_orders, geolocation)
+    geo_pd['order_day'] = pd.to_datetime(full_orders['order_purchase_timestamp']).dt.date
 
-    fig3 = px.scatter_geo(
-        geo_pd, lat="lat", lon="lon", size="total_revenue",
-        color="total_revenue", hover_name="city",
-        scope="south america", title="Revenue by City (Geo Bubble Map)",
-        projection="natural earth"
+    min_date = geo_pd['first_order_date'].min().date()
+    max_date = geo_pd['last_order_date'].max().date()
+
+    start_date, end_date = st.slider("Select order date range", min_value=min_date, max_value=max_date,
+                                      value=(min_date, max_date), format="YYYY-MM-DD")
+
+    filtered_geo = geo_pd[(geo_pd['first_order_date'].dt.date >= start_date) & (geo_pd['last_order_date'].dt.date <= end_date)]
+
+    st.pydeck_chart(pdk.Deck(
+        map_style="mapbox://styles/mapbox/light-v9",
+        initial_view_state=pdk.ViewState(
+            latitude=-14.2350,
+            longitude=-51.9253,
+            zoom=3.5,
+            pitch=40,
+        ),
+        layers=[
+            pdk.Layer(
+                "HexagonLayer",
+                data=filtered_geo,
+                get_position='[lon, lat]',
+                radius=10000,
+                elevation_scale=100,
+                elevation_range=[0, 3000],
+                pickable=True,
+                extruded=True,
+            )
+        ],
+    ))
+
+    st.markdown("### 📊 Daily Sales in Selected Range")
+    date_filtered_orders = full_orders[(full_orders['order_purchase_timestamp'].dt.date >= start_date) &
+                                       (full_orders['order_purchase_timestamp'].dt.date <= end_date)]
+
+    daily_sales = date_filtered_orders.groupby(date_filtered_orders['order_purchase_timestamp'].dt.date).agg(
+        total_revenue=('payment_value', 'sum'),
+        total_orders=('order_id', 'count')
+    ).reset_index().rename(columns={'order_purchase_timestamp': 'date'})
+
+    fig_daily = px.bar(
+        daily_sales, x='date', y='total_revenue',
+        labels={'total_revenue': 'Revenue (BRL)', 'date': 'Date'},
+        title='Total Revenue per Day'
     )
-    fig3.update_layout(template="plotly_white")
-    st.plotly_chart(fig3, use_container_width=True)
-
-# --- Section 4: Geo Clustering ---
-with st.expander("🧭 4. Geo Segmentation (KMeans Clustering)", expanded=False):
-    geo_clustered = run_geo_clustering(geo_pd)
-
-    fig4 = px.scatter_geo(
-        geo_clustered, lat="lat", lon="lon", color="cluster",
-        hover_name="city", size="total_revenue",
-        scope="south america", title="Geo Segmentation using KMeans",
-        projection="natural earth"
-    )
-    fig4.update_layout(template="plotly_white")
-    st.plotly_chart(fig4, use_container_width=True)
+    fig_daily.update_layout(template="plotly_white")
+    st.plotly_chart(fig_daily, use_container_width=True)
 
 # --- Section 5: Customer Behavioral Clustering ---
-with st.expander("🧠 5. Customer Behavioral Clustering (KMeans + PCA)", expanded=False):
+with st.expander("🧠 4. Customer Behavioral Clustering (KMeans + PCA)", expanded=False):
     cluster_df, cluster_summary = run_customer_segmentation(customer_features)
 
     st.dataframe(cluster_summary)
