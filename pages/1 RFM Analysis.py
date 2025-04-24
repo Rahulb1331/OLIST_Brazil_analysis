@@ -124,7 +124,7 @@ segment_definitions = {
 }
 
 st.expander("📘 Click to view Segment Definitions").table(pd.DataFrame(segment_definitions))
-st.caption("Insight: Champions and Loyal Customers deserve exclusive offers.")  # Change5
+st.caption("Insight: Champions and loyal customers can be incentivized by offering them exclusive deals.")  # Change5
 
 
 # --- RFM Heatmaps ---
