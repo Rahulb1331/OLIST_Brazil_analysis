@@ -131,16 +131,30 @@ def run_customer_segmentation(customer_features):
 
     return df, summary   
 
-# --- Section 1: CLTV by State ---
+# --- Section 1: CLTV by State and City ---
 with st.expander("📦 1. CLTV by State and City", expanded=False):
     cltv_geo_df = prepare_cltv_geo_df(full_orders, summary)
 
-    top_states_pd = cltv_geo_df.groupby("customer_state").agg(
-        total_cltv=("predicted_cltv", "sum"),
-        unique_customers=("customer_unique_id", pd.Series.nunique)
-    ).sort_values("total_cltv", ascending=False).reset_index()
+    group_choice = st.selectbox("Group by", ["State", "City"])
+    top_n = st.slider("Select Top N", min_value=5, max_value=30, value=10)
 
-    st.bar_chart(top_states_pd.set_index("customer_state")["total_cltv"])
+    if group_choice == "State":
+        top_df = cltv_geo_df.groupby("customer_state").agg(
+            total_cltv=("predicted_cltv", "sum"),
+            unique_customers=("customer_unique_id", pd.Series.nunique)
+        ).sort_values("total_cltv", ascending=False).head(top_n).reset_index()
+
+        st.subheader(f"Top {top_n} States by CLTV")
+        st.bar_chart(top_df.set_index("customer_state")["total_cltv"])
+
+    else:
+        top_df = cltv_geo_df.groupby("customer_city").agg(
+            total_cltv=("predicted_cltv", "sum"),
+            unique_customers=("customer_unique_id", pd.Series.nunique)
+        ).sort_values("total_cltv", ascending=False).head(top_n).reset_index()
+
+        st.subheader(f"Top {top_n} Cities by CLTV")
+        st.bar_chart(top_df.set_index("customer_city")["total_cltv"])
 
 # --- Section 2: Monthly Sales/Orders Map with Pydeck ---
 with st.expander("🌍 2. Monthly Revenue/Orders Map", expanded=True):
