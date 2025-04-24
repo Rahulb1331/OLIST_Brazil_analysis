@@ -125,16 +125,15 @@ with st.expander("🌍 2. Monthly Revenue/Orders Map", expanded=True):
             latitude=-14.2350, longitude=-51.9253, zoom=4.5, pitch=40
         ),
         layers=[
-            pdk.Layer(
-                "ColumnLayer",
-                data=state_agg,
-                get_position='[lon, lat]',
-                get_elevation=metric,
-                elevation_scale=20,
-                radius=20000,
-                get_fill_color='[255, 165, 0, 160]',
-                pickable=True,
-                auto_highlight=True,
+        pdk.Layer(
+            "ScatterplotLayer",
+            data=state_agg,
+            get_position='[lon, lat]',
+            get_radius=f"{metric} / 10",  # Adjust scaling as needed
+            get_fill_color="[255, 140, 0, 180]",
+            pickable=True,
+            radius_scale=20,
+            tooltip=True
             )
         ],
         tooltip={
