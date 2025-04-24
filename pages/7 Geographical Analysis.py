@@ -124,7 +124,7 @@ with st.expander("🌍 2. Monthly Revenue/Orders Map", expanded=True):
         state_agg["scaled_metric"] = state_agg[metric].apply(lambda x: (x / 18735) * 40000 + 1000)
     else:
         # Use raw values for total_revenue, or slight scaling if needed
-        state_agg["scaled_metric"] = state_agg[metric]
+        state_agg["scaled_metric"] = state_agg[metric] / 10
 
     st.pydeck_chart(pdk.Deck(
         initial_view_state=pdk.ViewState(
@@ -145,6 +145,7 @@ with st.expander("🌍 2. Monthly Revenue/Orders Map", expanded=True):
         tooltip={
             "html": """
                 <b>State:</b> {state}<br/>
+                <b>City:</b> {city}<br/>
                 <b>Total Value:</b> {""" + metric + """}<br/>
                 <b>Lat:</b> {lat}<br/>
                 <b>Lon:</b> {lon}
