@@ -185,6 +185,6 @@ with st.expander("🧭 3. Geo Segmentation (KMeans Clustering)", expanded=False)
 with st.expander("🧠 4. Customer Behavioral Clustering (KMeans + PCA)", expanded=False):
     cluster_df, cluster_summary = run_customer_segmentation(customer_features)
 
-    st.dataframe(cluster_df[["cluster", "segment", "num_orders", "recency_days", "avg_order_value", "purchase_span_days"]])
+    st.dataframe(cluster_summary)
 
     st.scatter_chart(cluster_df, x="pca1", y="pca2", color="segment")
