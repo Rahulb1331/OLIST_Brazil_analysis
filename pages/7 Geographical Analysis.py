@@ -135,7 +135,7 @@ with st.expander("🌍 2. Monthly Revenue/Orders Map", expanded=True):
             "ScatterplotLayer",
             data=state_agg,
             get_position='[lon, lat]',
-            get_radius="scaled_metric" #f"{metric} / 10",   Adjust scaling as needed
+            get_radius='scaled_metric', #f"{metric} / 10",   Adjust scaling as needed
             get_fill_color="[255, 140, 0, 180]",
             pickable=True,
             radius_scale=20,
