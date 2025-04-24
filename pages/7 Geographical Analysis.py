@@ -276,7 +276,8 @@ with st.expander("🧭 3. Geo Segmentation (KMeans Clustering)", expanded=False)
         }
     ))
     
-    with st.expander("Show Insights", expanded = False):
+    show_insights = st.checkbox("Show Insights")
+    if show_insights:
         st.info("""
         The map below shows geospatial clusters of cities based on three features:
         - **Latitude & Longitude** (location)
