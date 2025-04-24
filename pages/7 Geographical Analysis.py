@@ -161,7 +161,8 @@ with st.expander("🌍 2. Monthly Revenue/Orders Map", expanded=True):
 
 # --- Section 3: Geo Clustering ---
 with st.expander("🧭 3. Geo Segmentation (KMeans Clustering)", expanded=False):
-    geo_clustered = run_geo_clustering(state_agg)
+    sta_agg = filtered.groupby(["state", "lat", "lon"]).agg({"total_revenue": "sum"}).reset_index()
+    geo_clustered = run_geo_clustering(sta_agg)
 
     st.map(geo_clustered, latitude="lat", longitude="lon")
 
