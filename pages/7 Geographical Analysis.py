@@ -119,6 +119,12 @@ with st.expander("🌍 2. Monthly Revenue/Orders Map", expanded=True):
     filtered = filtered.rename(columns={"state_x": "state", "city_x": "city"})
     filtered = filtered.drop(columns=["city_y", "state_y"])
     state_agg = filtered.groupby(["state", "lat", "lon"]).agg({metric: "sum"}).reset_index()
+    if metric == "total_orders":
+        # Scale orders to a reasonable visual range
+        state_agg["scaled_metric"] = state_agg[metric].apply(lambda x: (x / 18735) * 40000 + 1000)
+    else:
+        # Use raw values for total_revenue, or slight scaling if needed
+        state_agg["scaled_metric"] = state_agg[metric]
 
     st.pydeck_chart(pdk.Deck(
         initial_view_state=pdk.ViewState(
@@ -129,7 +135,7 @@ with st.expander("🌍 2. Monthly Revenue/Orders Map", expanded=True):
             "ScatterplotLayer",
             data=state_agg,
             get_position='[lon, lat]',
-            get_radius=f"{metric} / 10",  # Adjust scaling as needed
+            get_radius=  'scaled_metric' #f"{metric} / 10",   Adjust scaling as needed
             get_fill_color="[255, 140, 0, 180]",
             pickable=True,
             radius_scale=20,
