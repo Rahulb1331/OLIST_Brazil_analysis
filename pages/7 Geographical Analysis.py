@@ -135,7 +135,8 @@ with st.expander("🌍 2. Monthly Revenue/Orders Map", expanded=True):
                 pickable=True,
                 elevation_range=[0, 3000],
                 extruded=True,
-            ),
+            )
+        ],
         tooltip={
             "html": f"""
                 <b>State:</b> {{state}}<br/>
