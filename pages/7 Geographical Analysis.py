@@ -125,7 +125,7 @@ with st.expander("🌍 2. Monthly Revenue/Orders Map", expanded=True):
     else:
         # Use raw values for total_revenue, or slight scaling if needed
         state_agg["scaled_metric"] = state_agg[metric] / 10
-    anomal = ["porto trombetas", "ibiajara", "vila dos cabanos", "pau d'arco", "santana do sobrado"]
+    anomal = ["porto trombetas", "ibiajara", "vila dos cabanos", "pau d'arco", "santana do sobrado", "santo antonio do canaa"]
 
     # Filter out rows where the city column matches any city in the anomal list
     state_agg = state_agg[~state_agg["city"].isin(anomal)]
@@ -172,7 +172,7 @@ with st.expander("🌍 2. Monthly Revenue/Orders Map", expanded=True):
 # --- Section 3: Geo Clustering ---
 with st.expander("🧭 3. Geo Segmentation (KMeans Clustering)", expanded=False):
     sta_agg = filtered.groupby(["state", "city", "lat", "lon"]).agg({"total_revenue": "sum"}).reset_index()
-    anomal = ["porto trombetas", "ibiajara", "vila dos cabanos", "pau d'arco", "santana do sobrado"]
+    anomal = ["porto trombetas", "ibiajara", "vila dos cabanos", "pau d'arco", "santana do sobrado", "santo antonio do canaa"]
 
     # Filter out rows where the city column matches any city in the anomal list
     sta_agg = sta_agg[~sta_agg["city"].isin(anomal)]
