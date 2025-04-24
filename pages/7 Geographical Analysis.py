@@ -107,6 +107,7 @@ with st.expander("📦 1. CLTV by State and City", expanded=False):
 # --- Section 2: Monthly Sales/Orders Map with Pydeck ---
 with st.expander("🌍 2. Monthly Revenue/Orders Map", expanded=True):
     geo_pd = get_geo_bubble_data(full_orders, geolocation)
+    st.write("geo_pd columns:", geo_pd.columns.tolist())
     geo_pd['year_month'] = pd.to_datetime(geo_pd['year_month'])
 
     metric = st.selectbox("Select Metric", ["total_revenue", "total_orders"], index=0)
