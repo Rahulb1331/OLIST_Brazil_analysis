@@ -155,6 +155,18 @@ with st.expander("📦 1. CLTV by State and City", expanded=False):
 
         st.subheader(f"Top {top_n} Cities by CLTV")
         st.bar_chart(top_df.set_index("customer_city")["total_cltv"])
+    if st.checkbox("Show CLTV Insights"):
+        st.info("""
+        This chart ranks states or cities based on their **total predicted Customer Lifetime Value (CLTV)**.  
+    
+        - **CLTV** estimates how much revenue a customer will generate over their relationship with the business.
+        - By aggregating CLTV across regions, we identify **high-value markets**.
+        - This can guide **targeted marketing**, **logistics planning**, or **inventory decisions**.
+    
+        **Insights**:
+        - States/cities with high CLTV might have strong customer engagement, loyalty, or purchasing power.
+        - A lower number of unique customers but high CLTV indicates **fewer but very valuable customers**.
+        """)
 
 # --- Section 2: Monthly Sales/Orders Map with Pydeck ---
 with st.expander("🌍 2. Monthly Revenue/Orders Map", expanded=True):
@@ -220,6 +232,23 @@ with st.expander("🌍 2. Monthly Revenue/Orders Map", expanded=True):
     top_cities = filtered.groupby("city")[metric].sum().sort_values(ascending=False).head(10).reset_index()
     st.subheader("Top Contributing Cities")
     st.dataframe(top_cities)
+
+    if st.checkbox("Show Map Insights"):
+        st.info(f"""
+        The map above visualizes **{metric.replace('_', ' ').title()}** across Brazilian cities over time.
+
+        - **Bubble size** reflects the magnitude of {metric.replace('_', ' ')}.
+        - You can explore changes over months using the slider above.
+    
+        **Use Cases**:
+        - Spotting **sales surges** or **drops** over time.
+        - Identifying **regional demand trends** for strategic planning.
+
+        **Insights**:
+        - Larger bubbles in regions like São Paulo, Rio de Janeiro, or Belo Horizonte likely indicate economic hubs.
+        - Seasonal fluctuations may be observed in specific cities, useful for promotions or supply chain adjustments.
+        """)
+
 
 # --- Section 3: Geo Clustering ---
 with st.expander("🧭 3. Geo Segmentation (KMeans Clustering)", expanded=False):
