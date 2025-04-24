@@ -126,23 +126,23 @@ with st.expander("🌍 2. Monthly Revenue/Orders Map", expanded=True):
         ),
         layers=[
             pdk.Layer(
-                "HexagonLayer",
+                "ColumnLayer",
                 data=state_agg,
                 get_position='[lon, lat]',
-                auto_highlight=True,
-                radius=25000,
-                elevation_scale=50,
+                get_elevation=metric,
+                elevation_scale=20,
+                radius=20000,
+                get_fill_color='[255, 165, 0, 160]',
                 pickable=True,
-                elevation_range=[0, 3000],
-                extruded=True,
+                auto_highlight=True,
             )
         ],
         tooltip={
             "html": """
-                <b>State:</b> {{state}}<br/>
-                <b>Total Value:</b> {{""" + metric + """}}<br/>
-                <b>Lat:</b> {{lat}}<br/>
-                <b>Lon:</b> {{lon}}
+                <b>State:</b> {state}<br/>
+                <b>Total Value:</b> {""" + metric + """}<br/>
+                <b>Lat:</b> {lat}<br/>
+                <b>Lon:</b> {lon}
             """,
             "style": {
                 "backgroundColor": "rgba(0, 0, 0, 0.8)",
