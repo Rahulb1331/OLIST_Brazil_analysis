@@ -294,7 +294,7 @@ with st.expander("🧭 3. Geo Segmentation (KMeans Clustering)", expanded=False)
         layers=[
             pdk.Layer(
                 "ScatterplotLayer",
-                data=geo_clustered,
+                data=visible_data,
                 get_position='[lon, lat]',
                 get_fill_color="color",
                 get_radius=30000,
