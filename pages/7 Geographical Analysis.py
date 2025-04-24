@@ -1,7 +1,6 @@
 import streamlit as st
 import pandas as pd
 import pydeck as pdk
-import plotly.express as px
 from sklearn.preprocessing import StandardScaler
 from sklearn.cluster import KMeans
 from sklearn.decomposition import PCA
@@ -31,6 +30,9 @@ def prepare_cltv_geo_df(full_orders, summary):
 
 @st.cache_data
 def get_geo_bubble_data(full_orders, geolocation):
+    full_orders['order_purchase_timestamp'] = pd.to_datetime(full_orders['order_purchase_timestamp'])
+    full_orders['year_month'] = full_orders['order_purchase_timestamp'].dt.to_period('M').astype(str)
+
     grouped_geo = geolocation.groupby("geolocation_zip_code_prefix").agg(
         lat=("geolocation_lat", "mean"),
         lon=("geolocation_lng", "mean"),
@@ -38,20 +40,21 @@ def get_geo_bubble_data(full_orders, geolocation):
         state=("geolocation_state", "first")
     ).reset_index()
 
-    orders_by_zip = full_orders.groupby("customer_zip_code_prefix").agg(
+    orders_by_zip_monthly = full_orders.groupby(["customer_zip_code_prefix", "year_month"]).agg(
         total_revenue=("payment_value", "sum"),
         total_orders=("order_id", "count"),
-        first_order_date=("order_purchase_timestamp", "min"),
-        last_order_date=("order_purchase_timestamp", "max")
+        state=("customer_state", "first"),
+        city=("customer_city", "first")
     ).reset_index()
 
-    return pd.merge(
-        orders_by_zip,
+    merged = pd.merge(
+        orders_by_zip_monthly,
         grouped_geo,
         left_on="customer_zip_code_prefix",
         right_on="geolocation_zip_code_prefix",
         how="inner"
     )
+    return merged
 
 @st.cache_data
 def run_geo_clustering(geo_pd):
@@ -98,96 +101,55 @@ with st.expander("📦 1. CLTV by State and City", expanded=False):
         unique_customers=("customer_unique_id", pd.Series.nunique)
     ).sort_values("total_cltv", ascending=False).reset_index()
 
-    fig1 = px.bar(
-        top_states_pd.head(10), x="customer_state", y="total_cltv",
-        text="unique_customers", title="Top 10 States by Total CLTV",
-        labels={"customer_state": "State", "total_cltv": "Total CLTV"},
-        color="total_cltv"
-    )
-    fig1.update_traces(textposition="outside")
-    fig1.update_layout(template="plotly_white")
-    st.plotly_chart(fig1, use_container_width=True)
+    st.bar_chart(top_states_pd.set_index("customer_state")["total_cltv"])
 
-# --- Section 2: Revenue by State ---
-with st.expander("💰 2. Revenue by State", expanded=False):
-    revenue_by_state_pd = full_orders.groupby("customer_state").agg(
-        total_revenue=("payment_value", "sum"),
-        total_orders=("order_id", pd.Series.nunique)
-    ).sort_values("total_revenue", ascending=False).reset_index()
-
-    fig2 = px.bar(
-        revenue_by_state_pd.head(10),
-        x="customer_state", y="total_revenue", text="total_orders",
-        title="Top States by Revenue",
-        labels={"customer_state": "State", "total_revenue": "Revenue (BRL)"},
-        color="total_revenue"
-    )
-    fig2.update_traces(textposition="outside")
-    fig2.update_layout(template="plotly_white")
-    st.plotly_chart(fig2, use_container_width=True)
-
-# --- Section 3: Pydeck Hex Grid & Daily Revenue Bar Plot ---
-with st.expander("🗺️ 3. Interactive Geo Revenue View", expanded=True):
+# --- Section 2: Monthly Sales/Orders Map with Pydeck ---
+with st.expander("🌍 2. Monthly Revenue/Orders Map", expanded=True):
     geo_pd = get_geo_bubble_data(full_orders, geolocation)
-    geo_pd['order_day'] = pd.to_datetime(full_orders['order_purchase_timestamp']).dt.date
+    geo_pd['year_month'] = pd.to_datetime(geo_pd['year_month'])
 
-    min_date = geo_pd['first_order_date'].min().date()
-    max_date = geo_pd['last_order_date'].max().date()
+    metric = st.selectbox("Select Metric", ["total_revenue", "total_orders"], index=0)
 
-    start_date, end_date = st.slider("Select order date range", min_value=min_date, max_value=max_date,
-                                      value=(min_date, max_date), format="YYYY-MM-DD")
+    min_month = geo_pd['year_month'].min()
+    max_month = geo_pd['year_month'].max()
+    start, end = st.slider("Select Month Range", min_value=min_month, max_value=max_month, value=(min_month, max_month), format="%b %Y")
 
-    filtered_geo = geo_pd[(geo_pd['first_order_date'].dt.date >= start_date) & (geo_pd['last_order_date'].dt.date <= end_date)]
+    filtered = geo_pd[(geo_pd['year_month'] >= start) & (geo_pd['year_month'] <= end)]
+    state_agg = filtered.groupby(["state", "lat", "lon"]).agg({metric: "sum"}).reset_index()
 
     st.pydeck_chart(pdk.Deck(
-        map_style="mapbox://styles/mapbox/light-v9",
         initial_view_state=pdk.ViewState(
-            latitude=-14.2350,
-            longitude=-51.9253,
-            zoom=3.5,
-            pitch=40,
+            latitude=-14.2350, longitude=-51.9253, zoom=4.5, pitch=40
         ),
         layers=[
             pdk.Layer(
                 "HexagonLayer",
-                data=filtered_geo,
+                data=state_agg,
                 get_position='[lon, lat]',
-                radius=10000,
-                elevation_scale=100,
-                elevation_range=[0, 3000],
+                auto_highlight=True,
+                radius=25000,
+                elevation_scale=50,
                 pickable=True,
+                elevation_range=[0, 3000],
                 extruded=True,
             )
-        ],
+        ]
     ))
 
-    st.markdown("### 📊 Daily Sales in Selected Range")
-    date_filtered_orders = full_orders[(full_orders['order_purchase_timestamp'].dt.date >= start_date) &
-                                       (full_orders['order_purchase_timestamp'].dt.date <= end_date)]
+    top_cities = filtered.groupby("city")[metric].sum().sort_values(ascending=False).head(10).reset_index()
+    st.subheader("Top Contributing Cities")
+    st.dataframe(top_cities)
 
-    daily_sales = date_filtered_orders.groupby(date_filtered_orders['order_purchase_timestamp'].dt.date).agg(
-        total_revenue=('payment_value', 'sum'),
-        total_orders=('order_id', 'count')
-    ).reset_index().rename(columns={'order_purchase_timestamp': 'date'})
+# --- Section 3: Geo Clustering ---
+with st.expander("🧭 3. Geo Segmentation (KMeans Clustering)", expanded=False):
+    geo_clustered = run_geo_clustering(state_agg)
 
-    fig_daily = px.bar(
-        daily_sales, x='date', y='total_revenue',
-        labels={'total_revenue': 'Revenue (BRL)', 'date': 'Date'},
-        title='Total Revenue per Day'
-    )
-    fig_daily.update_layout(template="plotly_white")
-    st.plotly_chart(fig_daily, use_container_width=True)
+    st.map(geo_clustered, latitude="lat", longitude="lon")
 
-# --- Section 5: Customer Behavioral Clustering ---
+# --- Section 4: Customer Behavioral Clustering ---
 with st.expander("🧠 4. Customer Behavioral Clustering (KMeans + PCA)", expanded=False):
     cluster_df, cluster_summary = run_customer_segmentation(customer_features)
 
     st.dataframe(cluster_summary)
 
-    fig5 = px.scatter(
-        cluster_df, x="pca1", y="pca2", color="segment",
-        title="Customer Segments (PCA Projection)",
-        hover_data=["num_orders", "avg_order_value", "recency_days"]
-    )
-    fig5.update_layout(template="plotly_white")
-    st.plotly_chart(fig5, use_container_width=True)
+    st.scatter_chart(cluster_df, x="pca1", y="pca2", color="segment")
