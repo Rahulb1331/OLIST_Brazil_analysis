@@ -23,6 +23,8 @@ st.dataframe(summary)
 cltv_df = cltv_df.dropna()
 
 st.dataframe(cltv_df)
+st.dataframe(customer_features)
+
 
 # --- Cached processing steps ---
 @st.cache_data
