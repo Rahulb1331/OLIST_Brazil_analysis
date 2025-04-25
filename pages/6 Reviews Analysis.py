@@ -79,6 +79,14 @@ with tab1:
 
     st.caption("Note: Error bars represent rating standard deviation. % of low scores available in detail view.")
 
+    with st.expander("🔍 View Detailed Seller & Product Rating Stats"):
+        st.subheader("Detailed Seller Stats")
+        st.dataframe(rating_stats.sort_values("avg_rating", ascending=False).reset_index(drop=True))
+
+        st.subheader("Detailed Product Stats")
+        st.dataframe(prod_stats.sort_values("avg_rating", ascending=False).reset_index(drop=True))
+
+    
     if st.checkbox("Show Insights for Ratings Tab"):
         st.info("""
         🔍 **Analysis Explanation**:
