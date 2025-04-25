@@ -81,10 +81,22 @@ with tab1:
 
     if st.checkbox("Show Insights for Ratings Tab"):
         st.info("""
-        - Sellers and products with consistently high ratings tend to have low standard deviation, indicating stable quality.
-        - Sellers with a high percentage of low scores may require performance reviews even if their average rating appears decent.
-        - Products with few reviews may show extreme ratings, so volume should be considered in decision-making.
+        🔍 **Analysis Explanation**:
+        - This tab identifies the top and worst performing products and sellers based on customer review scores.
+        - Grouping and aggregations calculate average ratings, standard deviations, and the percentage of low review scores.
+        - Sellers/products with more than 10 reviews are emphasized to reduce statistical bias from low-sample anomalies.
+
+        💡 **Key Insights**:
+        - Top performers have both high average scores and low variation in ratings.
+        - A high percentage of low reviews can flag customer dissatisfaction even if the average rating appears reasonable.
+        - Standard deviation reveals consistency—products/sellers with wild swings in reviews may lack reliability.
+
+        ✅ **Recommendations**:
+        - Prioritize high-rated and consistent performers for promotions or visibility.
+        - Investigate sellers/products with high standard deviation or low-score percentage for quality control.
+        - Consider minimum review thresholds before making business decisions based on rating data.
         """)
+
 
 with tab2:
     st.header("⏳ Delivery Time Impact on Reviews")
@@ -126,9 +138,20 @@ with tab2:
 
     if st.checkbox("Show Insights for Delivery Tab"):
         st.info("""
-        - Delays in delivery strongly correlate with lower customer review scores.
-        - Even for sellers with overall low scores, excessive delivery time further drags their reputation.
-        - Keeping delivery within or ahead of estimated time can help maintain or boost review scores.
+        🔍 **Analysis Explanation**:
+        - This tab explores how delivery duration and punctuality affect customer review scores.
+        - It compares average delivery days by review score and examines review impact from late vs on-time deliveries.
+        - Sellers with many low-rated, slow deliveries are highlighted for deeper evaluation.
+
+        💡 **Key Insights**:
+        - Longer delivery times are associated with lower review scores, even when the product is satisfactory.
+        - On-time deliveries yield higher ratings; lateness consistently reduces satisfaction.
+        - Some sellers suffer reputational damage due to systemic delivery delays.
+
+        ✅ **Recommendations**:
+        - Improve logistics to reduce actual delivery time and minimize delays.
+        - Communicate realistic delivery estimates to better align with customer expectations.
+        - Focus on sellers with long delivery delays and poor ratings for corrective action.
         """)
 
 with tab3:
@@ -151,10 +174,22 @@ with tab3:
 
     if st.checkbox("Show Insights for Freight Tab"):
         st.info("""
-        - High freight charges are not always correlated with poor ratings, but outliers exist.
-        - Certain product categories tolerate higher freight if product value or delivery speed justifies it.
-        - Analyzing freight charges together with review sentiment can guide pricing and logistics decisions.
+        🔍 **Analysis Explanation**:
+        - This tab investigates the relationship between freight costs and review scores.
+        - It aggregates ratings and average freight values at the seller and product category level.
+        - A bubble chart highlights potential overcharges or acceptable premium delivery segments.
+
+        💡 **Key Insights**:
+        - Freight cost alone does not guarantee lower ratings; value perception matters.
+        - Certain categories with high freight (e.g., heavy or premium items) still achieve strong reviews.
+        - Sellers with high freight and low ratings may be overcharging or underdelivering.
+
+        ✅ **Recommendations**:
+        - Audit categories and sellers with disproportionately high freight and low ratings.
+        - Consider subsidizing freight for budget-conscious categories to boost satisfaction.
+        - Promote sellers who maintain good ratings despite premium freight—indicating added value or service.
         """)
+
 
 with tab4:
     st.header("📂 Raw Data Snapshots")
