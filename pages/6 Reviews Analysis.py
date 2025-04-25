@@ -2,6 +2,7 @@ import streamlit as st
 import pandas as pd
 import numpy as np
 import plotly.express as px
+import plotly.graph_objects as go
 
 # Setup Streamlit
 st.set_page_config(page_title="Review Sentiment Analysis", layout="wide")
@@ -17,6 +18,14 @@ full_orders, order_reviews = load_data()
 orders_with_reviews = pd.merge(full_orders, order_reviews, on="order_id", how="inner")
 orders_with_reviews = orders_with_reviews[orders_with_reviews["seller_id"].notna()]
 
+# Compute helpful metrics
+orders_with_reviews["delivery_days"] = (
+    pd.to_datetime(orders_with_reviews["order_delivered_customer_date"]) -
+    pd.to_datetime(orders_with_reviews["order_purchase_timestamp"])
+).dt.days
+orders_with_reviews = orders_with_reviews[orders_with_reviews["delivery_days"] < 100]  # Outlier filter
+orders_with_reviews["low_score"] = orders_with_reviews["review_score"] < 3
+
 # Tabs for exploration
 tab1, tab2, tab3, tab4 = st.tabs([
     "⭐ Top & Worst Rated",
@@ -28,59 +37,54 @@ tab1, tab2, tab3, tab4 = st.tabs([
 with tab1:
     st.header("📦 Product & Seller Ratings")
 
-    top_sellers = orders_with_reviews.groupby("seller_id").agg(
-        num_reviews=pd.NamedAgg(column="review_score", aggfunc="count"),
-        avg_rating=pd.NamedAgg(column="review_score", aggfunc="mean")
-    ).sort_values(by=["avg_rating", "num_reviews"], ascending=[False, False]).head(10)
+    rating_stats = orders_with_reviews.groupby("seller_id").agg(
+        num_reviews=("review_score", "count"),
+        avg_rating=("review_score", "mean"),
+        rating_std=("review_score", "std"),
+        pct_low_scores=("low_score", "mean")
+    ).reset_index()
+    rating_stats["pct_low_scores"] *= 100
 
-    top_products = orders_with_reviews.groupby("product_category").agg(
-        num_reviews=pd.NamedAgg(column="review_score", aggfunc="count"),
-        avg_rating=pd.NamedAgg(column="review_score", aggfunc="mean")
-    ).sort_values(by=["avg_rating", "num_reviews"], ascending=[False, False]).head(10)
+    top_sellers = rating_stats.sort_values(by=["avg_rating", "num_reviews"], ascending=[False, False]).head(10)
+    worst_sellers = rating_stats[rating_stats["num_reviews"] >= 10].sort_values("avg_rating").head(10)
 
-    worst_sellers = orders_with_reviews.groupby("seller_id").agg(
-        num_reviews=pd.NamedAgg(column="review_score", aggfunc="count"),
-        avg_rating=pd.NamedAgg(column="review_score", aggfunc="mean")
-    )
-    worst_sellers = worst_sellers[worst_sellers["num_reviews"] >= 10]
-    worst_sellers = worst_sellers.sort_values("avg_rating").head(10)
+    prod_stats = orders_with_reviews.groupby("product_category").agg(
+        num_reviews=("review_score", "count"),
+        avg_rating=("review_score", "mean"),
+        rating_std=("review_score", "std"),
+        pct_low_scores=("low_score", "mean")
+    ).reset_index()
+    prod_stats["pct_low_scores"] *= 100
 
-    worst_products = orders_with_reviews.groupby("product_category").agg(
-        num_reviews=pd.NamedAgg(column="review_score", aggfunc="count"),
-        avg_rating=pd.NamedAgg(column="review_score", aggfunc="mean")
-    )
-    worst_products = worst_products[worst_products["num_reviews"] >= 10]
-    worst_products = worst_products.sort_values("avg_rating").head(10)
+    top_products = prod_stats.sort_values(by=["avg_rating", "num_reviews"], ascending=[False, False]).head(10)
+    worst_products = prod_stats[prod_stats["num_reviews"] >= 10].sort_values("avg_rating").head(10)
 
-    # Display plots
     col1, col2 = st.columns(2)
     with col1:
         st.subheader("Top 10 Products by Rating")
-        st.plotly_chart(px.bar(top_products.reset_index(), x="product_category", y="avg_rating", title="Top Products"))
+        st.plotly_chart(px.bar(top_products, x="product_category", y="avg_rating", error_y="rating_std", title="Top Products"))
 
     with col2:
         st.subheader("Worst 10 Products by Rating")
-        st.plotly_chart(px.bar(worst_products.reset_index(), x="product_category", y="avg_rating", title="Worst Products"))
+        st.plotly_chart(px.bar(worst_products, x="product_category", y="avg_rating", error_y="rating_std", title="Worst Products"))
 
     col3, col4 = st.columns(2)
     with col3:
         st.subheader("Top 10 Sellers by Rating")
-        st.plotly_chart(px.bar(top_sellers.reset_index(), x="seller_id", y="avg_rating", title="Top Sellers"))
+        st.plotly_chart(px.bar(top_sellers, x="seller_id", y="avg_rating", error_y="rating_std", title="Top Sellers"))
 
     with col4:
         st.subheader("Worst 10 Sellers by Rating")
-        st.plotly_chart(px.bar(worst_sellers.reset_index(), x="seller_id", y="avg_rating", title="Worst Sellers"))
+        st.plotly_chart(px.bar(worst_sellers, x="seller_id", y="avg_rating", error_y="rating_std", title="Worst Sellers"))
+
+    st.caption("Note: Error bars represent rating standard deviation. % of low scores available in detail view.")
 
 with tab2:
     st.header("⏳ Delivery Time Impact on Reviews")
 
-    orders_with_reviews["delivery_days"] = (pd.to_datetime(orders_with_reviews["order_delivered_customer_date"]) - 
-                                              pd.to_datetime(orders_with_reviews["order_purchase_timestamp"]))
-    orders_with_reviews["delivery_days"] = orders_with_reviews["delivery_days"].dt.days
-    
     delivery_analysis = orders_with_reviews.groupby("review_score").agg(
-        avg_delivery_days=pd.NamedAgg(column="delivery_days", aggfunc="mean"),
-        num_orders=pd.NamedAgg(column="order_id", aggfunc="count")
+        avg_delivery_days=("delivery_days", "mean"),
+        num_orders=("order_id", "count")
     ).reset_index()
 
     fig = px.bar(delivery_analysis, x="review_score", y="avg_delivery_days",
@@ -89,33 +93,46 @@ with tab2:
     fig.update_traces(marker_color="tomato", texttemplate='%{text:.1f}')
     st.plotly_chart(fig)
 
-    # Delay-based Worst Sellers
     st.subheader("Worst Sellers with Longest Delivery")
     seller_delay = orders_with_reviews.groupby("seller_id").agg(
-        num_orders=pd.NamedAgg(column="order_id", aggfunc="count"),
-        avg_rating=pd.NamedAgg(column="review_score", aggfunc="mean"),
-        avg_delivery_days=pd.NamedAgg(column="delivery_days", aggfunc="mean")
+        num_orders=("order_id", "count"),
+        avg_rating=("review_score", "mean"),
+        avg_delivery_days=("delivery_days", "mean")
     ).reset_index()
 
     seller_delay = seller_delay[(seller_delay["num_orders"] >= 10) & (seller_delay["avg_rating"] <= 2)]
     seller_delay = seller_delay.sort_values("avg_delivery_days", ascending=False).head(10)
-
     st.dataframe(seller_delay)
-    
+
+    st.subheader("Late vs On-Time Deliveries Impact")
+    orders_with_reviews["delivery_estimate"] = pd.to_datetime(orders_with_reviews["order_estimated_delivery_date"])
+    orders_with_reviews["actual_delivery"] = pd.to_datetime(orders_with_reviews["order_delivered_customer_date"])
+    orders_with_reviews["delayed"] = orders_with_reviews["actual_delivery"] > orders_with_reviews["delivery_estimate"]
+
+    delay_impact = orders_with_reviews.groupby("delayed").agg(
+        avg_rating=("review_score", "mean"),
+        count=("review_score", "count")
+    ).reset_index()
+    delay_impact["delayed"] = delay_impact["delayed"].map({True: "Late", False: "On-Time"})
+
+    st.plotly_chart(px.bar(delay_impact, x="delayed", y="avg_rating", title="Avg Review by Delivery Timeliness"))
+
 with tab3:
     st.header("🚚 Freight Charges vs Review Score")
 
-    freight_reviews = orders_with_reviews.groupby("seller_id").agg(
-        num_reviews=pd.NamedAgg(column="order_id", aggfunc="count"),
-        avg_rating=pd.NamedAgg(column="review_score", aggfunc="mean"),
-        avg_freight=pd.NamedAgg(column="freight_value", aggfunc="mean")
+    freight_reviews = orders_with_reviews.groupby(["seller_id", "product_category"]).agg(
+        num_reviews=("order_id", "count"),
+        avg_rating=("review_score", "mean"),
+        avg_freight=("freight_value", "mean")
     ).reset_index()
+
     freight_reviews = freight_reviews[freight_reviews["num_reviews"] > 10]
 
     fig = px.scatter(freight_reviews, x="avg_freight", y="avg_rating", size="num_reviews",
-                     hover_name="seller_id", title="Freight vs Average Rating",
+                     hover_data=["seller_id", "product_category"],
+                     title="Freight vs Rating by Seller and Product Category",
                      labels={"avg_freight": "Average Freight", "avg_rating": "Average Rating"})
-    fig.update_traces(marker=dict(opacity=0.7))
+    fig.update_traces(marker=dict(opacity=0.6))
     st.plotly_chart(fig)
 
 with tab4:
