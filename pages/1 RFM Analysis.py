@@ -91,7 +91,7 @@ rfm_summary = get_rfm_summary(rfm_df)
 st.subheader("📊 RFM Segment Summary")
 st.dataframe(rfm_summary)
 if st.checkbox("📌 Show Segment Insights"):
-    st.caption("Insight: High-value customers are frequent, recent, and big spenders. Target them with loyalty perks.")
+    st.info("Insight: High-value customers are frequent, recent, and big spenders. Target them with loyalty perks.")
 
 # --- Segment Distribution Plot ---
 fig1 = px.bar(
@@ -104,7 +104,7 @@ fig1 = px.bar(
 )
 st.plotly_chart(fig1)
 if st.checkbox("📌 Show Distribution Insights"):
-    st.caption("Insight: Monitor growth of High-value segment monthly to measure retention success.")
+    st.info("Insight: Monitor growth of High-value segment monthly to measure retention success.")
 
 
 # --- RFM Heatmaps ---
@@ -129,7 +129,7 @@ st.plotly_chart(plot_heatmap(rfm_scores, "R", "F", "Recency vs Frequency", "Freq
 st.plotly_chart(plot_heatmap(rfm_scores, "R", "M", "Recency vs Monetary", "Monetary Score", "Recency Score"))
 st.plotly_chart(plot_heatmap(rfm_scores, "M", "F", "Monetary vs Frequency", "Frequency Score", "Monetary Score"))
 if st.checkbox("📌 Show Heatmap Insights"):
-    st.caption("Insight: Use these combos to find likely churners (e.g., R=1, F=4).")
+    st.info("Insight: Use these combos to find likely churners (e.g., R=1, F=4).")
 
 # --- Product Preferences by Group ---
 @st.cache_data
@@ -157,7 +157,7 @@ fig_products = px.bar(
 fig_products.update_layout(xaxis_tickangle=-45, showlegend=False)
 st.plotly_chart(fig_products, use_container_width=True)
 if st.checkbox("📌 Show Product Preference Insights"):
-    st.caption("Insight: Tailor promotions by segment preference — e.g., Frequent Buyers love {filtered_pref.iloc[0]['product_category']}.")
+    st.info("Insight: Tailor promotions by segment preference — e.g., Frequent Buyers love {filtered_pref.iloc[0]['product_category']}.")
 
 # --- Behavior Segments Table ---
 st.subheader("🧠 Behavioral Segments")
@@ -177,7 +177,7 @@ segment_definitions = {
 }
 st.expander("📘 Click to view Segment Definitions").table(pd.DataFrame(segment_definitions))
 if st.checkbox("📌 Show Behavioral Insights"):
-    st.caption("Insight: Champions and loyal customers can be incentivized by offering them exclusive deals.")
+    st.info("Insight: Champions and loyal customers can be incentivized by offering them exclusive deals.")
 
 
 # --- Segment Revenue Contribution ---
@@ -185,7 +185,7 @@ revenue_by_segment = rfm_df.groupby("BehaviorSegment")["Monetary"].sum().reset_i
 st.subheader("💰 Revenue Contribution by Segment")
 st.table(revenue_by_segment)
 if st.checkbox("📌 Show Revenue Insights"):
-    st.caption("Insight: A few segments often contribute disproportionately — focus retention and upsell there.")
+    st.info("Insight: A few segments often contribute disproportionately — focus retention and upsell there.")
 
 # --- Export CSV ---
 st.download_button(
@@ -208,4 +208,4 @@ fig_trend = px.line(
 )
 st.plotly_chart(fig_trend, use_container_width=True)
 if st.checkbox("📌 Show Trend Insights"):
-    st.caption("Insight: Observe whether High-value segment is growing. Adjust retention strategy accordingly.")
+    st.info("Insight: Observe whether High-value segment is growing. Adjust retention strategy accordingly.")
