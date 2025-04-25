@@ -384,6 +384,7 @@ def get_top_segments_by_state(cltv_df, full_orders):
         on="customer_unique_id",
         how="inner"
     )
+    print(seg_df.columns)
     return seg_df.groupby(['CLTV_new_segment', 'customer_state']).size().reset_index(name='count')
 
 with st.expander("🧭 5. Top Customer Segments per State", expanded=False):
@@ -392,6 +393,8 @@ with st.expander("🧭 5. Top Customer Segments per State", expanded=False):
     selected_states_seg = st.multiselect("Select states", sorted(seg_data["customer_state"].unique()), default=["SP", "RJ"])
     filtered_seg = seg_data[seg_data["customer_state"].isin(selected_states_seg)]
 
+    st.
+    
     st.bar_chart(
         filtered_seg.pivot(index='CLTV_new_segment', columns='customer_state', values='count').fillna(0)
     )
