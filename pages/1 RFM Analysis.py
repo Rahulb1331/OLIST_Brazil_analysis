@@ -106,26 +106,6 @@ st.plotly_chart(fig1)
 if st.checkbox("📌 Show Distribution Insights"):
     st.caption("Insight: Monitor growth of High-value segment monthly to measure retention success.")
 
-# --- Behavior Segments Table ---
-st.subheader("🧠 Behavioral Segments")
-st.dataframe(rfm_df["BehaviorSegment"].value_counts().reset_index().rename(columns={"index": "Segment", "BehaviorSegment": "Segment"}))
-segment_definitions = {
-    "Segment": [
-        "Champions", "Loyal Customers", "Recent Customers", "Frequent Buyers", "Big Spenders", "Others"
-    ],
-    "Definition": [
-        "High Recency (R=4), Frequency (F=4), and Monetary (M=4). Most valuable, loyal, and recent customers.",
-        "Visit and purchase often (R ≥ 3, F ≥ 3). Strong candidates for loyalty programs.",
-        "Purchased very recently (R = 4), but may not yet be frequent or high spenders.",
-        "Shop often (F = 4), not necessarily recent or high spenders.",
-        "High spenders (M = 4), regardless of frequency or recency.",
-        "Customers that don’t strongly qualify in other categories — potential to nurture or churn."
-    ]
-}
-st.expander("📘 Click to view Segment Definitions").table(pd.DataFrame(segment_definitions))
-if st.checkbox("📌 Show Behavioral Insights"):
-    st.caption("Insight: Champions and loyal customers can be incentivized by offering them exclusive deals.")
-
 # --- RFM Heatmaps ---
 st.subheader("🔥 RFM Heatmaps")
 
@@ -177,6 +157,27 @@ fig_products.update_layout(xaxis_tickangle=-45, showlegend=False)
 st.plotly_chart(fig_products, use_container_width=True)
 if st.checkbox("📌 Show Product Preference Insights"):
     st.caption("Insight: Tailor promotions by segment preference — e.g., Frequent Buyers love {filtered_pref.iloc[0]['product_category']}.")
+
+# --- Behavior Segments Table ---
+st.subheader("🧠 Behavioral Segments")
+st.dataframe(rfm_df["BehaviorSegment"].value_counts().reset_index().rename(columns={"index": "Segment", "BehaviorSegment": "Segment"}))
+segment_definitions = {
+    "Segment": [
+        "Champions", "Loyal Customers", "Recent Customers", "Frequent Buyers", "Big Spenders", "Others"
+    ],
+    "Definition": [
+        "High Recency (R=4), Frequency (F=4), and Monetary (M=4). Most valuable, loyal, and recent customers.",
+        "Visit and purchase often (R ≥ 3, F ≥ 3). Strong candidates for loyalty programs.",
+        "Purchased very recently (R = 4), but may not yet be frequent or high spenders.",
+        "Shop often (F = 4), not necessarily recent or high spenders.",
+        "High spenders (M = 4), regardless of frequency or recency.",
+        "Customers that don’t strongly qualify in other categories — potential to nurture or churn."
+    ]
+}
+st.expander("📘 Click to view Segment Definitions").table(pd.DataFrame(segment_definitions))
+if st.checkbox("📌 Show Behavioral Insights"):
+    st.caption("Insight: Champions and loyal customers can be incentivized by offering them exclusive deals.")
+
 
 # --- Segment Revenue Contribution ---
 revenue_by_segment = rfm_df.groupby("BehaviorSegment")["Monetary"].sum().reset_index().sort_values("Monetary", ascending=False)
