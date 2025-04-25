@@ -79,6 +79,13 @@ with tab1:
 
     st.caption("Note: Error bars represent rating standard deviation. % of low scores available in detail view.")
 
+    if st.checkbox("Show Insights for Ratings Tab"):
+        st.info("""
+        - Sellers and products with consistently high ratings tend to have low standard deviation, indicating stable quality.
+        - Sellers with a high percentage of low scores may require performance reviews even if their average rating appears decent.
+        - Products with few reviews may show extreme ratings, so volume should be considered in decision-making.
+        """)
+
 with tab2:
     st.header("⏳ Delivery Time Impact on Reviews")
 
@@ -117,6 +124,13 @@ with tab2:
 
     st.plotly_chart(px.bar(delay_impact, x="delayed", y="avg_rating", title="Avg Review by Delivery Timeliness"))
 
+    if st.checkbox("Show Insights for Delivery Tab"):
+        st.info("""
+        - Delays in delivery strongly correlate with lower customer review scores.
+        - Even for sellers with overall low scores, excessive delivery time further drags their reputation.
+        - Keeping delivery within or ahead of estimated time can help maintain or boost review scores.
+        """)
+
 with tab3:
     st.header("🚚 Freight Charges vs Review Score")
 
@@ -134,6 +148,13 @@ with tab3:
                      labels={"avg_freight": "Average Freight", "avg_rating": "Average Rating"})
     fig.update_traces(marker=dict(opacity=0.6))
     st.plotly_chart(fig)
+
+    if st.checkbox("Show Insights for Freight Tab"):
+        st.info("""
+        - High freight charges are not always correlated with poor ratings, but outliers exist.
+        - Certain product categories tolerate higher freight if product value or delivery speed justifies it.
+        - Analyzing freight charges together with review sentiment can guide pricing and logistics decisions.
+        """)
 
 with tab4:
     st.header("📂 Raw Data Snapshots")
