@@ -19,12 +19,7 @@ def load_data():
 
 full_orders, geolocation, summary, cltv_df, customer_features = load_data()
 
-st.dataframe(summary)
 cltv_df = cltv_df.dropna()
-
-st.dataframe(cltv_df)
-st.dataframe(customer_features)
-
 
 # --- Cached processing steps ---
 @st.cache_data
@@ -381,10 +376,10 @@ with st.expander("📈 4. Monthly Revenue Time-Series by State", expanded=False)
 # --- Section 5: 🧭 Top Customer Segments per State ---
 @st.cache_data
 def get_top_segments_by_state(customer_features):
-    segment_df, _ = run_customer_segmentation(customer_features)
+    segment_df = cltv_df.copy()
     st.dataframe(segment_df)
     ord = prepare_cltv_geo_df(full_orders, cltv_df)
-    
+    st.dataframe(ord)
     seg_df = pd.merge(
             segment_df, 
             ord[["customer_city", "customer_state"]],
