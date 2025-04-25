@@ -24,12 +24,6 @@ full_orders = load_data()
 min_date = full_orders['order_purchase_timestamp'].min()
 max_date = full_orders['order_purchase_timestamp'].max()
 
-st.sidebar.header("🗓️ RFM Timeframe")
-selected_start = st.sidebar.date_input("Start date", min_value=min_date.date(), max_value=max_date.date(), value=min_date.date())
-selected_end = st.sidebar.date_input("End date", min_value=min_date.date(), max_value=max_date.date(), value=max_date.date())
-
-mask = (full_orders['order_purchase_timestamp'].dt.date >= selected_start) & (full_orders['order_purchase_timestamp'].dt.date <= selected_end)
-filtered_orders = full_orders[mask]
 
 # --- RFM Calculation ---
 @st.cache_data
