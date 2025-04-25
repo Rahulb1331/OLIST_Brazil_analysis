@@ -87,7 +87,7 @@ with tab1:
         st.dataframe(prod_stats.sort_values("avg_rating", ascending=False).reset_index(drop=True))
 
     
-    if st.checkbox("Show Insights for Ratings Tab"):
+    if st.checkbox("Show Insights for Ratings Tab", key="unique_key_r1"):
         st.info("""
         🔍 **Analysis Explanation**:
         - This tab identifies the top and worst performing products and sellers based on customer review scores.
@@ -144,7 +144,7 @@ with tab2:
 
     st.plotly_chart(px.bar(delay_impact, x="delayed", y="avg_rating", title="Avg Review by Delivery Timeliness"))
 
-    if st.checkbox("Show Insights for Delivery Tab"):
+    if st.checkbox("Show Insights for Delivery Tab", key="unique_key_r2"):
         st.info("""
         🔍 **Analysis Explanation**:
         - This tab explores how delivery duration and punctuality affect customer review scores.
@@ -180,7 +180,7 @@ with tab3:
     fig.update_traces(marker=dict(opacity=0.6))
     st.plotly_chart(fig)
 
-    if st.checkbox("Show Insights for Freight Tab"):
+    if st.checkbox("Show Insights for Freight Tab", key="unique_key_r3"):
         st.info("""
         🔍 **Analysis Explanation**:
         - This tab investigates the relationship between freight costs and review scores.
