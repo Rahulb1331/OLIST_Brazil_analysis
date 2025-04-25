@@ -380,7 +380,7 @@ with st.expander("📈 4. Monthly Revenue Time-Series by State", expanded=False)
 def get_top_segments_by_state(cltv_df, full_orders):
     # Merge to get state and segment info
     merged_df = pd.merge(
-        cltv_df[["customer_unique_id", "CLTV_new_segment"]],
+        cltv_df[["customer_unique_id", "CLTV_new_Segment"]],
         full_orders[["customer_unique_id", "customer_state"]],
         on="customer_unique_id",
         how="inner"
@@ -388,10 +388,10 @@ def get_top_segments_by_state(cltv_df, full_orders):
     
     # Group to get segment counts per state
     segment_counts = (
-        merged_df.groupby(["customer_state", "CLTV_new_segment"])
+        merged_df.groupby(["customer_state", "CLTV_new_Segment"])
         .size()
         .reset_index(name="count")
-        .rename(columns={"CLTV_new_segment": "segment"})
+        .rename(columns={"CLTV_new_Segment": "segment"})
     )
     return segment_counts
 
