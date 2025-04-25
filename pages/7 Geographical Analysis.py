@@ -382,6 +382,7 @@ with st.expander("📈 4. Monthly Revenue Time-Series by State", expanded=False)
 @st.cache_data
 def get_top_segments_by_state(customer_features):
     segment_df, _ = run_customer_segmentation(customer_features)
+    st.dataframe(segment_df)
     ord = prepare_cltv_geo_df(full_orders, cltv_df)
     
     seg_df = pd.merge(
