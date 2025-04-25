@@ -377,7 +377,9 @@ with st.expander("📈 4. Monthly Revenue Time-Series by State", expanded=False)
 @st.cache_data
 def get_top_segments_by_state(customer_features):
     segment_df = cltv_df.copy()
+    st.dataframe(segment_df)
     ord = prepare_cltv_geo_df(full_orders, cltv_df)
+    st.dataframe(ord)
     seg_df = pd.merge(
             segment_df, 
             ord[["customer_city", "customer_state"]],
@@ -385,7 +387,7 @@ def get_top_segments_by_state(customer_features):
             how="inner"
         )
 
-    st.dataframe(seg_df)
+    #st.dataframe(seg_df)
     
     return seg_df.groupby(['segment', 'customer_state']).size().reset_index(name='count')
 
