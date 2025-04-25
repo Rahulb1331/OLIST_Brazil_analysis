@@ -20,7 +20,7 @@ def load_data():
 full_orders, geolocation, summary, cltv_df, customer_features = load_data()
 
 cltv_df = cltv_df.dropna()
-
+st.dataframe(cltv_df)
 # --- Cached processing steps ---
 @st.cache_data
 def prepare_cltv_geo_df(full_orders, cltv_df):
