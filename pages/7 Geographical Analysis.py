@@ -385,7 +385,7 @@ def get_top_segments_by_state(customer_features):
 
 with st.expander("🧭 5. Top Customer Segments per State", expanded=False):
     seg_data = get_top_segments_by_state(customer_features)
-
+    st.dataframe(seg_data)
     selected_states_seg = st.multiselect("Select states", sorted(seg_data["customer_state"].unique()), default=["SP", "RJ"])
     filtered_seg = seg_data[seg_data["customer_state"].isin(selected_states_seg)]
 
