@@ -138,14 +138,14 @@ def run_customer_segmentation(customer_features):
 
 # --- Section 1: CLTV by State and City ---
 with st.expander("📦 1. CLTV by State and City", expanded=False):
-    cltv_geo_df = prepare_cltv_geo_df(full_orders, summary)
+    cltv_geo_df = prepare_cltv_geo_df(full_orders, cltv_df)
 
     group_choice = st.selectbox("Group by", ["State", "City"])
     top_n = st.slider("Select Top N", min_value=5, max_value=30, value=10)
 
     if group_choice == "State":
         top_df = cltv_geo_df.groupby("customer_state").agg(
-            total_cltv=("predicted_cltv", "sum"),
+            total_cltv=("better_cltv", "sum"),
             unique_customers=("customer_unique_id", pd.Series.nunique)
         ).sort_values("total_cltv", ascending=False).head(top_n).reset_index()
 
