@@ -13,13 +13,15 @@ st.title("📍 Geolocation Insights & Customer Segmentation")
 @st.cache_data
 def load_data():
     from analysis.Preprocessing import full_orders, geolocation
-    from analysis.cltv import summary
+    from analysis.cltv import summary, cltv_df
     from analysis.Others import customer_features
-    return full_orders, geolocation, summary, customer_features
+    return full_orders, geolocation, summary, cltv_df, customer_features
 
-full_orders, geolocation, summary, customer_features = load_data()
+full_orders, geolocation, summary, cltv_df, customer_features = load_data()
 
 st.dataframe(summary)
+st.dataframe(cltv_df)
+
 # --- Cached processing steps ---
 @st.cache_data
 def prepare_cltv_geo_df(full_orders, summary):
