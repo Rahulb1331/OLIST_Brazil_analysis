@@ -393,7 +393,6 @@ with st.expander("🧭 5. Top Customer Segments per State", expanded=False):
     selected_states_seg = st.multiselect("Select states", sorted(seg_data["customer_state"].unique()), default=["SP", "RJ"])
     filtered_seg = seg_data[seg_data["customer_state"].isin(selected_states_seg)]
 
-    st.
     
     st.bar_chart(
         filtered_seg.pivot(index='CLTV_new_segment', columns='customer_state', values='count').fillna(0)
