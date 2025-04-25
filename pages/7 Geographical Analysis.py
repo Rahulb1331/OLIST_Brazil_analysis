@@ -375,27 +375,36 @@ with st.expander("📈 4. Monthly Revenue Time-Series by State", expanded=False)
 
 # --- Section 5: 🧭 Top Customer Segments per State ---
 # --- Section 5: 🧭 Top Customer Segments per State ---
+# --- Section 5: 🧭 Top Customer Segments per State ---
 @st.cache_data
 def get_top_segments_by_state(cltv_df, full_orders):
-    ord = prepare_cltv_geo_df(full_orders, cltv_df)
-    seg_df = pd.merge(
+    # Merge to get state and segment info
+    merged_df = pd.merge(
         cltv_df[["customer_unique_id", "CLTV_new_segment"]],
-        ord[["customer_unique_id", "customer_city", "customer_state"]],
+        full_orders[["customer_unique_id", "customer_state"]],
         on="customer_unique_id",
         how="inner"
     )
-    st.dataframe(seg_df.head(10))
-    return seg_df.groupby(['CLTV_new_segment', 'customer_state']).size().reset_index(name='count')
+    
+    # Group to get segment counts per state
+    segment_counts = (
+        merged_df.groupby(["customer_state", "CLTV_new_segment"])
+        .size()
+        .reset_index(name="count")
+        .rename(columns={"CLTV_new_segment": "segment"})
+    )
+    return segment_counts
 
 with st.expander("🧭 5. Top Customer Segments per State", expanded=False):
+    
     seg_data = get_top_segments_by_state(cltv_df, full_orders)
 
+    st.dataframe(seg_data)
     selected_states_seg = st.multiselect("Select states", sorted(seg_data["customer_state"].unique()), default=["SP", "RJ"])
     filtered_seg = seg_data[seg_data["customer_state"].isin(selected_states_seg)]
 
-    
     st.bar_chart(
-        filtered_seg.pivot(index='CLTV_new_segment', columns='customer_state', values='count').fillna(0)
+        filtered_seg.pivot(index='segment', columns='customer_state', values='count').fillna(0)
     )
 
     if st.checkbox("Show Insights", key="unique_key_5"):
@@ -403,13 +412,14 @@ with st.expander("🧭 5. Top Customer Segments per State", expanded=False):
         This view helps understand **which types of customers dominate in each state**.
 
         **Use Cases**:
-        - Helps in targeted marketing or loyalty campaigns.
-        - High number of "Loyal Customers" in a state could reflect strong brand presence or service quality.
-        - States with many "Inactive Customers" may need re-engagement efforts.
+        - Tailor promotions by customer behavior in a state
+        - Adjust acquisition vs retention strategies regionally
 
-        **Note**:
-        These segments come directly from our precomputed CLTV dataset and are based on customer value, frequency, and recent activity.
+        **Insights**:
+        - States with more “Loyal Customers” = retention opportunity.
+        - States with many “Inactive Customers” = reactivation opportunity.
         """)
+
 
 
 # --- Section 6: 📊 CLTV vs Revenue + 🚨 Drop Detection ---
