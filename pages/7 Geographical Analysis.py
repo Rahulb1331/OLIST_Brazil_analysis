@@ -141,7 +141,6 @@ def run_customer_segmentation(customer_features):
 # --- Section 1: CLTV by State and City ---
 with st.expander("📦 1. CLTV by State and City", expanded=False):
     cltv_geo_df = prepare_cltv_geo_df(full_orders, cltv_df)
-    st.dataframe(cltv_geo_df)
     group_choice = st.selectbox("Group by", ["State", "City"])
     top_n = st.slider("Select Top N", min_value=5, max_value=30, value=10)
 
@@ -387,7 +386,7 @@ def get_top_segments_by_state(customer_features):
     
     seg_df = pd.merge(
             segment_df, 
-            ord[["customer_unique_id", "better_cltv"]],
+            ord[["customer_city", "customer_state"]],
             on="customer_unique_id",
             how="inner"
         )
