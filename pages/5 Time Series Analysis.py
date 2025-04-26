@@ -8,8 +8,8 @@ from sklearn.metrics import mean_absolute_error, mean_squared_error
 import plotly.graph_objects as go
 import numpy as np
 
-st.set_page_config(page_title="\ud83d\udcc8 Time Series Dashboard", layout="wide")
-st.title("\ud83d\udcc8 Time Series Analysis Dashboard")
+st.set_page_config(page_title="📈 Time Series Dashboard", layout="wide")
+st.title("📈 Time Series Analysis Dashboard")
 
 @st.cache_data
 def load_data():
@@ -57,7 +57,8 @@ monthly_avg_revenue_pd["month"] = monthly_avg_revenue_pd["month"].apply(lambda x
 monthly_avg_orders_pd["month"] = monthly_avg_orders_pd["month"].apply(lambda x: calendar.month_abbr[x])
 
 # Tabs
-tab1, tab2, tab3, tab4 = st.tabs(["\ud83d\udcca Historical Trends", "\ud83d\uddd6\ufe0f Seasonality", "\ud83d\udd2e Forecasts", "\ud83d\udce6 Category Trends"])
+tab1, tab2, tab3, tab4 = st.tabs(["📊 Historical Trends", "📆 Seasonality", "🔮 Forecasts", "📦 Category Trends"])
+
 
 with tab1:
     st.subheader("Monthly Revenue and Order Trends")
@@ -83,7 +84,7 @@ with tab1:
             monthly_revenue_pd,
             x="order_month",
             y=["total_revenue", "rolling_3mo"],
-            title="\ud83d\udcc8 Monthly Revenue (with 3-mo Rolling Avg)",
+            title="📈 Monthly Revenue (with 3-mo Rolling Avg)",
             markers=True,
             labels={"order_month": "Month", "value": "Revenue", "variable": "Legend"}
         )
@@ -95,7 +96,7 @@ with tab1:
             monthly_orders_pd,
             x="order_month",
             y=["order_count", "rolling_3mo"],
-            title="\ud83d\uded2 Monthly Order Count (with 3-mo Rolling Avg)",
+            title="🛒 Monthly Order Count (with 3-mo Rolling Avg)",
             markers=True,
             labels={"order_month": "Month", "value": "Orders", "variable": "Legend"}
         )
@@ -103,7 +104,7 @@ with tab1:
         st.plotly_chart(fig, use_container_width=True)
 
 with tab2:
-    st.subheader("\ud83d\uddd6\ufe0f Average Revenue and Orders by Calendar Month")
+    st.subheader("📆 Average Revenue and Orders by Calendar Month")
     with st.checkbox("Show Analysis & Recommendations - Seasonality"):
         st.info("""
         **Analysis Performed:**
@@ -123,7 +124,7 @@ with tab2:
             monthly_avg_revenue_pd,
             x="month",
             y="total_revenue",
-            title="\ud83d\udcb0 Revenue by Calendar Month",
+            title="💰 Revenue by Calendar Month",
             labels={"total_revenue": "Revenue"},
             template="plotly_white"
         )
@@ -134,14 +135,14 @@ with tab2:
             monthly_avg_orders_pd,
             x="month",
             y="order_count",
-            title="\ud83d\udce6 Order Count by Calendar Month",
+            title="📦 Order Count by Calendar Month",
             labels={"order_count": "Orders"},
             template="plotly_white"
         )
         st.plotly_chart(fig, use_container_width=True)
 
 with tab3:
-    st.subheader("\ud83d\udd2e Prophet Forecasts for Revenue & Orders")
+    st.subheader("🔮 Prophet Forecasts for Revenue & Orders")
     with st.checkbox("Show Forecast Insights"):
         st.info("""
         **Analysis Performed:**
@@ -180,28 +181,28 @@ with tab3:
         fig = go.Figure()
         fig.add_trace(go.Scatter(x=forecast_rev['ds'], y=forecast_rev['yhat'], mode='lines', name='Forecast'))
         fig.add_trace(go.Scatter(x=rev_df['ds'], y=rev_df['y'], mode='lines', name='Actual'))
-        fig.update_layout(title='\ud83d\udcc8 Revenue Forecast', xaxis_title='Date', yaxis_title='Revenue')
+        fig.update_layout(title='📈 Revenue Forecast', xaxis_title='Date', yaxis_title='Revenue')
         st.plotly_chart(fig, use_container_width=True)
 
     with col2:
         fig = go.Figure()
         fig.add_trace(go.Scatter(x=forecast_ord['ds'], y=forecast_ord['yhat'], mode='lines', name='Forecast'))
         fig.add_trace(go.Scatter(x=ord_df['ds'], y=ord_df['y'], mode='lines', name='Actual'))
-        fig.update_layout(title='\ud83d\udce6 Order Count Forecast', xaxis_title='Date', yaxis_title='Orders')
+        fig.update_layout(title='📦 Order Count Forecast', xaxis_title='Date', yaxis_title='Orders')
         st.plotly_chart(fig, use_container_width=True)
 
     st.markdown("---")
-    st.subheader("\ud83d\udcca Revenue Forecast with Confidence Intervals")
+    st.subheader("📊 Revenue Forecast with Confidence Intervals")
 
     fig_ci = go.Figure()
     fig_ci.add_trace(go.Scatter(x=forecast_rev['ds'], y=forecast_rev['yhat'], name='Forecast', line=dict(color='blue')))
     fig_ci.add_trace(go.Scatter(x=forecast_rev['ds'], y=forecast_rev['yhat_upper'], name='Upper Bound', line=dict(dash='dot', color='lightblue')))
     fig_ci.add_trace(go.Scatter(x=forecast_rev['ds'], y=forecast_rev['yhat_lower'], name='Lower Bound', line=dict(dash='dot', color='lightblue'), fill='tonexty', fillcolor='rgba(173,216,230,0.2)'))
-    fig_ci.update_layout(title="\ud83d\udca1 Revenue Forecast with Confidence Intervals", xaxis_title="Date", yaxis_title="Revenue")
+    fig_ci.update_layout(title="💡 Revenue Forecast with Confidence Intervals", xaxis_title="Date", yaxis_title="Revenue")
     st.plotly_chart(fig_ci, use_container_width=True)
 
     st.markdown("---")
-    st.subheader("\ud83d\udccf Forecast Accuracy Metrics")
+    st.subheader("📏 Forecast Accuracy Metrics")
 
     common_dates = rev_df["ds"].isin(forecast_rev["ds"])
     actual = rev_df[common_dates].set_index("ds")
@@ -216,7 +217,7 @@ with tab3:
     st.metric("MAPE (Mean Absolute Percentage Error)", f"{mape:.2f}%")
 
 with tab4:
-    st.subheader("\ud83d\udce6 Category-wise Revenue Trends")
+    st.subheader("📦 Category-wise Revenue Trends")
     categories = sorted(df['product_category'].dropna().unique())
     selected_cat = st.selectbox("Select Product Category", categories)
 
