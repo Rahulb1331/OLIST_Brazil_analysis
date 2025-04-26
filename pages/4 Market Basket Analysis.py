@@ -275,7 +275,7 @@ if not multi_item_txns.empty:
             **Example:**
             - Base revenue for a bundle = $10,000
             - Lift = 1.5
-            - Extra revenue = $10,000 × (1.5 - 1) = **$5,000** additional sales attributable to the bundling effect.
+            - Extra revenue = $10,000 × (1.5 - 1) = $5,000 additional sales attributable to the bundling effect.
 
             **In Simple Terms:**  
             ➔ We are isolating the true "bonus" effect of bundling, not just what would happen randomly.
