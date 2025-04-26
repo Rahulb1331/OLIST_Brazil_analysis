@@ -194,7 +194,21 @@ if not multi_item_txns.empty:
                          layout=go.Layout(title='Association Rules Network', showlegend=False,
                                           margin=dict(b=20, l=5, r=5, t=40)))
         st.plotly_chart(fig2, use_container_width=True)
+        if st.checkbox("Show Insights about the Network Graph", key = random):
+            st.info("""
+                **What this graph shows:**
+                - Each **node** represents a product category.
+                - Each **arrow** represents a strong association rule between two products.
+                - The direction of the arrow shows **antecedent → consequent** (e.g., buying X leads to buying Y).
+                - The **thicker the connections**, the **stronger the lift** (i.e., how much more likely products are bought together than random).
 
+                **Why a network graph?**
+                - It helps visually spot clusters or hubs — product categories that are highly connected.
+                - You can easily identify **central products** (good for cross-selling) vs **dead-end products** (bought alone).
+
+                **Recommendation:**
+                - Focus your marketing on central 'hub' products to maximize bundling and upsell opportunities.
+                """)
         st.markdown("---")
 
         # --- Top Revenue-Generating Bundles ---
@@ -212,9 +226,9 @@ if not multi_item_txns.empty:
                 - Prioritize stocking and marketing these bundles.
                 """
             )
-
+        
         st.markdown("---")
-
+    
         # --- Filter Rules (Custom Sliders) ---
         st.subheader("🔍 Custom Filter for Association Rules")
         col1, col2, col3 = st.columns(3)
