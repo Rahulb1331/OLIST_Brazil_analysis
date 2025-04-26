@@ -98,6 +98,7 @@ if not multi_item_txns.empty:
                 - Cleaned and prepared transaction data.
                 - Applied **FP-Growth** to discover frequent product combinations.
                 - Generated association rules with key metrics: Support, Confidence, Lift.
+                - While finding the frequent itemsets using the FP-Growth model I've taken a safe threshold for min_support as 0.1% of transactions which is low enough to find interesting rare bundles but not so low that it picks pure noise.
                 - Estimated the total **Revenue per Rule** based on historical transactions.
 
                 **Why It Matters:**  
