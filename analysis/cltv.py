@@ -213,7 +213,7 @@ print(summary[summary["predicted_cltv"] < 0])  # Check for anomalies
 
 
 # Segmenting the customers by the predicted cltv
-summary["cltv_segment"] = pd.qcut(summary["predicted_cltv"], q=4, labels=["Low", "Mid", "High", "Very High"])
+summary["cltv_segment"] = pd.qcut(summary["predicted_cltv"], q=3, labels=["Low", "Mid", "High"])
 
 # Top Customers
 top_customers = summary.sort_values(by="predicted_cltv", ascending=False).head(10)
@@ -382,7 +382,7 @@ def model_cltv_lifetimes(df):
     )
 
     summary["predicted_cltv"] = summary["predicted_purchases"] * summary["predicted_avg_value"]
-    summary["cltv_segment"] = pd.qcut(summary["predicted_cltv"], q=4, labels=["Low", "Mid", "High", "Very High"])
+    summary["cltv_segment"] = pd.qcut(summary["predicted_cltv"], q=3, labels=["Low", "Mid", "High"])
 
     return summary
 
