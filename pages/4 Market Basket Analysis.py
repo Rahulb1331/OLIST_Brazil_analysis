@@ -105,8 +105,27 @@ if not multi_item_txns.empty:
         )
         st.plotly_chart(fig_bias, use_container_width=True)
 
-        with st.expander("⚠️ Why Bias Matters?"):
+        with st.expander("Show Insights"):
             st.info("""
+                **Support:**  
+            - The proportion of transactions that contain a specific itemset.  
+            - Example: If 5 out of 100 transactions include "milk and bread", support = 5%.
+
+            **Confidence:**  
+            - How often items in the consequent (e.g., "bread") appear in transactions that contain the antecedent (e.g., "milk").  
+            - Example: If 80% of people who buy milk also buy bread, confidence = 80%.
+
+            **Lift:**  
+            - How much more likely items are to be bought together compared to being bought independently.  
+            - A lift > 1 indicates a positive association. Higher lift = stronger buying relationship.
+
+            👉 In short:
+            - **Support** shows **how popular** a combination is.
+            - **Confidence** shows **how reliable** the rule is.
+            - **Lift** shows **how much stronger** the buying pattern is than random chance.
+
+            **⚠️ Why Bias Matters?**
+            
                 - Rules with **high confidence but very low support** are often misleading.
                 - They may look strong but occur rarely, making them risky to act on.
                 - **Check both confidence AND support** before trusting a rule!
