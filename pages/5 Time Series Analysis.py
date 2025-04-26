@@ -62,7 +62,7 @@ tab1, tab2, tab3, tab4 = st.tabs(["📊 Historical Trends", "📆 Seasonality", 
 
 with tab1:
     st.subheader("Monthly Revenue and Order Trends")
-    if st.checkbox("Show Analysis & Recommendations - Historical Trends"):
+    if st.checkbox("Show Analysis & Recommendations - Historical Trends", key="unique_key_ts1"):
         st.info("""
         **Analysis Performed:**
         - Aggregated total revenue and order count per month.
@@ -105,7 +105,7 @@ with tab1:
 
 with tab2:
     st.subheader("📆 Average Revenue and Orders by Calendar Month")
-    if st.checkbox("Show Analysis & Recommendations - Seasonality"):
+    if st.checkbox("Show Analysis & Recommendations - Seasonality", key="unique_key_ts2"):
         st.info("""
         **Analysis Performed:**
         - Grouped and visualized revenue and orders by calendar month.
@@ -143,7 +143,7 @@ with tab2:
 
 with tab3:
     st.subheader("🔮 Prophet Forecasts for Revenue & Orders")
-    if st.checkbox("Show Forecast Insights"):
+    if st.checkbox("Show Forecast Insights", key="unique_key_ts3"):
         st.info("""
         **Analysis Performed:**
         - Used Prophet model to forecast revenue and orders for the next 6 months.
@@ -221,7 +221,7 @@ with tab4:
     categories = sorted(df['product_category'].dropna().unique())
     selected_cat = st.selectbox("Select Product Category", categories)
 
-    if st.checkbox("Show Analysis & Recommendations - Category Trends"):
+    if st.checkbox("Show Analysis & Recommendations - Category Trends", key="unique_key_ts4"):
         st.info("""
         **Analysis Performed:**
         - Summed revenue per product category by month.
