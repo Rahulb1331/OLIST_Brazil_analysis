@@ -194,7 +194,7 @@ if not multi_item_txns.empty:
                          layout=go.Layout(title='Association Rules Network', showlegend=False,
                                           margin=dict(b=20, l=5, r=5, t=40)))
         st.plotly_chart(fig2, use_container_width=True)
-        if st.checkbox("Show Insights about the Network Graph", key = "random"):
+        with st.expander("Show Insights about the Network Graph"):
             st.info("""
                 **What this graph shows:**
                 - Each **node** represents a product category.
