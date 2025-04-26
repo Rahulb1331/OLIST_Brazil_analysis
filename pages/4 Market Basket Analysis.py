@@ -235,7 +235,7 @@ if not multi_item_txns.empty:
         # --- Conversion / Recommendation Impact ---
         st.subheader("📦 Predicted Impact if Bundled")
         filtered_rules['predicted_uplift_revenue'] = filtered_rules['estimated_revenue'] * (filtered_rules['lift'] - 1)
-        top_uplift = filtered_rules.sort_values('predicted_uplift_revenue', ascending=False).head(10)
+        top_uplift = filtered_rules.sort_values('predicted_uplift_revenue', ascending=False) #.head(10)
 
         st.dataframe(top_uplift[['rule', 'lift', 'estimated_revenue', 'predicted_uplift_revenue']], use_container_width=True)
 
