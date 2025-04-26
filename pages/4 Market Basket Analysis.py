@@ -33,14 +33,6 @@ segmented_txns = pd.merge(
 segments = segmented_txns['CLTV_new_Segment'].dropna().unique()
 selected_segment = st.selectbox("Select CLTV Segment", sorted(segments))
 
-
-# User Algorithm Choice
-#algo_choice = st.radio(
-#    "Choose Algorithm for Mining Frequent Itemsets:",
-#    ["Apriori", "FP-Growth"],
-#    horizontal=True
-#)
-
 # Filter for multi-item transactions
 segment_df = segmented_txns[segmented_txns['CLTV_new_Segment'] == selected_segment]
 multi_item_txns = segment_df[segment_df['items'].apply(lambda x: len(x) > 1)]
@@ -61,11 +53,7 @@ if not multi_item_txns.empty:
     ).astype(bool)
 
     # Mining frequent itemsets
-    #if algo_choice == "Apriori":
-    #    frequent_itemsets = apriori(itemsets, min_support=0.001, use_colnames=True)
-    #else:
     frequent_itemsets = fpgrowth(itemsets, min_support=0.001, use_colnames=True)
-    
 
     # Generate Association Rules
     rules_df = association_rules(frequent_itemsets, metric="lift", min_threshold=1.0)
@@ -95,36 +83,34 @@ if not multi_item_txns.empty:
             st.info(
                 """
                 **What We Did:**  
-                - Cleaned and prepared transaction data.
                 - Applied **FP-Growth** to discover frequent product combinations.
-                - Generated association rules with key metrics: Support, Confidence, Lift.
-                - While finding the frequent itemsets using the FP-Growth model I've taken a safe threshold for min_support as 0.1% of transactions which is low enough to find interesting rare bundles but not so low that it picks pure noise.
-                - Estimated the total **Revenue per Rule** based on historical transactions.
-
-                **Why It Matters:**  
-                - Not all frequent rules are valuable; revenue-weighted rules identify *high-impact opportunities*.
-                - FP-Growth is faster and more scalable than Apriori for large datasets.
+                - Used **Association Rules** to find cross-sell opportunities.
+                - Estimated **revenue potential** per rule.
+                - Filtered **only meaningful rules** based on lift > 1.
+                - Used a low min_support (0.1%) to find hidden gems.
 
                 **Recommendations:**  
-                - Focus on rules with high **Lift** (>1.2) and high **Revenue**.
-                - Bundle cross-selling products identified in Top Revenue Rules.
-                - Build targeted promotions based on segment-specific MBA insights.
-
-                **Market Basket Analysis (MBA)** helps identify associations between products by finding frequent itemsets and deriving rules like "Customers who buy X often buy Y."
-
-                Traditionally, the **Apriori Algorithm** was used for this purpose. Apriori scans the dataset repeatedly to find frequent itemsets, but it becomes computationally expensive for larger datasets.
-
-                In this project, we use the **FP-Growth Algorithm**, which is a more advanced and efficient method. 
-                FP-Growth builds a compressed representation of the transaction database (called an FP-tree) and mines frequent patterns without multiple scans, making it much faster and more memory-efficient.
-
-                **Why FP-Growth only?**
-                - It provides the **same quality of results** as Apriori.    
-                - It is **significantly faster**, especially for large datasets.
-                - It **reduces memory usage** and **scales better**.
-
-                Thus, to ensure the tool is both accurate and efficient, we chose **FP-Growth** exclusively for the Market Basket Analysis.
+                - Prioritize high-lift, high-revenue rules.
+                - Build bundles around top revenue-driving pairs.
                 """
             )
+
+        # --- Scatterplot: Confidence vs Support (Bias Check) ---
+        st.subheader(f"📊 Confidence vs Support Analysis ({selected_segment})")
+        fig_bias = px.scatter(
+            rules_df, x='support', y='confidence',
+            size='lift', color='lift',
+            hover_name='rule', title='Support vs Confidence Bias Detection',
+            labels={"support": "Support", "confidence": "Confidence"}
+        )
+        st.plotly_chart(fig_bias, use_container_width=True)
+
+        with st.expander("⚠️ Why Bias Matters?"):
+            st.info("""
+                - Rules with **high confidence but very low support** are often misleading.
+                - They may look strong but occur rarely, making them risky to act on.
+                - **Check both confidence AND support** before trusting a rule!
+            """)
 
         # --- Scatterplot ---
         st.subheader(f"📈 Association Rules Scatter Plot for {selected_segment}")
@@ -139,24 +125,25 @@ if not multi_item_txns.empty:
             labels={"support": "Support", "confidence": "Confidence", "estimated_revenue": "Revenue"}
         )
         st.plotly_chart(fig1, use_container_width=True)
-        with st.expander("📖 What Do Support, Confidence, and Lift Mean?"):
+
+        # --- Dead-End Products Section ---
+        st.subheader("🚫 Dead-End Products (No Follow-up Sales)")
+        dead_ends = set()
+        for a, c in zip(rules_df['antecedents'], rules_df['consequents']):
+            dead_ends.update(c)
+        all_products = set(mlb.classes_)
+        products_with_no_consequents = sorted(all_products - dead_ends)
+
+        st.write(f"🧩 {len(products_with_no_consequents)} products found that **don't lead to other purchases**.")
+        if products_with_no_consequents:
+            st.dataframe(pd.DataFrame(products_with_no_consequents, columns=["Dead-End Product"]), use_container_width=True)
+
+        with st.expander("💡 Why Look at Dead-Ends?"):
             st.info("""
-            **Support:**  
-            - The proportion of transactions that contain a specific itemset.  
-            - Example: If 5 out of 100 transactions include "milk and bread", support = 5%.
-
-            **Confidence:**  
-            - How often items in the consequent (e.g., "bread") appear in transactions that contain the antecedent (e.g., "milk").  
-            - Example: If 80% of people who buy milk also buy bread, confidence = 80%.
-
-            **Lift:**  
-            - How much more likely items are to be bought together compared to being bought independently.  
-            - A lift > 1 indicates a positive association. Higher lift = stronger buying relationship.
-
-            👉 In short:
-            - **Support** shows **how popular** a combination is.
-            - **Confidence** shows **how reliable** the rule is.
-            - **Lift** shows **how much stronger** the buying pattern is than random chance.
+                - Products that don't lead to cross-sales are **low leverage**.
+                - You may want to:
+                    - Deprioritize them in promotions.
+                    - Bundle them with higher-impact products.
             """)
 
         # --- Network Graph ---
@@ -194,45 +181,21 @@ if not multi_item_txns.empty:
                          layout=go.Layout(title='Association Rules Network', showlegend=False,
                                           margin=dict(b=20, l=5, r=5, t=40)))
         st.plotly_chart(fig2, use_container_width=True)
+
         with st.expander("Show Insights about the Network Graph"):
             st.info("""
-                **What this graph shows:**
-                - Each **node** represents a product category.
-                - Each **arrow** represents a strong association rule between two products.
-                - The direction of the arrow shows **antecedent → consequent** (e.g., buying X leads to buying Y).
-                - The **thicker the connections**, the **stronger the lift** (i.e., how much more likely products are bought together than random).
-
-                **Why a network graph?**
-                - It helps visually spot clusters or hubs — product categories that are highly connected.
-                - You can easily identify **central products** (good for cross-selling) vs **dead-end products** (bought alone).
-
-                **Recommendation:**
-                - Focus your marketing on central 'hub' products to maximize bundling and upsell opportunities.
-                """)
-        st.markdown("---")
+                - Nodes = Products, Arrows = Rules.
+                - Hubs show **good cross-sell opportunities**.
+                - Isolated nodes could be **dead-ends**.
+            """)
 
         # --- Top Revenue-Generating Bundles ---
         st.subheader("💰 Top 10 Revenue-Generating Product Bundles")
         top_bundles = rules_df.sort_values('estimated_revenue', ascending=False).head(10)
-
-        #top_bundles = rules_df[['rule', 'support', 'confidence', 'lift', 'estimated_revenue']].head(10)
         st.dataframe(top_bundles.reset_index(drop=True), use_container_width=True)
 
-        with st.expander("🔎 Why Focus on Revenue Bundles?"):
-            st.info(
-                """
-                **Top Revenue Bundles** show which combinations of products bring the most sales value.
-                **Action Points:**
-                - Bundle these products together in special offers.
-                - Promote them in upsell/cross-sell campaigns to high CLTV segments.
-                - Prioritize stocking and marketing these bundles.
-                """
-            )
-        
-        st.markdown("---")
-    
-        # --- Filter Rules (Custom Sliders) ---
-        st.subheader("🔍 Custom Filter for Association Rules")
+        # --- Strategic Filters (Tactical Sliders) ---
+        st.subheader("🔍 Tactical Filters for Association Rules")
         col1, col2, col3 = st.columns(3)
 
         with col1:
@@ -250,28 +213,32 @@ if not multi_item_txns.empty:
 
         st.dataframe(filtered_rules[['rule', 'support', 'confidence', 'lift', 'estimated_revenue']].reset_index(drop=True), use_container_width=True)
 
+        # --- Conversion / Recommendation Impact ---
+        st.subheader("📦 Predicted Impact if Bundled")
+        filtered_rules['predicted_uplift_revenue'] = filtered_rules['estimated_revenue'] * (filtered_rules['lift'] - 1)
+        top_uplift = filtered_rules.sort_values('predicted_uplift_revenue', ascending=False).head(10)
+
+        st.dataframe(top_uplift[['rule', 'lift', 'estimated_revenue', 'predicted_uplift_revenue']], use_container_width=True)
+
+        with st.expander("💬 How to Interpret This?"):
+            st.info("""
+                - Predicted uplift shows **extra revenue** if we bundle and successfully cross-sell.
+                - Higher uplift = better bundling opportunity.
+            """)
+
+        # --- "So What?" Actionable Insights ---
+        st.subheader("🧠 So What? What Should We DO?")
+        with st.expander("Action Plan Based on Findings"):
+            st.success("""
+                🎯 **Action Recommendations:**
+                - Build bundles around top high-lift rules.
+                - Avoid dead-end products unless bundled with popular hubs.
+                - Promote bundles more aggressively to high-CLTV segments.
+                - Use "Top Revenue" bundles in targeted marketing.
+                - Monitor conversion rates post-recommendation for continuous learning.
+            """)
+
         st.markdown("---")
 
-        # --- Product Recommendation Engine ---
-        st.subheader("💡 Rule-Based Product Recommendations")
-
-        unique_items = sorted(set(
-            item for subset in rules_df['antecedents'] for item in subset
-        ))
-
-        selected_product = st.selectbox("Select a Product for Recommendations", unique_items)
-
-        reco_rules = rules_df[rules_df['antecedents'].apply(lambda x: selected_product in x)]
-
-        if not reco_rules.empty:
-            reco_display = reco_rules[["consequents", "confidence", "lift", "estimated_revenue"]].copy()
-            reco_display["consequents"] = reco_display["consequents"].apply(lambda x: ', '.join(x))
-            st.write(f"📦 Products often bought with **{selected_product}**:")
-            st.dataframe(reco_display.reset_index(drop=True), use_container_width=True)
-        else:
-            st.info("No association rules found for this product.")
-    else:
-        st.warning("No valid association rules found for this segment.")
 else:
     st.warning("Not enough multi-item transactions in this segment.")
-
