@@ -213,7 +213,9 @@ if not multi_item_txns.empty:
 
         # --- Top Revenue-Generating Bundles ---
         st.subheader("💰 Top 10 Revenue-Generating Product Bundles")
-        top_bundles = rules_df[['rule', 'support', 'confidence', 'lift', 'estimated_revenue']].head(10)
+        top_bundles = rules_df.sort_values('estimated_revenue', ascending=False).head(10)
+
+        #top_bundles = rules_df[['rule', 'support', 'confidence', 'lift', 'estimated_revenue']].head(10)
         st.dataframe(top_bundles.reset_index(drop=True), use_container_width=True)
 
         with st.expander("🔎 Why Focus on Revenue Bundles?"):
