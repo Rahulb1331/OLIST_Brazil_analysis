@@ -14,8 +14,9 @@ st.title("📈 Time Series Analysis Dashboard")
 @st.cache_data
 def load_data():
     from analysis.Preprocessing import full_orders
-    return full_orders
-full_orders = load_data()
+    from analysis.cltv import cltv_df
+    return full_orders, cltv_df
+full_orders, cltv_df = load_data()
 
 # Preprocessing
 df = full_orders.copy()
@@ -23,25 +24,34 @@ df["order_purchase_timestamp"] = pd.to_datetime(df["order_purchase_timestamp"])
 df["order_month"] = df["order_purchase_timestamp"].dt.to_period("M").astype(str)
 df["month"] = df["order_purchase_timestamp"].dt.month
 
+# Merge CLTV Segments
+df = df.merge(cltv_df[["customer_id", "CLTV_new_Segment"]], on="customer_id", how="left")
+
 # Regional & Customer Type Segmentation
 region_options = sorted(df['customer_state'].dropna().unique())
-customer_types = ['All', 'Repeat', 'New']
+#customer_types = ['All', 'Repeat', 'New']
+cltv_segments = df['CLTV_new_Segment'].dropna().unique().tolist()
+cltv_segments.sort()
 
 selected_region = st.sidebar.selectbox("Select Region (State)", ['All'] + region_options)
-selected_customer_type = st.sidebar.selectbox("Select Customer Type", customer_types)
+#selected_customer_type = st.sidebar.selectbox("Select Customer Type", customer_types)
+selected_cltv_segment = st.sidebar.selectbox("Select CLTV Segment", ['All'] + cltv_segments)
 
 if selected_region != 'All':
     df = df[df['customer_state'] == selected_region]
 
-if selected_customer_type == 'New':
-    new_customers = df.groupby('customer_id')['order_purchase_timestamp'].min().reset_index()
-    new_customers['first_order_month'] = new_customers['order_purchase_timestamp'].dt.to_period("M").astype(str)
-    df = df.merge(new_customers[['customer_id', 'first_order_month']], on='customer_id')
-    df = df[df['order_month'] == df['first_order_month']]
-elif selected_customer_type == 'Repeat':
-    counts = df['customer_id'].value_counts()
-    repeat_customers = counts[counts > 1].index
-    df = df[df['customer_id'].isin(repeat_customers)]
+if selected_cltv_segment != 'All':
+    df = df[df['CLTV_new_Segment'] == selected_cltv_segment]
+
+#if selected_customer_type == 'New':
+#    new_customers = df.groupby('customer_id')['order_purchase_timestamp'].min().reset_index()
+#    new_customers['first_order_month'] = new_customers['order_purchase_timestamp'].dt.to_period("M").astype(str)
+#    df = df.merge(new_customers[['customer_id', 'first_order_month']], on='customer_id')
+#    df = df[df['order_month'] == df['first_order_month']]
+#elif selected_customer_type == 'Repeat':
+#    counts = df['customer_id'].value_counts()
+#    repeat_customers = counts[counts > 1].index
+#    df = df[df['customer_id'].isin(repeat_customers)]
 
 # Aggregate Revenue & Orders
 monthly_revenue_pd = df.groupby("order_month")["price"].sum().reset_index(name="total_revenue")
