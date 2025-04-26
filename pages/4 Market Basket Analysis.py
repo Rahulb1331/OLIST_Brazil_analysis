@@ -33,23 +33,6 @@ segmented_txns = pd.merge(
 segments = segmented_txns['CLTV_new_Segment'].dropna().unique()
 selected_segment = st.selectbox("Select CLTV Segment", sorted(segments))
 
-with st.expander("🔍 Insights Behind the Analysis"):
-    st.info("""
-    **Market Basket Analysis (MBA)** helps identify associations between products by finding frequent itemsets and deriving rules like "Customers who buy X often buy Y."
-
-    Traditionally, the **Apriori Algorithm** was used for this purpose. Apriori scans the dataset repeatedly to find frequent itemsets, but it becomes computationally expensive for larger datasets.
-
-    In this project, we use the **FP-Growth Algorithm**, which is a more advanced and efficient method. 
-    FP-Growth builds a compressed representation of the transaction database (called an FP-tree) and mines frequent patterns without multiple scans, making it much faster and more memory-efficient.
-
-    **Why FP-Growth only?**
-    - It provides the **same quality of results** as Apriori.
-    - It is **significantly faster**, especially for large datasets.
-    - It **reduces memory usage** and **scales better**.
-
-    Thus, to ensure the tool is both accurate and efficient, we chose **FP-Growth** exclusively for the Market Basket Analysis.
-    """)
-
 
 # User Algorithm Choice
 #algo_choice = st.radio(
@@ -113,7 +96,7 @@ if not multi_item_txns.empty:
                 """
                 **What We Did:**  
                 - Cleaned and prepared transaction data.
-                - Applied either **Apriori** or **FP-Growth** to discover frequent product combinations.
+                - Applied **FP-Growth** to discover frequent product combinations.
                 - Generated association rules with key metrics: Support, Confidence, Lift.
                 - Estimated the total **Revenue per Rule** based on historical transactions.
 
@@ -125,6 +108,20 @@ if not multi_item_txns.empty:
                 - Focus on rules with high **Lift** (>1.2) and high **Revenue**.
                 - Bundle cross-selling products identified in Top Revenue Rules.
                 - Build targeted promotions based on segment-specific MBA insights.
+
+                **Market Basket Analysis (MBA)** helps identify associations between products by finding frequent itemsets and deriving rules like "Customers who buy X often buy Y."
+
+                Traditionally, the **Apriori Algorithm** was used for this purpose. Apriori scans the dataset repeatedly to find frequent itemsets, but it becomes computationally expensive for larger datasets.
+
+                In this project, we use the **FP-Growth Algorithm**, which is a more advanced and efficient method. 
+                FP-Growth builds a compressed representation of the transaction database (called an FP-tree) and mines frequent patterns without multiple scans, making it much faster and more memory-efficient.
+
+                **Why FP-Growth only?**
+                - It provides the **same quality of results** as Apriori.    
+                - It is **significantly faster**, especially for large datasets.
+                - It **reduces memory usage** and **scales better**.
+
+                Thus, to ensure the tool is both accurate and efficient, we chose **FP-Growth** exclusively for the Market Basket Analysis.
                 """
             )
 
