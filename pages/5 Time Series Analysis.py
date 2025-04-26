@@ -72,20 +72,6 @@ tab1, tab2, tab3, tab4 = st.tabs(["📊 Historical Trends", "📆 Seasonality", 
 
 with tab1:
     st.subheader("Monthly Revenue and Order Trends")
-    if st.checkbox("Show Analysis & Recommendations - Historical Trends", key="unique_key_ts1"):
-        st.info("""
-        **Analysis Performed:**
-        - Aggregated total revenue and order count per month.
-        - Added a 3-month rolling average to smooth short-term fluctuations.
-
-        **Purpose:**
-        - Identify growth patterns or dips over time.
-        - Rolling average helps highlight broader trends without short-term noise.
-
-        **Recommendations:**
-        - If a consistent upward trend is observed, consider scaling operations.
-        - If dips occur in specific months, investigate root causes like seasonality or operational issues.
-        """)
 
     col1, col2 = st.columns(2)
 
@@ -113,20 +99,23 @@ with tab1:
         fig.update_layout(template="plotly_white")
         st.plotly_chart(fig, use_container_width=True)
 
-with tab2:
-    st.subheader("📆 Average Revenue and Orders by Calendar Month")
-    if st.checkbox("Show Analysis & Recommendations - Seasonality", key="unique_key_ts2"):
+    if st.checkbox("Show Analysis & Recommendations - Historical Trends", key="unique_key_ts1"):
         st.info("""
         **Analysis Performed:**
-        - Grouped and visualized revenue and orders by calendar month.
-        
+        - Aggregated total revenue and order count per month.
+        - Added a 3-month rolling average to smooth short-term fluctuations.
+
         **Purpose:**
-        - To detect seasonal patterns. For example, which months consistently perform better.
+        - Identify growth patterns or dips over time.
+        - Rolling average helps highlight broader trends without short-term noise.
 
         **Recommendations:**
-        - Months with historically high sales (e.g. November/December) could be targeted for promotions.
-        - Slow months may benefit from retention campaigns or sales events.
+        - If a consistent upward trend is observed, consider scaling operations.
+        - If dips occur in specific months, investigate root causes like seasonality or operational issues.
         """)
+
+with tab2:
+    st.subheader("📆 Average Revenue and Orders by Calendar Month")
 
     col1, col2 = st.columns(2)
     with col1:
@@ -151,22 +140,21 @@ with tab2:
         )
         st.plotly_chart(fig, use_container_width=True)
 
-with tab3:
-    st.subheader("🔮 Prophet Forecasts for Revenue & Orders")
-    if st.checkbox("Show Forecast Insights", key="unique_key_ts3"):
+    if st.checkbox("Show Analysis & Recommendations - Seasonality", key="unique_key_ts2"):
         st.info("""
         **Analysis Performed:**
-        - Used Prophet model to forecast revenue and orders for the next 6 months.
-        - Visualized actual vs. predicted values with confidence intervals.
-        - Included model performance metrics (MAE, RMSE, MAPE).
-
+        - Grouped and visualized revenue and orders by calendar month.
+        
         **Purpose:**
-        - Help predict future demand and guide business planning.
+        - To detect seasonal patterns. For example, which months consistently perform better.
 
         **Recommendations:**
-        - If forecasts show a decline, consider launching marketing campaigns or optimizing product offerings.
-        - If a spike is expected, plan for inventory and logistics scaling.
+        - Months with historically high sales (e.g. November/December) could be targeted for promotions.
+        - Slow months may benefit from retention campaigns or sales events.
         """)
+
+with tab3:
+    st.subheader("🔮 Prophet Forecasts for Revenue & Orders")
 
     # Prepare data
     rev_df = monthly_revenue_pd.rename(columns={"order_month": "ds", "total_revenue": "y"})
@@ -200,7 +188,22 @@ with tab3:
         fig.add_trace(go.Scatter(x=ord_df['ds'], y=ord_df['y'], mode='lines', name='Actual'))
         fig.update_layout(title='📦 Order Count Forecast', xaxis_title='Date', yaxis_title='Orders')
         st.plotly_chart(fig, use_container_width=True)
+    
+    if st.checkbox("Show Forecast Insights", key="unique_key_ts3"):
+        st.info("""
+        **Analysis Performed:**
+        - Used Prophet model to forecast revenue and orders for the next 6 months.
+        - Visualized actual vs. predicted values with confidence intervals.
+        - Included model performance metrics (MAE, RMSE, MAPE).
 
+        **Purpose:**
+        - Help predict future demand and guide business planning.
+
+        **Recommendations:**
+        - If forecasts show a decline, consider launching marketing campaigns or optimizing product offerings.
+        - If a spike is expected, plan for inventory and logistics scaling.
+        """)
+        
     st.markdown("---")
     st.subheader("📊 Revenue Forecast with Confidence Intervals")
 
@@ -231,6 +234,14 @@ with tab4:
     categories = sorted(df['product_category'].dropna().unique())
     selected_cat = st.selectbox("Select Product Category", categories)
 
+
+    cat_df = df[df['product_category'] == selected_cat]
+    cat_monthly = cat_df.groupby(cat_df['order_purchase_timestamp'].dt.to_period("M").astype(str))["price"].sum().reset_index()
+
+    fig_cat = px.line(cat_monthly, x="order_purchase_timestamp", y="price", title=f"Revenue Trend: {selected_cat}",
+                      labels={"order_purchase_timestamp": "Month", "price": "Revenue"})
+    st.plotly_chart(fig_cat, use_container_width=True)
+
     if st.checkbox("Show Analysis & Recommendations - Category Trends", key="unique_key_ts4"):
         st.info("""
         **Analysis Performed:**
@@ -243,10 +254,3 @@ with tab4:
         - Focus marketing or inventory efforts on top-performing categories.
         - Monitor underperforming categories to adjust strategy or pricing.
         """)
-
-    cat_df = df[df['product_category'] == selected_cat]
-    cat_monthly = cat_df.groupby(cat_df['order_purchase_timestamp'].dt.to_period("M").astype(str))["price"].sum().reset_index()
-
-    fig_cat = px.line(cat_monthly, x="order_purchase_timestamp", y="price", title=f"Revenue Trend: {selected_cat}",
-                      labels={"order_purchase_timestamp": "Month", "price": "Revenue"})
-    st.plotly_chart(fig_cat, use_container_width=True)
