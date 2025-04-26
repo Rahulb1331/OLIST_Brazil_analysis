@@ -241,9 +241,47 @@ if not multi_item_txns.empty:
 
         with st.expander("💬 How to Interpret This?"):
             st.info("""
+                **Top Revenue Bundles** show which combinations of products bring the most sales value.
+                **Action Points:**
+                    - Bundle these products together in special offers.
+                    - Promote them in upsell/cross-sell campaigns to high CLTV segments.
+                    - Prioritize stocking and marketing these bundles.
                 - Predicted uplift shows **extra revenue** if we bundle and successfully cross-sell.
                 - Higher uplift = better bundling opportunity.
             """)
+
+        with st.expander("🧮 How Was Bundle Revenue Calculated?"):
+            st.info(
+                """
+            **How We Predict Bundle Revenue:**
+    
+            - We first calculate the total historical revenue where the antecedent products were purchased together.
+            - Then we adjust it by the **strength** of the relationship between the products using **Lift**.
+
+            **What is Lift?**
+            - Lift measures how much more likely two products are bought together compared to random chance.
+            - If Lift = 1 ➔ no relationship (pure chance).
+            - If Lift > 1 ➔ positive association (buying A makes buying B more likely).
+
+            **Why use (Lift - 1)?**
+            - **Lift - 1** captures only the *extra power* of the association beyond random chance.
+            - Without adjusting, we'd wrongly assume all sales were due to the association (which is not true).
+
+            **Final Calculation:**
+            ```
+            Adjusted Estimated Revenue ≈ Base Revenue × (Lift - 1)
+            ```
+
+            **Example:**
+            - Base revenue for a bundle = $10,000
+            - Lift = 1.5
+            - Extra revenue = $10,000 × (1.5 - 1) = **$5,000** additional sales attributable to the bundling effect.
+
+            **In Simple Terms:**  
+            ➔ We are isolating the true "bonus" effect of bundling, not just what would happen randomly.
+
+            """
+        )
 
         # --- "So What?" Actionable Insights ---
         st.subheader("🧠 So What? What Should We DO?")
