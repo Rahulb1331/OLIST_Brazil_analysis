@@ -138,6 +138,25 @@ if not multi_item_txns.empty:
             labels={"support": "Support", "confidence": "Confidence", "estimated_revenue": "Revenue"}
         )
         st.plotly_chart(fig1, use_container_width=True)
+        with st.expander("📖 What Do Support, Confidence, and Lift Mean?"):
+            st.info("""
+            **Support:**  
+            - The proportion of transactions that contain a specific itemset.  
+            - Example: If 5 out of 100 transactions include "milk and bread", support = 5%.
+
+            **Confidence:**  
+            - How often items in the consequent (e.g., "bread") appear in transactions that contain the antecedent (e.g., "milk").  
+            - Example: If 80% of people who buy milk also buy bread, confidence = 80%.
+
+            **Lift:**  
+            - How much more likely items are to be bought together compared to being bought independently.  
+            - A lift > 1 indicates a positive association. Higher lift = stronger buying relationship.
+
+            👉 In short:
+            - **Support** shows **how popular** a combination is.
+            - **Confidence** shows **how reliable** the rule is.
+            - **Lift** shows **how much stronger** the buying pattern is than random chance.
+            """)
 
         # --- Network Graph ---
         st.subheader("🌐 Network Graph of Association Rules")
