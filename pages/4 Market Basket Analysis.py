@@ -14,10 +14,10 @@ st.title("🛒 Market Basket Analysis (MBA)")
 @st.cache_data
 def load_data():
     from analysis.Preprocessing import full_orders
-    from analysis.cltv import summary
-    return full_orders, summary
+    from analysis.cltv import cltv_df
+    return full_orders, cltv_df
 
-full_orders, summary = load_data()
+full_orders, cltv_df = load_data()
 
 # Data Preparation
 transactions_df = full_orders.groupby(['order_id', 'customer_unique_id'])['product_category'] \
@@ -25,23 +25,23 @@ transactions_df = full_orders.groupby(['order_id', 'customer_unique_id'])['produ
 
 segmented_txns = pd.merge(
     transactions_df,
-    summary[['customer_unique_id', 'cltv_segment']],
+    cltv_df[['customer_unique_id', 'CLTV_new_Segment']],
     on='customer_unique_id',
     how='inner'
 )
 
-segments = segmented_txns['cltv_segment'].dropna().unique()
+segments = segmented_txns['CLTV_new_Segment'].dropna().unique()
 selected_segment = st.selectbox("Select CLTV Segment", sorted(segments))
 
 # User Algorithm Choice
 algo_choice = st.radio(
     "Choose Algorithm for Mining Frequent Itemsets:",
-    ["Apriori", "FP-Growth", "Both"],
+    ["Apriori", "FP-Growth"],
     horizontal=True
 )
 
 # Filter for multi-item transactions
-segment_df = segmented_txns[segmented_txns['cltv_segment'] == selected_segment]
+segment_df = segmented_txns[segmented_txns['CLTV_new_Segment'] == selected_segment]
 multi_item_txns = segment_df[segment_df['items'].apply(lambda x: len(x) > 1)]
 
 if not multi_item_txns.empty:
@@ -62,12 +62,9 @@ if not multi_item_txns.empty:
     # Mining frequent itemsets
     if algo_choice == "Apriori":
         frequent_itemsets = apriori(itemsets, min_support=0.001, use_colnames=True)
-    elif algo_choice == "FP-Growth":
+    else:
         frequent_itemsets = fpgrowth(itemsets, min_support=0.001, use_colnames=True)
-    else:  # Both
-        frequent_itemsets_apriori = apriori(itemsets, min_support=0.001, use_colnames=True)
-        frequent_itemsets_fpgrowth = fpgrowth(itemsets, min_support=0.001, use_colnames=True)
-        frequent_itemsets = pd.concat([frequent_itemsets_apriori, frequent_itemsets_fpgrowth]).drop_duplicates()
+    
 
     # Generate Association Rules
     rules_df = association_rules(frequent_itemsets, metric="lift", min_threshold=1.0)
