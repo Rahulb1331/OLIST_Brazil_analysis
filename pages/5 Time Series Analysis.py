@@ -25,7 +25,7 @@ df["order_month"] = df["order_purchase_timestamp"].dt.to_period("M").astype(str)
 df["month"] = df["order_purchase_timestamp"].dt.month
 
 # Merge CLTV Segments
-df = df.merge(cltv_df[["customer_id", "CLTV_new_Segment"]], on="customer_id", how="left")
+df = df.merge(cltv_df[["customer_unique_id", "CLTV_new_Segment"]], on="customer_unique_id", how="left")
 
 # Regional & Customer Type Segmentation
 region_options = sorted(df['customer_state'].dropna().unique())
@@ -49,7 +49,7 @@ if selected_cltv_segment != 'All':
 #    df = df.merge(new_customers[['customer_id', 'first_order_month']], on='customer_id')
 #    df = df[df['order_month'] == df['first_order_month']]
 #elif selected_customer_type == 'Repeat':
-#    counts = df['customer_id'].value_counts()
+#    counts = df[''].value_counts()
 #    repeat_customers = counts[counts > 1].index
 #    df = df[df['customer_id'].isin(repeat_customers)]
 
