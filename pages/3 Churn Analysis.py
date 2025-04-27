@@ -20,10 +20,10 @@ st.title("🔁 Customer Churn Prediction Dashboard")
 @st.cache_data
 def load_data():
     from analysis.Preprocessing import full_orders
-    from analysis.cltv import summary
-    return full_orders, summary
+    from analysis.cltv import cltv_df
+    return full_orders, cltv_df
 
-full_orders, summary = load_data()
+full_orders, cltv_df = load_data()
 
 # --- Data Preparation ---
 st.header("📦 Data Preparation")
@@ -48,7 +48,7 @@ churned_customers = set(last_purchase_df["customer_unique_id"]) - set(future_ord
 last_purchase_df["churned"] = last_purchase_df["customer_unique_id"].isin(churned_customers).astype(int)
 
 # Join with CLTV summary
-data = pd.merge(last_purchase_df, summary, on="customer_unique_id", how="inner")
+data = pd.merge(last_purchase_df, cltv_df, on="customer_unique_id", how="inner")
 
 # Feature Engineering
 data["days_since_last_purchase"] = (cutoff_date - data["last_purchase"]).dt.days
@@ -77,8 +77,8 @@ st.header("🔎 Exploratory Data Analysis")
 
 # Churn rate by CLTV segment
 st.subheader("Churn Rate by CLTV Segment")
-cltv_churn = data.groupby("cltv_segment")["churned"].mean().sort_values()
-fig = px.bar(cltv_churn, labels={'value':'Churn Rate', 'cltv_segment':'CLTV Segment'})
+cltv_churn = data.groupby("CLTV_new_Segment")["churned"].mean().sort_values()
+fig = px.bar(cltv_churn, labels={'value':'Churn Rate', 'CLTV_new_Segment':'CLTV Segment'})
 st.plotly_chart(fig)
 
 # Recency vs Churn
@@ -102,9 +102,9 @@ if st.checkbox("Show insights for feature exploration"):
 
 # Encode categorical features
 le = LabelEncoder()
-data["cltv_segment_encoded"] = le.fit_transform(data["cltv_segment"])
+data["cltv_segment_encoded"] = le.fit_transform(data["CLTV_new_Segment"])
 
-X = data.drop(columns=["customer_unique_id", "last_purchase", "cltv_segment", "churned"])
+X = data.drop(columns=["customer_unique_id", "last_purchase", "CLTV_new_Segment", "churned"])
 y = data["churned"]
 
 # Train/Test Split
