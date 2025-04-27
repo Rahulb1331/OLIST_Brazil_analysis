@@ -21,10 +21,9 @@ st.title("🔁 Customer Churn Prediction Dashboard")
 def load_data():
     from analysis.Preprocessing import full_orders
     from analysis.cltv import cltv_df
-    from analysis.rfm import rfm_df
-    return full_orders, cltv_df, rfm_df
+    return full_orders, cltv_df
 
-full_orders, cltv_df, rfm_df = load_data()
+full_orders, cltv_df = load_data()
 
 # --- Data Preparation ---
 st.header("📦 Data Preparation")
@@ -42,25 +41,43 @@ last_purchase_df = (
     .reset_index()
     .rename(columns={"order_purchase_timestamp": "last_purchase"})
 )
-
 cltv_df = cltv_df[cltv_df["total_orders"]>1]
 cltv_df = cltv_df.dropna()
-
-st.dataframe(rfm_df.head(10))
 
 # Churn labeling
 future_orders = full_orders[full_orders["order_purchase_timestamp"] > cutoff_date]
 churned_customers = set(last_purchase_df["customer_unique_id"]) - set(future_orders["customer_unique_id"])
 last_purchase_df["churned"] = last_purchase_df["customer_unique_id"].isin(churned_customers).astype(int)
 
+# Create features
+customer_features = filtered_orders.groupby("customer_unique_id").agg({
+    "order_id": "count",  # total orders
+    "payment_value": "sum",  # total revenue
+    "order_purchase_timestamp": ["max", "min"]  # for recency calculation
+}).reset_index()
+
+customer_features.columns = ["customer_unique_id", "total_orders", "total_revenue", "last_order", "first_order"]
+
+customer_features["recency_days"] = (cutoff_date - customer_features["last_order"]).dt.days
+customer_features["customer_age_days"] = (cutoff_date - customer_features["first_order"]).dt.days
+customer_features["avg_order_value"] = customer_features["total_revenue"] / customer_features["total_orders"]
+
+# Create churn labels
+future_orders = full_orders[full_orders["order_purchase_timestamp"] > cutoff_date]
+churned_customers = set(customer_features["customer_unique_id"]) - set(future_orders["customer_unique_id"])
+
+customer_features["churned"] = customer_features["customer_unique_id"].isin(churned_customers).astype(int)
+
+
 # Join with CLTV summary
 data = pd.merge(last_purchase_df, cltv_df, on="customer_unique_id", how="inner")
+# Optionally join CLTV
+data = pd.merge(customer_features, cltv_df[['customer_unique_id', 'CLTV_new_Segment']], on="customer_unique_id", how="left")
 
 # Feature Engineering
 data["days_since_last_purchase"] = (cutoff_date - data["last_purchase"]).dt.days
 
 # ✅ Merge RFM features
-data = pd.merge(data, rfm_df, on="customer_unique_id", how="left")
 
 st.write("Total customers:", data.shape[0])
 st.write("Churn distribution:")
@@ -113,14 +130,14 @@ if st.checkbox("Show insights for feature exploration"):
 le = LabelEncoder()
 data["cltv_segment_encoded"] = le.fit_transform(data["CLTV_new_Segment"])
 
-X = data.drop(columns=["customer_unique_id", "last_purchase", "CLTV_Segment", "CLTV_new_Segment", "CustomerGroup", "BehaviorSegment", "churned"])
+X = data.drop(columns=["customer_unique_id", "last_purchase", "CLTV_Segment", "CLTV_new_Segment", "CustomerGroup", "churned"])
 y = data["churned"]
 
 #Correlational heatmap
 
 if st.checkbox("Show feature correlation heatmap"):
     st.subheader("Feature Correlation Matrix")
-    corr = data.drop(columns=["customer_unique_id", "last_purchase", "cltv", "normalized_cltv", "R_Quartile", "F_Quartile", "M_Quartile", "CLTV_Segment", "CLTV_new_Segment", "CustomerGroup", "BehaviorSegment"]).corr()
+    corr = data.drop(columns=["customer_unique_id", "last_purchase", "cltv", "normalized_cltv", "CLTV_Segment", "CLTV_new_Segment", "CustomerGroup"]).corr()
     fig = px.imshow(corr, text_auto=True, color_continuous_scale='RdBu_r', title="Correlation Matrix")
     st.plotly_chart(fig)
 
