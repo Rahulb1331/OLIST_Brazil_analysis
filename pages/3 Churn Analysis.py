@@ -20,10 +20,15 @@ st.title("🔁 Customer Churn Prediction Dashboard")
 @st.cache_data
 def load_data():
     from analysis.Preprocessing import full_orders
-    from analysis.cltv import cltv_df
-    return full_orders, cltv_df
+    from analysis.cltv import summary, cltv_df
+    return full_orders, summary, cltv_df
 
-full_orders, cltv_df = load_data()
+full_orders, summary, cltv_df = load_data()
+
+
+st.dataframe(summary).head(10)
+st.dataframe(cltv_df).head(10)
+
 
 # --- Data Preparation ---
 st.header("📦 Data Preparation")
