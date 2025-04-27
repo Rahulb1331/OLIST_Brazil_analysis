@@ -112,8 +112,6 @@ if st.checkbox("Show insights for feature exploration"):
 # Encode categorical features
 le = LabelEncoder()
 data["cltv_segment_encoded"] = le.fit_transform(data["CLTV_new_Segment"])
-data["customer_group_encoded"] = le.fit_transform(data["CustomerGroup"])
-data["behavior_segment_encoded"] = le.fit_transform(data["BehaviorSegment"])
 
 X = data.drop(columns=["customer_unique_id", "last_purchase", "CLTV_Segment", "CLTV_new_Segment", "CustomerGroup", "BehaviorSegment", "churned"])
 y = data["churned"]
@@ -122,7 +120,7 @@ y = data["churned"]
 
 if st.checkbox("Show feature correlation heatmap"):
     st.subheader("Feature Correlation Matrix")
-    corr = X.corr()
+    corr = data.drop(columns=["customer_unique_id", "last_purchase", "CLTV_Segment", "CLTV_new_Segment", "CustomerGroup", "BehaviorSegment"]).corr()
     fig = px.imshow(corr, text_auto=True, color_continuous_scale='RdBu_r', title="Correlation Matrix")
     st.plotly_chart(fig)
 
