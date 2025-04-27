@@ -59,6 +59,9 @@ data = pd.merge(last_purchase_df, cltv_df, on="customer_unique_id", how="inner")
 # Feature Engineering
 data["days_since_last_purchase"] = (cutoff_date - data["last_purchase"]).dt.days
 
+# ✅ Merge RFM features
+data = pd.merge(data, rfm_df, on="customer_unique_id", how="left")
+
 st.write("Total customers:", data.shape[0])
 st.write("Churn distribution:")
 fig = px.bar(data['churned'].value_counts().reset_index(), x='churned', y='count', labels={'churned':'Churned', 'count':'Count'})
@@ -109,9 +112,35 @@ if st.checkbox("Show insights for feature exploration"):
 # Encode categorical features
 le = LabelEncoder()
 data["cltv_segment_encoded"] = le.fit_transform(data["CLTV_new_Segment"])
+data["customer_group_encoded"] = le.fit_transform(data["CustomerGroup"])
+data["behavior_segment_encoded"] = le.fit_transform(data["BehaviorSegment"])
 
-X = data.drop(columns=["customer_unique_id", "last_purchase", "CLTV_Segment", "CLTV_new_Segment", "churned"])
+X = data.drop(columns=["customer_unique_id", "last_purchase", "CLTV_Segment", "CLTV_new_Segment", "CustomerGroup", "BehaviorSegment", "churned"])
 y = data["churned"]
+
+#Correlational heatmap
+features = [
+    "days_since_last_purchase",
+    "total_orders",
+    "total_payment",
+    "average_order_value",
+    "Recency",
+    "Frequency",
+    "Monetary",
+    "R",
+    "F",
+    "M",
+    "RFM_Score",
+    "cltv_segment_encoded",
+    "customer_group_encoded",
+    "behavior_segment_encoded"
+]
+if st.checkbox("Show feature correlation heatmap"):
+    st.subheader("Feature Correlation Matrix")
+    corr = data[features + ['churned']].corr()
+    fig = px.imshow(corr, text_auto=True, color_continuous_scale='RdBu_r', title="Correlation Matrix")
+    st.plotly_chart(fig)
+
 
 # Train/Test Split
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
