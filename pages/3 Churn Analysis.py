@@ -20,8 +20,8 @@ st.title("🔁 Customer Churn Prediction Dashboard")
 @st.cache_data
 def load_data():
     from analysis.Preprocessing import full_orders
-    from analysis.cltv import cltv_new, summary
-    return full_orders, cltv_new, summary
+    from analysis.cltv import cltv_df, summary
+    return full_orders, cltv_df, summary
 
 full_orders, cltv_df, summary = load_data()
 
