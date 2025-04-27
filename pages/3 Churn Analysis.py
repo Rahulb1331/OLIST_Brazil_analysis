@@ -68,6 +68,8 @@ if st.checkbox("Show insights for data preparation"):
     - Prevents data leakage and reflects real-world prediction.
     """)
 
+st.dataframe(data)
+
 # --- Feature Exploration ---
 st.header("🔎 Exploratory Data Analysis")
 
