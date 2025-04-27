@@ -168,6 +168,7 @@ sns.histplot(summary["T"], bins=50, kde=True)
 plt.title("T Distribution")
 plt.show()
 
+cltv_new = summary.copy()
 # Fitting BG/NBD model (predicts number of transactions)
 
 # Initialize and fit model
