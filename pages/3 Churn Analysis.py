@@ -26,8 +26,8 @@ def load_data():
 full_orders, summary, cltv_df = load_data()
 
 
-st.dataframe(summary).head(10)
-st.dataframe(cltv_df).head(10)
+st.dataframe(summary.head(10))
+st.dataframe(cltv_df)
 
 
 # --- Data Preparation ---
