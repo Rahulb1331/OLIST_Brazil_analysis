@@ -20,10 +20,11 @@ st.title("🔁 Customer Churn Prediction Dashboard")
 @st.cache_data
 def load_data():
     from analysis.Preprocessing import full_orders
-    from analysis.cltv import cltv_df, summary
-    return full_orders, cltv_df, summary
+    from analysis.cltv import cltv_df
+    from analysis.rfm import rfm_df
+    return full_orders, cltv_df, rfm_df
 
-full_orders, cltv_df, summary = load_data()
+full_orders, cltv_df, rfm_df = load_data()
 
 # --- Data Preparation ---
 st.header("📦 Data Preparation")
@@ -45,7 +46,7 @@ last_purchase_df = (
 cltv_df = cltv_df[cltv_df["total_orders"]>1]
 cltv_df = cltv_df.dropna()
 
-st.dataframe(cltv_df.head(10))
+st.dataframe(rfm_df.head(10))
 
 # Churn labeling
 future_orders = full_orders[full_orders["order_purchase_timestamp"] > cutoff_date]
