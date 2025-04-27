@@ -68,8 +68,6 @@ if st.checkbox("Show insights for data preparation"):
     - Prevents data leakage and reflects real-world prediction.
     """)
 
-st.dataframe(data)
-
 # --- Feature Exploration ---
 st.header("🔎 Exploratory Data Analysis")
 
@@ -97,7 +95,7 @@ if st.checkbox("Show insights for feature exploration"):
 le = LabelEncoder()
 data["cltv_segment_encoded"] = le.fit_transform(data["CLTV_new_Segment"])
 
-X = data.drop(columns=["customer_unique_id", "last_purchase", "CLTV_new_Segment", "churned"])
+X = data.drop(columns=["customer_unique_id", "last_purchase", "CLTV_Segment", "CLTV_new_Segment", "churned"])
 y = data["churned"]
 
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
