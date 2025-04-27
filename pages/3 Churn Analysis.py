@@ -55,7 +55,7 @@ data["days_since_last_purchase"] = (cutoff_date - data["last_purchase"]).dt.days
 
 st.write("Total customers:", data.shape[0])
 st.write("Churn distribution:")
-fig = px.bar(data['churned'].value_counts().reset_index(), x='index', y='churned', labels={'index':'Churned', 'churned':'Count'})
+fig = px.bar(data['churned'].value_counts().reset_index(), x='churned', y='count', labels={'churned':'Churned', 'count':'Count'})
 st.plotly_chart(fig)
 
 if st.checkbox("Show insights for data preparation"):
