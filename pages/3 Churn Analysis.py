@@ -75,7 +75,7 @@ data = pd.merge(last_purchase_df, cltv_df, on="customer_unique_id", how="inner")
 data = pd.merge(customer_features, cltv_df[['customer_unique_id', 'CLTV_new_Segment']], on="customer_unique_id", how="left")
 
 # Feature Engineering
-data["days_since_last_purchase"] = (cutoff_date - data["last_purchase"]).dt.days
+#data["days_since_last_purchase"] = (cutoff_date - data["last_purchase"]).dt.days
 
 # ✅ Merge RFM features
 
