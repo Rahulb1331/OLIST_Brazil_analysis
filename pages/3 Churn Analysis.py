@@ -69,17 +69,78 @@ data = pd.merge(customer_features, cltv_df[['customer_unique_id', 'CLTV_new_Segm
 
 # Feature Engineering
 data["days_since_last_purchase"] = (cutoff_date - data["last_order"]).dt.days
+# ✅ Merge RFM features
+
+st.write("Total customers:", data.shape[0])
+st.write("Churn distribution:")
+fig = px.bar(data['churned'].value_counts().reset_index(), x='churned', y='count', labels={'churned':'Churned', 'count':'Count'})
+st.plotly_chart(fig)
+
+if st.checkbox("Show insights for data preparation"):
+    st.info("""
+    **What was done:**
+    - Customers were labeled as churned if they did not purchase in the 180 days after a cutoff.
+    - Features are built only from the data available **before** the cutoff to prevent leakage.
+
+    **Why:**
+    - This setup simulates real-world prediction without looking into the future.
+
+    **Recommendations:**
+    - Consider also adding dynamic features (e.g., purchase frequency, average order value).
+    - Include more robust segmentation, like RFM (Recency, Frequency, Monetary) features.
+    """)
+
+st.header("🔎 Exploratory Data Analysis")
+
+# Churn rate by CLTV segment
+st.subheader("Churn Rate by CLTV Segment")
+cltv_churn = data.groupby("CLTV_new_Segment")["churned"].mean().sort_values()
+fig = px.bar(cltv_churn, labels={'value':'Churn Rate', 'CLTV_new_Segment':'CLTV Segment'})
+st.plotly_chart(fig)
+
+# Recency vs Churn
+st.subheader("Recency vs Churn")
+fig = px.box(data, x="churned", y="days_since_last_purchase", labels={'churned':'Churned (0=No, 1=Yes)', 'days_since_last_purchase':'Days Since Last Purchase'})
+st.plotly_chart(fig)
+
+if st.checkbox("Show insights for feature exploration"):
+    st.info("""
+    **What was done:**
+    - Analyzed churn rate across different CLTV segments.
+    - Visualized recency (days since last purchase) against churn behavior.
+
+    **Why:**
+    - Understanding correlations helps in feature selection and model building.
+
+    **Recommendations:**
+    - Higher recency (longer time since last purchase) correlates with higher churn.
+    - Lower CLTV segments show higher churn rates; target them with retention campaigns.
+    """)
+
 le = LabelEncoder()
 data["cltv_segment_encoded"] = le.fit_transform(data["CLTV_new_Segment"])
 
 X = data.drop(columns=["customer_unique_id", "last_order", "first_order", "CLTV_new_Segment", "churned"])
 y = data["churned"]
 
+#Correlational heatmap
+
+if st.checkbox("Show feature correlation heatmap"):
+    st.subheader("Feature Correlation Matrix")
+    corr = data.drop(columns=["customer_unique_id", "last_purchase", "cltv", "normalized_cltv", "CLTV_Segment", "CLTV_new_Segment"]).corr()
+    fig = px.imshow(corr, text_auto=True, color_continuous_scale='RdBu_r', title="Correlation Matrix")
+    st.plotly_chart(fig)
+
 # --- Train/Test Split
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
 
 # --- Model Training
 st.header("🧠 Model Training")
+# Dummy baseline
+dummy = DummyClassifier(strategy="most_frequent")
+dummy.fit(X_train, y_train)
+dummy_pred = dummy.predict(X_test)
+st.write("Baseline Accuracy (Dummy Model):", dummy.score(X_test, y_test))
 
 @st.cache_data
 def train_all_models(X_train, y_train, X_test, y_test, X, y):
@@ -156,9 +217,38 @@ st.subheader(f"🧮 Confusion Matrix")
 fig = px.imshow(results['confusion_matrix'], text_auto=True, color_continuous_scale='Blues', labels=dict(x="Predicted", y="Actual"))
 st.plotly_chart(fig)
 
+if st.checkbox("Show insights for model evaluation"):
+    st.info("""
+    **What was done:**
+    - Compared Random Forest model against a Dummy Classifier (predicts most frequent class).
+    - Evaluated using accuracy, precision, recall, F1-score.
+
+    **Why:**
+    - Baseline models help gauge if our model is actually learning patterns.
+
+    **Recommendations:**
+    - If your model barely beats the dummy, rethink feature engineering.
+    - Focus on improving recall and F1-score, especially if churners are minority class.
+    """)
+
+
 # Cross Validation Score
 st.subheader(f"🔁 Cross-Validation Score")
 st.write(f"**{results['cross_val']:.4f}**")
+
+if st.checkbox("Show insights for model performance"):
+    st.info("""
+    **What was done:**
+    - Evaluated model using ROC AUC and Precision-Recall curves.
+    - Cross-validated Random Forest across 5 folds.
+
+    **Why:**
+    - ROC AUC summarizes performance across thresholds.
+    - Precision-Recall is better suited when classes are imbalanced.
+
+    **Recommendations:**
+    - Tune model thresholds depending on your business objective (maximize recall if losing a customer is costly).
+    """)
 
 # --- Model Comparison
 st.header("📈 Model Comparison Table")
@@ -178,3 +268,15 @@ comparison_df = pd.DataFrame([
 
 st.dataframe(comparison_df.sort_values(by="F1-Score", ascending=False))
 
+if st.checkbox("Show insights for predictions"):
+    st.info("""
+    **What was done:**
+    - Predictions and churn probabilities are shown for easy stakeholder consumption.
+
+    **Why:**
+    - Having probability scores allows business users to prioritize interventions.
+
+    **Recommendations:**
+    - Focus retention offers on customers with churn probability between 0.5 to 0.8 (uncertain cases).
+    - Highly likely churners (>0.8) may require aggressive win-back campaigns.
+    """)
