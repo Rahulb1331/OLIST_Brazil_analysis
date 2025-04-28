@@ -145,7 +145,7 @@ cohort_summary = cohort_df.groupby('first_purchase_quarter').agg(
     total_revenue=('payment_value', 'sum')
 ).reset_index()
 
-cohort_df['first_purchase_quarter'] = cohort_df['first_purchase_quarter'].astype(str)
+cohort_summary['first_purchase_quarter'] = cohort_summary['first_purchase_quarter'].astype(str)
 
 fig3 = px.line(
     cohort_summary,
