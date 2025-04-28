@@ -72,6 +72,9 @@ customer_features["churned"] = customer_features["customer_unique_id"].isin(chur
 # Join with CLTV summary
 #data = pd.merge(last_purchase_df, cltv_df, on="customer_unique_id", how="inner")
 
+# Filter customer_features to customers who exist in cltv_df
+customer_features = customer_features[customer_features["customer_unique_id"].isin(cltv_df["customer_unique_id"])]
+
 # Join with CLTV summary
 data = pd.merge(customer_features, cltv_df[['customer_unique_id', 'CLTV_new_Segment']], on="customer_unique_id", how="left")
 
