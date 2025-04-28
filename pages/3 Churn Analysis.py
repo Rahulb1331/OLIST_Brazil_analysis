@@ -75,7 +75,7 @@ customer_features["churned"] = customer_features["customer_unique_id"].isin(chur
 # Join with CLTV summary
 data = pd.merge(customer_features, cltv_df[['customer_unique_id', 'CLTV_new_Segment']], on="customer_unique_id", how="left")
 
-st.dataframe(cltv_df.head(10))
+st.dataframe(cltv_df)
 st.dataframe(customer_features.head(10))
 st.dataframe(data.head(10))
 
