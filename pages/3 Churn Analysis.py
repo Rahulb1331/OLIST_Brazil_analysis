@@ -76,7 +76,7 @@ customer_features["churned"] = customer_features["customer_unique_id"].isin(chur
 data = pd.merge(customer_features, cltv_df[['customer_unique_id', 'CLTV_new_Segment']], on="customer_unique_id", how="left")
 
 st.dataframe(cltv_df.head(10))
-
+st.dataframe(customer_features.head(10))
 st.dataframe(data.head(10))
 
 # Create days_since_last_purchase based on last_order
