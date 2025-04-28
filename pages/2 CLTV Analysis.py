@@ -159,6 +159,7 @@ predicted_new_revenue = predicted_new_customers * avg_revenue_per_new_customer_r
 existing_customer_revenue = summary_df['predicted_cltv'].sum()
 total_predicted_revenue = existing_customer_revenue + predicted_new_revenue
 
+st.dataframe(summary_df)
 # --- Plot Updated Total Revenue Forecast ---
 st.subheader("🌟 Updated Revenue Forecast Including New Customers")
 
