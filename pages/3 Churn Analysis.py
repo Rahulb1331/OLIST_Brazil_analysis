@@ -134,6 +134,8 @@ if st.checkbox("Show insights for feature exploration"):
 le = LabelEncoder()
 data["cltv_segment_encoded"] = le.fit_transform(data["CLTV_new_Segment"])
 
+st.dataframe(data.head(10))
+
 X = data.drop(columns=["customer_unique_id", "last_purchase", "CLTV_Segment", "CLTV_new_Segment", "CustomerGroup", "churned"])
 y = data["churned"]
 
