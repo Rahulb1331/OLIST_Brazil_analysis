@@ -84,7 +84,7 @@ st.header("🧠 Model Training")
 models = {
     "Random Forest": RandomForestClassifier(n_estimators=100, random_state=42, class_weight='balanced'),
     "Logistic Regression": LogisticRegression(max_iter=1000, random_state=42, class_weight='balanced'),
-    "XGBoost": XGBClassifier(use_label_encoder=False, eval_metric='logloss', random_state=42)
+    "XGBoost": XGBClassifier(use_label_encoder=False, eval_metric='logloss', random_state=42, scale_pos_weight=(y_train.value_counts()[0] / y_train.value_counts()[1]))
 }
 
 model_results = {}
