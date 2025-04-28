@@ -76,7 +76,7 @@ st.write("Churn distribution:")
 fig = px.bar(data['churned'].value_counts().reset_index(), x='churned', y='count', labels={'churned':'Churned', 'count':'Count'})
 st.plotly_chart(fig)
 
-if st.checkbox("Show insights for data preparation"):
+if st.checkbox("Show insights for data preparation", key = "key1"):
     st.info("""
     **What was done:**
     - Customers were labeled as churned if they did not purchase in the 180 days after a cutoff.
@@ -103,7 +103,7 @@ st.subheader("Recency vs Churn")
 fig = px.box(data, x="churned", y="days_since_last_purchase", labels={'churned':'Churned (0=No, 1=Yes)', 'days_since_last_purchase':'Days Since Last Purchase'})
 st.plotly_chart(fig)
 
-if st.checkbox("Show insights for feature exploration"):
+if st.checkbox("Show insights for feature exploration", key = "key2"):
     st.info("""
     **What was done:**
     - Analyzed churn rate across different CLTV segments.
@@ -127,13 +127,13 @@ st.dataframe(data.head(10))
 
 #Correlational heatmap
 
-if st.checkbox("Show feature correlation heatmap"):
+if st.checkbox("Show feature correlation heatmap", key = "key3"):
     st.subheader("Feature Correlation Matrix")
     corr = data.drop(columns=["customer_unique_id", "last_order", "first_order", "CLTV_new_Segment"]).corr()
     fig = px.imshow(corr, text_auto=True, color_continuous_scale='RdBu_r', title="Correlation Matrix")
     st.plotly_chart(fig)
 
-if st.checkbox("Show insights for feature exploration"):
+if st.checkbox("Show insights for feature exploration", key = "key4"):
     st.info("""
     **Observations:**
     - Features like total_revenue and avg_order_value are having a correlation of 0.69031, while recency_days-customer_age_days and days_since_last_purchase-recency_days are showing very high correlation. In such cases what we can do is we can merge these pairs to form a single column which would prevent overlapping of redundant information. Also, merging such features can reduce multicollinearity.
@@ -230,7 +230,7 @@ st.subheader(f"🧮 Confusion Matrix")
 fig = px.imshow(results['confusion_matrix'], text_auto=True, color_continuous_scale='Blues', labels=dict(x="Predicted", y="Actual"))
 st.plotly_chart(fig)
 
-if st.checkbox("Show insights for model evaluation"):
+if st.checkbox("Show insights for model evaluation", key = "key5"):
     st.info("""
     **What was done:**
     - Compared Random Forest model against a Dummy Classifier (predicts most frequent class).
@@ -249,7 +249,7 @@ if st.checkbox("Show insights for model evaluation"):
 st.subheader(f"🔁 Cross-Validation Score")
 st.write(f"**{results['cross_val']:.4f}**")
 
-if st.checkbox("Show insights for model performance"):
+if st.checkbox("Show insights for model performance", key = "key6"):
     st.info("""
     **What was done:**
     - Evaluated model using ROC AUC and Precision-Recall curves.
@@ -281,7 +281,7 @@ comparison_df = pd.DataFrame([
 
 st.dataframe(comparison_df.sort_values(by="F1-Score", ascending=False))
 
-if st.checkbox("Show insights for predictions"):
+if st.checkbox("Show insights for predictions", key = "key7"):
     st.info("""
     **What was done:**
     - Predictions and churn probabilities are shown for easy stakeholder consumption.
