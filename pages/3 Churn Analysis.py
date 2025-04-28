@@ -85,6 +85,10 @@ if st.checkbox("Show insights for data preparation", key = "key1"):
     **Why:**
     - This setup simulates real-world prediction without looking into the future.
 
+    **Observations:**
+    - An approximately 75% churn rate across all segments suggests that Olist’s current strategies—such as follow-up communication, personalization, or loyalty programs—might not be effective in encouraging repeat purchases and building long-term relationships. 
+    - It is also possible that competitive pressures, pricing strategies, or broader market trends are influencing customer behavior. The customers might be switching to the competitors. 
+    
     **Recommendations:**
     - Consider also adding dynamic features (e.g., purchase frequency, average order value).
     - Include more robust segmentation, like RFM (Recency, Frequency, Monetary) features.
