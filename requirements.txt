@@ -12,3 +12,4 @@ networkx
 mlxtend
 prophet
 pydeck
+xgboost
