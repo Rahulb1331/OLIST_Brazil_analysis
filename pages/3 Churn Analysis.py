@@ -133,6 +133,17 @@ if st.checkbox("Show feature correlation heatmap"):
     fig = px.imshow(corr, text_auto=True, color_continuous_scale='RdBu_r', title="Correlation Matrix")
     st.plotly_chart(fig)
 
+if st.checkbox("Show insights for feature exploration"):
+    st.info("""
+    **Observations:**
+    - Features like total_revenue and avg_order_value are having a correlation of 0.69031, while recency_days-customer_age_days and days_since_last_purchase-recency_days are showing very high correlation. In such cases what we can do is we can merge these pairs to form a single column which would prevent overlapping of redundant information. Also, merging such features can reduce multicollinearity.
+    - We can also see that the **churned** column is having modest correlation with the predicting parameters. This might be due to the reason that a simple Pearson correlation only captures linear relationships. The effect of columns like say recency_days on churn might be non-linear. Also, Churn is often a multi-dimensional behavior influenced by interactions among several factors, its true impact might only be visible when combined with other features 
+    - We can see that churned is having a negative correlation with the CLTV. This is typically expected as higher CLTV indicates that a customer is more valuable to the company and, in many cases, tends to receive more attention through support, tailored offers, or loyalty programs. As a result, such customers are generally more engaged and less likely to churn. Thus, as CLTV increases, the churn probability often decreases—resulting in a negative correlation.
+    **Next Steps:**
+    - I'll be doing feature engineering where features with high correlation will be dealt with, by merging them together or transforming them.
+    """)
+
+
 # --- Train/Test Split
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
 
