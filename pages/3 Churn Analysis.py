@@ -129,7 +129,7 @@ st.dataframe(data.head(10))
 
 if st.checkbox("Show feature correlation heatmap"):
     st.subheader("Feature Correlation Matrix")
-    corr = data.drop(columns=["customer_unique_id", "last_purchase", "cltv", "normalized_cltv", "CLTV_Segment", "CLTV_new_Segment"]).corr()
+    corr = data.drop(columns=["customer_unique_id", "last_order", "first_order", "CLTV_new_Segment"]).corr()
     fig = px.imshow(corr, text_auto=True, color_continuous_scale='RdBu_r', title="Correlation Matrix")
     st.plotly_chart(fig)
 
