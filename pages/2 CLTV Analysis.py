@@ -85,7 +85,6 @@ with st.expander("🧩 How CLTV Segments Were Created"):
     st.markdown("""
 Customers were segmented based on normalized CLTV scores:
 
-- **Champions** (Top 20%)
 - **High Value** (20%-50%)
 - **Medium Value** (50%-80%)
 - **Low Value** (Bottom 20%)
@@ -133,6 +132,53 @@ with col2:
         color="cltv_segment"
     )
     st.plotly_chart(fig2, use_container_width=True)
+
+st.info("""
+ℹ️ **Note:**  
+The BG/NBD + Gamma-Gamma model predicts future revenue **only from current customers** based on their past behavior.
+It **does not account for new customer acquisitions**.
+Thus, the predicted 12-month revenue may appear significantly lower than the past 12 months.
+""")
+
+# --- Forecasting New Customers Revenue ---
+
+# Estimate historical average new customers per month
+full_orders['order_purchase_date'] = pd.to_datetime(full_orders['order_purchase_date'])
+monthly_new_customers = full_orders.groupby(full_orders['order_purchase_date'].dt.to_period('M'))['customer_unique_id'].nunique()
+avg_new_customers_per_month = monthly_new_customers.mean()
+
+# Estimate average revenue per new customer
+one_time_customers = full_orders.groupby('customer_unique_id').filter(lambda x: len(x) == 1)
+avg_revenue_per_new_customer = one_time_customers['payment_value'].mean()
+
+# Project new customer revenue
+predicted_new_customers = avg_new_customers_per_month * 12  # for next 12 months
+predicted_new_revenue = predicted_new_customers * avg_revenue_per_new_customer
+
+# Total Revenue Forecast
+existing_customer_revenue = summary_df['predicted_cltv'].sum()
+total_predicted_revenue = existing_customer_revenue + predicted_new_revenue
+
+# --- Plot Updated Total Revenue Forecast ---
+st.subheader("🌟 Updated Revenue Forecast Including New Customers")
+
+fig_total = px.bar(
+    x=["Existing Customers", "New Customers", "Total"],
+    y=[existing_customer_revenue, predicted_new_revenue, total_predicted_revenue],
+    labels={"x": "Source", "y": "Revenue"},
+    title="Total Forecasted Revenue (Next 12 Months)",
+    text_auto=".2s",
+    color_discrete_sequence=["#636EFA", "#EF553B", "#00CC96"]
+)
+st.plotly_chart(fig_total, use_container_width=True)
+
+st.info("""
+📈 **Insight:**  
+The total forecasted revenue combines:
+- Revenue predicted by BG/NBD + Gamma-Gamma model from existing customers.
+- Estimated revenue from new customers based on historical acquisition patterns.
+This provides a more realistic projection aligned with real-world business growth.
+""")
 
 # --- 5. Cohort Analysis ---
 st.subheader("👥 Customer Cohort Analysis")
@@ -225,7 +271,6 @@ with st.expander("🧬 Scatterplots"):
 st.subheader("🚀 Actions Suggested by Customer Segment")
 
 st.markdown("""
-- **Champions:** Exclusive offers, loyalty programs
 - **High Value:** Upselling/cross-selling
 - **Medium Value:** Targeted promotions
 - **Low Value:** Win-back campaigns, reactivation
