@@ -143,17 +143,17 @@ Thus, the predicted 12-month revenue may appear significantly lower than the pas
 # --- Forecasting New Customers Revenue ---
 
 # Estimate historical average new customers per month
-full_orders['order_purchase_date'] = pd.to_datetime(full_orders['order_purchase_date'])
-monthly_new_customers = full_orders.groupby(full_orders['order_purchase_date'].dt.to_period('M'))['customer_unique_id'].nunique()
-avg_new_customers_per_month = monthly_new_customers.mean()
+recent_orders = full_orders[full_orders['order_purchase_date'] >= (full_orders['order_purchase_date'].max() - pd.DateOffset(months=12))]
+monthly_new_customers_recent = recent_orders.groupby(recent_orders['order_purchase_date'].dt.to_period('M'))['customer_unique_id'].nunique()
+avg_new_customers_per_month_recent = monthly_new_customers_recent.mean()
 
 # Estimate average revenue per new customer
-one_time_customers = full_orders.groupby('customer_unique_id').filter(lambda x: len(x) == 1)
-avg_revenue_per_new_customer = one_time_customers['payment_value'].mean()
+one_time_customers_recent = recent_orders.groupby('customer_unique_id').filter(lambda x: len(x) == 1)
+avg_revenue_per_new_customer_recent = one_time_customers_recent['payment_value'].mean()
 
 # Project new customer revenue
-predicted_new_customers = avg_new_customers_per_month * 12  # for next 12 months
-predicted_new_revenue = predicted_new_customers * avg_revenue_per_new_customer
+predicted_new_customers = avg_new_customers_per_month_recent * 12
+predicted_new_revenue = predicted_new_customers * avg_revenue_per_new_customer_recent
 
 # Total Revenue Forecast
 existing_customer_revenue = summary_df['predicted_cltv'].sum()
