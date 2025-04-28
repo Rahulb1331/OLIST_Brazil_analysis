@@ -105,7 +105,10 @@ past_revenue = full_orders.groupby('customer_unique_id').agg(
     past_revenue=('payment_value', 'sum')
 ).reset_index()
 
-summary_revenue = summary_df.merge(past_revenue, on='customer_unique_id', how='left').fillna(0)
+# summary_revenue = summary_df.merge(past_revenue, on='customer_unique_id', how='left').fillna(0)
+summary_revenue = summary_df.merge(past_revenue, on='customer_unique_id', how='left')
+summary_revenue['past_revenue'] = summary_revenue['past_revenue'].fillna(0)
+
 
 col1, col2 = st.columns(2)
 
