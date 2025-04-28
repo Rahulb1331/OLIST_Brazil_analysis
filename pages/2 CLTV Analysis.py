@@ -1,6 +1,4 @@
 # Scripts/pages/cltv_page.py
-
-import streamlit as st
 import pandas as pd
 import numpy as np
 import plotly.express as px
@@ -8,6 +6,7 @@ from analysis.rfm import run_rfm_analysis
 from analysis.cltv import run_cltv_analysis, enrich_cltv_with_segments, model_cltv_lifetimes
 
 # --- Page Config ---
+import streamlit as st
 st.set_page_config(page_title="Customer Lifetime Value (CLTV)", layout="wide")
 st.title("💸 Customer Lifetime Value (CLTV) Analysis")
 
