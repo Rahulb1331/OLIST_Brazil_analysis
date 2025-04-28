@@ -81,33 +81,45 @@ X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_
 # --- Model Training
 st.header("🧠 Model Training")
 
-models = {
-    "Random Forest": RandomForestClassifier(n_estimators=100, random_state=42, class_weight='balanced'),
-    "Logistic Regression": LogisticRegression(max_iter=1000, random_state=42, class_weight='balanced'),
-    "XGBoost": XGBClassifier(use_label_encoder=False, eval_metric='logloss', random_state=42, scale_pos_weight=(y_train.value_counts()[0] / y_train.value_counts()[1]))
-}
-
-model_results = {}
-
-for name, model in models.items():
-    model.fit(X_train, y_train)
-    preds = model.predict(X_test)
-    proba = model.predict_proba(X_test)[:, 1]
-
-    report = classification_report(y_test, preds, output_dict=True)
-    confusion = confusion_matrix(y_test, preds)
-    roc_auc = roc_auc_score(y_test, proba)
-    cv = cross_val_score(model, X, y, cv=5).mean()
-
-    model_results[name] = {
-        "model": model,
-        "preds": preds,
-        "proba": proba,
-        "classification_report": report,
-        "confusion_matrix": confusion,
-        "roc_auc": roc_auc,
-        "cross_val": cv
+@st.cache_data
+def train_all_models(X_train, y_train, X_test, y_test, X, y):
+    models = {
+        "Random Forest": RandomForestClassifier(
+            n_estimators=100, random_state=42, class_weight="balanced"
+        ),
+        "Logistic Regression": LogisticRegression(
+            max_iter=1000, random_state=42, class_weight="balanced"
+        ),
+        "XGBoost": XGBClassifier(
+            use_label_encoder=False, eval_metric='logloss', random_state=42,
+            scale_pos_weight=(y_train.value_counts()[0] / y_train.value_counts()[1])
+        )
     }
+
+    model_results = {}
+
+    for name, model in models.items():
+        model.fit(X_train, y_train)
+        preds = model.predict(X_test)
+        proba = model.predict_proba(X_test)[:, 1]
+        report = classification_report(y_test, preds, output_dict=True)
+        confusion = confusion_matrix(y_test, preds)
+        roc_auc = roc_auc_score(y_test, proba)
+        cv = cross_val_score(model, X, y, cv=5).mean()
+
+        model_results[name] = {
+            "model": model,
+            "preds": preds,
+            "proba": proba,
+            "classification_report": report,
+            "confusion_matrix": confusion,
+            "roc_auc": roc_auc,
+            "cross_val": cv
+        }
+
+    return model_results
+    
+model_results = train_all_models(X_train, y_train, X_test, y_test, X, y)
 
 # --- Model Selection
 st.header("🎛 Select Model to Evaluate")
