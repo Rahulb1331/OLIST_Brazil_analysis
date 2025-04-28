@@ -75,6 +75,8 @@ customer_features["churned"] = customer_features["customer_unique_id"].isin(chur
 # Join with CLTV summary
 data = pd.merge(customer_features, cltv_df[['customer_unique_id', 'CLTV_new_Segment']], on="customer_unique_id", how="left")
 
+st.dataframe(data.head(10))
+
 # Create days_since_last_purchase based on last_order
 data["days_since_last_purchase"] = (cutoff_date - data["last_order"]).dt.days
 
@@ -136,7 +138,7 @@ data["cltv_segment_encoded"] = le.fit_transform(data["CLTV_new_Segment"])
 
 st.dataframe(data.head(10))
 
-X = data.drop(columns=["customer_unique_id", "last_purchase", "CLTV_Segment", "CLTV_new_Segment", "CustomerGroup", "churned"])
+X = data.drop(columns=["customer_unique_id", "last_order", "first_order", "CLTV_new_Segment", "CustomerGroup", "churned"])
 y = data["churned"]
 
 #Correlational heatmap
