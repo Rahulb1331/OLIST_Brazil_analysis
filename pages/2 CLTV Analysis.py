@@ -197,6 +197,9 @@ with st.expander("📦 Box Plot of CLTV"):
     )
     st.plotly_chart(fig, use_container_width=True)
 
+
+st.dataframe(rfm_cltv_df.head(10))
+
 with st.expander("🧬 Scatterplots"):
     scatter_df = rfm_cltv_df.copy()
     scatter_df['RFM_Score'] = scatter_df['recency_score'] + scatter_df['frequency_score'] + scatter_df['monetary_score']
