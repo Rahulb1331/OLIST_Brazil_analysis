@@ -70,12 +70,16 @@ customer_features["churned"] = customer_features["customer_unique_id"].isin(chur
 
 
 # Join with CLTV summary
-data = pd.merge(last_purchase_df, cltv_df, on="customer_unique_id", how="inner")
-# Optionally join CLTV
+#data = pd.merge(last_purchase_df, cltv_df, on="customer_unique_id", how="inner")
+
+# Join with CLTV summary
 data = pd.merge(customer_features, cltv_df[['customer_unique_id', 'CLTV_new_Segment']], on="customer_unique_id", how="left")
 
+# Create days_since_last_purchase based on last_order
+data["days_since_last_purchase"] = (cutoff_date - data["last_order"]).dt.days
+
 # Feature Engineering
-data["days_since_last_purchase"] = (cutoff_date - data["last_purchase"]).dt.days
+#data["days_since_last_purchase"] = (cutoff_date - data["last_purchase"]).dt.days
 
 # ✅ Merge RFM features
 
