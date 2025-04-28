@@ -252,5 +252,5 @@ with st.expander("📂 Filter Options"):
             (full_orders['product_category'].isin(product_filter) if product_filter else True)
         ]
         st.write(f"Filtered Orders: {len(filtered_orders)} transactions")
-        st.dataframe(filtered_orders.head(10))
+        st.dataframe(filtered_orders)
 
