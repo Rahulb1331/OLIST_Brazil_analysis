@@ -143,7 +143,7 @@ data["cltv_segment_encoded"] = le.fit_transform(data["CLTV_new_Segment"])
 
 st.dataframe(data.head(10))
 
-X = data.drop(columns=["customer_unique_id", "last_order", "first_order", "CLTV_new_Segment", "CustomerGroup", "churned"])
+X = data.drop(columns=["customer_unique_id", "last_order", "first_order", "CLTV_new_Segment", "churned"])
 y = data["churned"]
 
 #Correlational heatmap
