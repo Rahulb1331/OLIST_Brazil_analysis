@@ -143,25 +143,17 @@ Thus, the predicted 12-month revenue may appear significantly lower than the pas
 # --- Forecasting New Customers Revenue ---
 
 # Estimate historical average new customers per month
-full_orders['order_purchase_timestamp'] = pd.to_datetime(full_orders['order_purchase_timestamp'])
-cutoff_date = full_orders['order_purchase_timestamp'].max() - pd.DateOffset(months=12)
+full_orders['order_purchase_date'] = pd.to_datetime(full_orders['order_purchase_date'])
+monthly_new_customers = full_orders.groupby(full_orders['order_purchase_date'].dt.to_period('M'))['customer_unique_id'].nunique()
+avg_new_customers_per_month = monthly_new_customers.mean()
 
-recent_orders = full_orders[full_orders['order_purchase_timestamp'] >= cutoff_date]
-# 2a. Find number of new customers in past 12 months
-new_customers_last_12m = recent_orders['customer_unique_id'].nunique()
-# 2b. Average new customers per month
-avg_new_customers_per_month = new_customers_last_12m / 12
+# Estimate average revenue per new customer
+one_time_customers = full_orders.groupby('customer_unique_id').filter(lambda x: len(x) == 1)
+avg_revenue_per_new_customer = one_time_customers['payment_value'].mean()
 
-# 2c. Safe average order value (use median or clipped mean)
-payment_clip = recent_orders['payment_value'].clip(lower=recent_orders['payment_value'].quantile(0.01),
-                                                    upper=recent_orders['payment_value'].quantile(0.99))
-
-avg_order_value = payment_clip.median()  # safer than mean
-
-# 2d. Predict revenue from new customers
-predicted_new_customers = avg_new_customers_per_month * 12
-predicted_new_revenue = predicted_new_customers * avg_order_value
-
+# Project new customer revenue
+predicted_new_customers = avg_new_customers_per_month * 12  # for next 12 months
+predicted_new_revenue = predicted_new_customers * avg_revenue_per_new_customer
 
 # Total Revenue Forecast
 existing_customer_revenue = summary_df['predicted_cltv'].sum()
@@ -170,34 +162,22 @@ total_predicted_revenue = existing_customer_revenue + predicted_new_revenue
 # --- Plot Updated Total Revenue Forecast ---
 st.subheader("🌟 Updated Revenue Forecast Including New Customers")
 
-# --- 3. Combined view ---
-
-combined_revenue = pd.DataFrame({
-    'Segment': ['Existing Customers', 'Predicted New Customers'],
-    'Revenue': [
-        summary_revenue['predicted_cltv'].sum(),
-        predicted_new_revenue
-    ]
-})
-
-fig_rev_total = px.bar(
-    combined_revenue,
-    x="Segment",
-    y="Revenue",
-    text_auto='.2s',
-    title="📈 Revenue Forecast: Existing + New Customers",
-    color="Segment"
+fig_total = px.bar(
+    x=["Existing Customers", "New Customers", "Total"],
+    y=[existing_customer_revenue, predicted_new_revenue, total_predicted_revenue],
+    labels={"x": "Source", "y": "Revenue"},
+    title="Total Forecasted Revenue (Next 12 Months)",
+    text_auto=".2s",
+    color_discrete_sequence=["#636EFA", "#EF553B", "#00CC96"]
 )
-st.plotly_chart(fig_rev_total, use_container_width=True)
+st.plotly_chart(fig_total, use_container_width=True)
 
-st.info(f"""
-**Insights**:  
-- Future revenue from **existing customers** is predicted using **BG/NBD + Gamma-Gamma** modeling.  
-- **Future new customers** are projected based on **past 12 months' acquisition rate** and **median order value**.
-- Assumptions:
-    - Acquisition remains stable (no sharp growth or decline).
-    - Spend per new customer similar to current one-time buyers.
-- **Projected New Customer Revenue ≈ {predicted_new_revenue:,.0f}** over next 12 months.
+st.info("""
+📈 **Insight:**  
+The total forecasted revenue combines:
+- Revenue predicted by BG/NBD + Gamma-Gamma model from existing customers.
+- Estimated revenue from new customers based on historical acquisition patterns.
+This provides a more realistic projection aligned with real-world business growth.
 """)
 
 # --- 5. Cohort Analysis ---
@@ -318,4 +298,3 @@ with st.expander("📂 Filter Options"):
         ]
         st.write(f"Filtered Orders: {len(filtered_orders)} transactions")
         st.dataframe(filtered_orders)
-
