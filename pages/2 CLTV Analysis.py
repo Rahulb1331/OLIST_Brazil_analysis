@@ -203,8 +203,8 @@ with st.expander("🧬 Scatterplots"):
 
     fig4 = px.scatter(
         scatter_df,
-        x="frequency_score",
-        y="monetary_score",
+        x="F",
+        y="M",
         color="CLTV_new_Segment",
         title="Frequency vs Monetary Value by CLTV Segment",
         size_max=10
