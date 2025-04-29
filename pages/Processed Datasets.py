@@ -30,12 +30,19 @@ def load_order_items():
     from analysis.Preprocessing import order_items
     return order_items
 
+@st.cache_data
+def load_cltv_df():
+    from analysis.cltv import cltv_df
+    return cltv_df
+
+
 # --- Load data ---
 full_orders = load_full_orders()
 geolocation = load_geolocation()
 order_reviews = load_order_reviews()
 sellers = load_sellers()
 order_items = load_order_items()
+cltv_df = load_cltv_df()
 
 # --- Helper functions ---
 def show_dataset_summary(df, name, description, keys_used=None, used_in=None):
@@ -78,6 +85,14 @@ show_dataset_summary(
     "Contains individual order lines including products and sellers. Used for revenue calculation and basket size.",
     keys_used=["order_id", "product_id"],
     used_in=["CLTV", "Revenue Tracking"]
+)
+
+show_dataset_summary(
+    cltv_df,
+    "CLTV DataFrame",
+    "Customer-level dataset containing predicted CLTV, probability of repeat, frequency, recency, monetary value, and segment tags. Central to predictive modeling.",
+    keys_used=["customer_unique_id"],
+    used_in=["CLTV Modeling", "Segmentation", "Revenue Forecasting"]
 )
 
 st.markdown("### 🧩 Auxiliary Datasets")
