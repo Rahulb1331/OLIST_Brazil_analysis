@@ -374,7 +374,7 @@ def model_cltv_lifetimes(df):
     ggf.fit(summary["frequency"], summary["monetary_value"])
 
     summary["predicted_purchases"] = pnbd.conditional_expected_number_of_purchases_up_to_time(
-        48, summary["frequency"], summary["recency"], summary["T"]
+        180, summary["frequency"], summary["recency"], summary["T"]
     ).clip(lower=0)
 
     summary["predicted_avg_value"] = ggf.conditional_expected_average_profit(
