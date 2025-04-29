@@ -375,7 +375,7 @@ def model_cltv_lifetimes(df):
 
     # with a 6-month horizon
     summary["predicted_purchases"] = pnbd.conditional_expected_number_of_purchases_up_to_time(
-        180, summary["frequency"], summary["recency"], summary["T"]
+        365, summary["frequency"], summary["recency"], summary["T"]
     ).clip(lower=0)
 
     summary["predicted_avg_value"] = ggf.conditional_expected_average_profit(
