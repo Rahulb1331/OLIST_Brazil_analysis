@@ -1,10 +1,10 @@
 import streamlit as st
+import pandas as pd
 
-st.title("Preprocessed Datasets")
+st.set_page_config(page_title="Preprocessed Data Overview", layout="wide")
+st.title("🧹 Preprocessed Datasets Overview")
 
-# caching using a lightweight decorator 
 # --- Cached loading functions ---
-
 @st.cache_data
 def load_full_orders():
     from analysis.Preprocessing import full_orders
@@ -30,29 +30,81 @@ def load_order_items():
     from analysis.Preprocessing import order_items
     return order_items
 
-# Load cached data
+# --- Load data ---
 full_orders = load_full_orders()
 geolocation = load_geolocation()
 order_reviews = load_order_reviews()
 sellers = load_sellers()
 order_items = load_order_items()
 
-# Display dataframes
-st.subheader("Full Orders dataset")
-st.dataframe(full_orders.head(10))
-st.markdown("---")
+# --- Helper functions ---
+def show_dataset_summary(df, name, description, keys_used=None, used_in=None):
+    st.subheader(f"📦 {name}")
+    st.markdown(f"**Description:** {description}")
+    
+    if keys_used:
+        st.markdown(f"**Merge Keys:** {', '.join(keys_used)}")
+    if used_in:
+        st.markdown(f"**Used In:** {', '.join(used_in)}")
 
-st.subheader("Geolocation dataset")
-st.dataframe(geolocation.head(10))
-st.markdown("---")
+    # Row/column stats
+    st.markdown(f"**Shape:** {df.shape[0]:,} rows × {df.shape[1]:,} columns")
 
-st.subheader("Order Reviews dataset")
-st.dataframe(order_reviews.head(10))
-st.markdown("---")
+    with st.expander("🔍 Schema Overview"):
+        schema = pd.DataFrame({
+            "Column": df.columns,
+            "Data Type": df.dtypes.values,
+            "Nulls (%)": (df.isnull().mean() * 100).round(2).values
+        })
+        st.dataframe(schema)
 
-st.subheader("Sellers dataset")
-st.dataframe(sellers.head(10))
-st.markdown("---")
+    row_limit = st.slider(f"Show preview rows for {name}", 5, 50, 10, key=name)
+    st.dataframe(df.head(row_limit))
+    st.markdown("---")
 
-st.subheader("Order Items dataset")
-st.dataframe(order_items.head(10))
+# --- Dataset Grouping ---
+st.markdown("### 🔗 Core Datasets")
+show_dataset_summary(
+    full_orders,
+    "Full Orders",
+    "Merged dataset containing customer, order, payment, and product information. Core to RFM, CLTV, and segmentation.",
+    keys_used=["customer_unique_id", "order_id"],
+    used_in=["RFM", "CLTV", "Cohort Analysis"]
+)
+
+show_dataset_summary(
+    order_items,
+    "Order Items",
+    "Contains individual order lines including products and sellers. Used for revenue calculation and basket size.",
+    keys_used=["order_id", "product_id"],
+    used_in=["CLTV", "Revenue Tracking"]
+)
+
+st.markdown("### 🧩 Auxiliary Datasets")
+
+show_dataset_summary(
+    geolocation,
+    "Geolocation",
+    "Mapping of ZIP codes to city, state, and lat/long. Useful for customer location enrichment.",
+    keys_used=["customer_zip_code_prefix"],
+    used_in=["Geo Visualizations", "Regional Insights"]
+)
+
+show_dataset_summary(
+    order_reviews,
+    "Order Reviews",
+    "Customer review scores and comments. Used for NPS analysis and sentiment modeling.",
+    keys_used=["order_id"],
+    used_in=["Review Analysis", "Customer Experience"]
+)
+
+show_dataset_summary(
+    sellers,
+    "Sellers",
+    "Details of marketplace sellers including location and unique seller IDs.",
+    keys_used=["seller_id"],
+    used_in=["Seller Performance"]
+)
+
+# --- Footer ---
+st.markdown("✅ **Tip:** Use this page as a reference for dataset structure, purpose, and linkages.")
