@@ -202,6 +202,21 @@ fig3 = px.line(
 )
 st.plotly_chart(fig3, use_container_width=True)
 
+#
+if st.checkbox("🔍 Show Cohort Chart Insights", key = "cohort_analysis"):
+    st.info(
+        """
+        **What we did**  
+        • Here I am summing all lifetime revenue from every customer whose first purchase fell in Q1 (or Q2, etc.), not the revenue earned during that quarter .I grouped every customer by the quarter of *their first order*.  
+        • For each cohort (the “first_purchase_quarter”), I have plotted:
+          1. **customer_count** = number of unique new customers in that quarter  
+          2. **total_revenue** = the *lifetime* revenue those new-customer cohorts have generated so far  
+
+        **What this shows**  
+        This is *not* “all sales in Q1/Q2/etc.” — it’s the total spend **ever** of only those customers who joined in each quarter.  
+        """
+    )
+
 # --- 6. Visualizations ---
 st.subheader("📊 CLTV Distributions and Relationships")
 
