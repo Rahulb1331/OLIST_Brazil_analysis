@@ -189,7 +189,6 @@ if st.checkbox("🔍 Show Cohort Chart Insights", key = "cohort_analysis"):
         """
     )
 
-st.dataframe(rfm_cltv_df.head(10))
 
 # --- 5. CLTV Growth by Cohort ---
 st.subheader("📈 CLTV Growth Over Cohorts")
@@ -205,13 +204,19 @@ st.plotly_chart(fig3, use_container_width=True)
 
 # --- 6. Retention by Segment ---
 st.subheader("🔄 Retention Rate by CLTV Segment")
+
+# Identify whether a customer made more than one purchase
 ret = full_orders.copy()
-ret['repeat_flag'] = ret.duplicated(['customer_unique_id']).astype(int)
-seg_ret = pd.merge(ret.drop_duplicates('customer_unique_id'), cltv_df[['customer_unique_id','CLTV_new_Segment']], on='customer_unique_id')
-seg_rate = seg_ret.groupby('CLTV_new_Segment').repeat_flag.mean().reset_index()
+order_counts = ret.groupby('customer_unique_id').order_id.nunique().reset_index()
+order_counts['repeat_flag'] = (order_counts['order_id'] > 1).astype(int)
+
+# Merge with CLTV segments
+temp = pd.merge(order_counts[['customer_unique_id', 'repeat_flag']], cltv_df[['customer_unique_id','CLTV_new_Segment']], on='customer_unique_id')
+
+# Compute retention by segment
+seg_rate = temp.groupby('CLTV_new_Segment').repeat_flag.mean().reset_index()
 fig4 = px.bar(seg_rate, x='CLTV_new_Segment', y='repeat_flag',
-    labels={'repeat_flag':'Repeat Purchase Rate'}, title="Repeat Rate by Segment"
-)
+    labels={'repeat_flag':'Repeat Purchase Rate'}, title="Repeat Rate by Segment")
 st.plotly_chart(fig4, use_container_width=True)
 
 
