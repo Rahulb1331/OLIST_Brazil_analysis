@@ -54,13 +54,13 @@ if selected_cltv_segment != 'All':
 #    df = df[df['customer_id'].isin(repeat_customers)]
 
 # Aggregate Revenue & Orders
-monthly_revenue_pd = df.groupby("order_month")["price"].sum().reset_index(name="total_revenue")
+monthly_revenue_pd = df.groupby("order_month")["payment_value"].sum().reset_index(name="total_revenue")
 monthly_orders_pd = df.groupby("order_month")["order_id"].nunique().reset_index(name="order_count")
 
 monthly_revenue_pd["rolling_3mo"] = monthly_revenue_pd["total_revenue"].rolling(3).mean()
 monthly_orders_pd["rolling_3mo"] = monthly_orders_pd["order_count"].rolling(3).mean()
 
-monthly_avg_revenue_pd = df.groupby("month")["price"].sum().reset_index(name="total_revenue")
+monthly_avg_revenue_pd = df.groupby("month")["payment_value"].sum().reset_index(name="total_revenue")
 monthly_avg_orders_pd = df.groupby("month")["order_id"].nunique().reset_index(name="order_count")
 
 monthly_avg_revenue_pd["month"] = monthly_avg_revenue_pd["month"].apply(lambda x: calendar.month_abbr[x])
@@ -236,10 +236,10 @@ with tab4:
 
 
     cat_df = df[df['product_category'] == selected_cat]
-    cat_monthly = cat_df.groupby(cat_df['order_purchase_timestamp'].dt.to_period("M").astype(str))["price"].sum().reset_index()
+    cat_monthly = cat_df.groupby(cat_df['order_purchase_timestamp'].dt.to_period("M").astype(str))["payment_value"].sum().reset_index()
 
-    fig_cat = px.line(cat_monthly, x="order_purchase_timestamp", y="price", title=f"Revenue Trend: {selected_cat}",
-                      labels={"order_purchase_timestamp": "Month", "price": "Revenue"})
+    fig_cat = px.line(cat_monthly, x="order_purchase_timestamp", y="payment_value", title=f"Revenue Trend: {selected_cat}",
+                      labels={"order_purchase_timestamp": "Month", "payment_value": "Revenue"})
     st.plotly_chart(fig_cat, use_container_width=True)
 
     if st.checkbox("Show Analysis & Recommendations - Category Trends", key="unique_key_ts4"):
