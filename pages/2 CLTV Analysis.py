@@ -73,8 +73,11 @@ seg_counts.columns = ['CLTV Segment', 'Customer Count']
 st.table(seg_counts)
 with st.expander("How segments were defined"):
     st.write(
-        "Segments are based on CLTV quartiles of the normalized CLTV: Low, Medium, High. "
-        "Each segment represents roughly a third of customers by their CLTV."
+        "Segments are based on the Pareto principle (80/20 rule) applied to predicted CLTV values:\n"
+        "- **High CLTV**: Top 20% of customers contributing the most to revenue\n"
+        "- **Medium CLTV**: Middle 60% of customers\n"
+        "- **Low CLTV**: Bottom 20% of customers\n\n"
+        "This segmentation helps prioritize high-value customers while still monitoring the broader base."
     )
 
 # --- 2. Model Performance Summary ---
