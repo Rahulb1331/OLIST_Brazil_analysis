@@ -207,7 +207,7 @@ if st.checkbox("🔍 Show Cohort Chart Insights", key = "cohort_analysis"):
     st.info(
         """
         **What we did**  
-        • Here I am summing all lifetime revenue from every customer whose first purchase fell in Q1 (or Q2, etc.), not the revenue earned during that quarter .I grouped every customer by the quarter of *their first order*.  
+        • Here I am summing all lifetime revenue from every customer whose first purchase fell in Q1 (or Q2, etc.), not the revenue earned during that quarter. I grouped every customer by the quarter of *their first order*.  
         • For each cohort (the “first_purchase_quarter”), I have plotted:
           1. **customer_count** = number of unique new customers in that quarter  
           2. **total_revenue** = the *lifetime* revenue those new-customer cohorts have generated so far  
