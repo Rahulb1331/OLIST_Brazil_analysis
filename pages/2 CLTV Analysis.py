@@ -66,6 +66,17 @@ Together, they allow us to estimate a customer's **total future value**.
 These models assume that purchase and monetary patterns follow specific probability distributions.
 """)
 
+# --- 2. Segment Explanation & Counts ---
+st.subheader("🔍 CLTV Segments & Counts")
+seg_counts = cltv_df['CLTV_new_Segment'].value_counts().reset_index()
+seg_counts.columns = ['CLTV Segment', 'Customer Count']
+st.table(seg_counts)
+with st.expander("How segments were defined"):
+    st.write(
+        "Segments are based on CLTV quartiles of the normalized CLTV: Low, Medium, High. "
+        "Each segment represents roughly a third of customers by their CLTV."
+    )
+
 # --- 2. Model Performance Summary ---
 st.subheader("📈 Model Performance")
 
@@ -177,6 +188,29 @@ if st.checkbox("🔍 Show Cohort Chart Insights", key = "cohort_analysis"):
         This is *not* “all sales in Q1/Q2/etc.” — it’s the total spend **ever** of only those customers who joined in each quarter.  
         """
     )
+
+# --- 5. CLTV Growth by Cohort ---
+st.subheader("📈 CLTV Growth Over Cohorts")
+growth = rfm_cltv_df.copy()
+growth['first_quarter'] = pd.to_datetime(rfm_cltv_df['order_purchase_timestamp']).dt.to_period('Q').astype(str)
+grp = growth.groupby(['first_quarter','CLTV_new_Segment']).cltv_normalized.mean().reset_index()
+fig3 = px.line(
+    grp, x='first_quarter', y='cltv_normalized', color='CLTV_new_Segment',
+    markers=True, title="Avg Normalized CLTV by Cohort"
+)
+st.plotly_chart(fig3, use_container_width=True)
+
+# --- 6. Retention by Segment ---
+st.subheader("🔄 Retention Rate by CLTV Segment")
+ret = full_orders.copy()
+ret['repeat_flag'] = ret.duplicated(['customer_unique_id']).astype(int)
+seg_ret = pd.merge(ret.drop_duplicates('customer_unique_id'), cltv_df[['customer_unique_id','CLTV_new_Segment']], on='customer_unique_id')
+seg_rate = seg_ret.groupby('CLTV_new_Segment').repeat_flag.mean().reset_index()
+fig4 = px.bar(seg_rate, x='CLTV_new_Segment', y='repeat_flag',
+    labels={'repeat_flag':'Repeat Purchase Rate'}, title="Repeat Rate by Segment"
+)
+st.plotly_chart(fig4, use_container_width=True)
+
 
 # --- 6. Visualizations ---
 st.subheader("📊 CLTV Distributions and Relationships")
