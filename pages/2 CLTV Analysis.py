@@ -194,7 +194,8 @@ st.dataframe(rfm_cltv_df.head(10))
 # --- 5. CLTV Growth by Cohort ---
 st.subheader("📈 CLTV Growth Over Cohorts")
 growth = rfm_cltv_df.copy()
-growth['first_quarter'] = pd.to_datetime(rfm_cltv_df['order_purchase_timestamp']).dt.to_period('Q').astype(str)
+growth = pd.merge(growth, full_orders[['customer_unique_id','order_purchase_timestamp']], on='customer_unique_id', how='left')
+growth['first_quarter'] = pd.to_datetime(growth['order_purchase_timestamp']).dt.to_period('Q').astype(str)
 grp = growth.groupby(['first_quarter','CLTV_new_Segment']).cltv_normalized.mean().reset_index()
 fig3 = px.line(
     grp, x='first_quarter', y='cltv_normalized', color='CLTV_new_Segment',
