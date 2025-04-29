@@ -45,7 +45,7 @@ cltv_df["normalized_cltv"] = (cltv_df["cltv"] - min_cltv) / range_cltv
 # Segmenting the customers based on the normalized cltv
 cltv_df["CLTV_Segment"] = pd.cut(
     cltv_df["normalized_cltv"],
-    bins=[-np.inf, 0.33, 0.66, np.inf],
+    bins=[-np.inf, 0.20, 0.80, np.inf],
     labels=["Low CLTV", "Medium CLTV", "High CLTV"]
 )
 
@@ -71,8 +71,8 @@ cltv_df["cltv_normalized"] = (cltv_df["better_cltv"] - min_val) / range_val
 
 
 # Get quantile breakpoints
-q1 = cltv_df["better_cltv"].quantile(0.33)
-q2 = cltv_df["better_cltv"].quantile(0.66)
+q1 = cltv_df["better_cltv"].quantile(0.20)
+q2 = cltv_df["better_cltv"].quantile(0.80)
 
 # Segment
 cltv_df["CLTV_new_Segment"] = pd.cut(
@@ -328,7 +328,7 @@ def enrich_cltv_with_segments(cltv_df):
 
     cltv_df["normalized_cltv"] = (cltv_df["cltv"] - min_cltv) / range_cltv
 
-    cltv_df["CLTV_Segment"] = pd.cut(cltv_df["normalized_cltv"], bins=[-np.inf, 0.33, 0.66, np.inf], labels=["Low CLTV", "Medium CLTV", "High CLTV"])
+    cltv_df["CLTV_Segment"] = pd.cut(cltv_df["normalized_cltv"], bins=[-np.inf, 0.20, 0.80, np.inf], labels=["Low CLTV", "Medium CLTV", "High CLTV"])
 
     # Advanced CLTV
     global_purchase_frequency = cltv_df["total_orders"].sum() / cltv_df.shape[0]
@@ -337,8 +337,8 @@ def enrich_cltv_with_segments(cltv_df):
     cltv_df["better_cltv"] = cltv_df["avg_order_value"] * global_purchase_frequency * lifespan_months
 
 
-    q1 = cltv_df["better_cltv"].quantile(0.33)
-    q2 = cltv_df["better_cltv"].quantile(0.66)
+    q1 = cltv_df["better_cltv"].quantile(0.20)
+    q2 = cltv_df["better_cltv"].quantile(0.80)
     cltv_df["cltv_normalized"] = (cltv_df["better_cltv"] - cltv_df["better_cltv"].min()) / (cltv_df["better_cltv"].max() - cltv_df["better_cltv"].min())
     cltv_df["CLTV_new_Segment"] = pd.cut(cltv_df["better_cltv"], bins=[-np.inf, q1, q2, np.inf], labels=["Low CLTV", "Medium CLTV", "High CLTV"])
 
