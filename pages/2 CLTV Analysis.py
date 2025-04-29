@@ -189,6 +189,8 @@ if st.checkbox("🔍 Show Cohort Chart Insights", key = "cohort_analysis"):
         """
     )
 
+st.dataframe(rfm_cltv_df.head(10))
+
 # --- 5. CLTV Growth by Cohort ---
 st.subheader("📈 CLTV Growth Over Cohorts")
 growth = rfm_cltv_df.copy()
