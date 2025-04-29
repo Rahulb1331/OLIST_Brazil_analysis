@@ -196,18 +196,6 @@ else:
     cltv_pd['cltv_transformed'] = cltv_pd['cltv_normalized']
     title_suffix = "(Raw Scale)"
 
-with st.expander("🌍 CLTV Distribution Histogram"):
-    fig = px.histogram(
-        cltv_pd,
-        x="cltv_normalized",
-        color="CLTV_new_Segment",
-        nbins=30,
-        title=f"CLTV Distribution by Segment {title_suffix}",
-        labels={"cltv_normalized": "Normalized CLTV"},
-        barmode="overlay",
-        opacity=0.7
-    )
-    st.plotly_chart(fig, use_container_width=True)
 
 with st.expander("📦 Box Plot of CLTV"):
     fig = px.box(
