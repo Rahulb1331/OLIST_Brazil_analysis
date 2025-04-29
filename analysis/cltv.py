@@ -373,6 +373,7 @@ def model_cltv_lifetimes(df):
     ggf = GammaGammaFitter(penalizer_coef=0.1)
     ggf.fit(summary["frequency"], summary["monetary_value"])
 
+    # with a 6-month horizon
     summary["predicted_purchases"] = pnbd.conditional_expected_number_of_purchases_up_to_time(
         180, summary["frequency"], summary["recency"], summary["T"]
     ).clip(lower=0)
