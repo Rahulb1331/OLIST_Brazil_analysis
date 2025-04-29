@@ -361,7 +361,7 @@ def model_cltv_lifetimes(df):
     ).reset_index()
 
     summary = summary[summary["frequency"] > 0].dropna()
-    #summary = summary[summary["frequency"] >= 2]
+    summary = summary[summary["frequency"] >= 2]
     upper_cap = summary["monetary_value"].quantile(0.99)
     summary = summary[summary["monetary_value"] <= upper_cap]
     summary["recency"] = summary["recency"].clip(upper=365)
