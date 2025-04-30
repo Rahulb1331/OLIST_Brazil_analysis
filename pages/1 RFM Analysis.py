@@ -237,23 +237,43 @@ st.download_button(
 
 # --- Customer Segment Orders Over Time ---
 st.subheader("📈 Orders by Customer Segment Over Time")
-time_trend = filtered_orders.merge(rfm_df[['customer_unique_id', 'CustomerGroup']], on='customer_unique_id', how='inner')
-segment_month = time_trend.groupby(['order_month', 'CustomerGroup']).size().reset_index(name='order_count')
+
+# merge every order against the one-time computed CustomerGroup
+orders_and_segments = full_orders.merge(
+     rfm_df[['customer_unique_id', 'CustomerGroup']],
+     on='customer_unique_id',
+     how='inner'
+ )
+
+# extract month bucket
+orders_and_segments['order_month'] = pd.to_datetime(
+     orders_and_segments['order_purchase_timestamp']
+ ).dt.to_period('M').astype(str)
+
+# count all orders per segment per month
+segment_month = orders_and_segments.groupby(
+     ['order_month', 'CustomerGroup']
+ )['order_id'].count().reset_index(name='order_count')
+
 fig_trend = px.line(
     segment_month,
     x='order_month',
     y='order_count',
     color='CustomerGroup',
-    title='Customer Group Trend Over Time',
+    title='Orders by Customer Segment Over Time',
     labels={
-        'order_month': 'Order Month',
+        'order_month': 'Month',
          'order_count': 'Order Count',
          'CustomerGroup': 'Customer Segment'
     }
     )
 st.plotly_chart(fig_trend, use_container_width=True)
 if st.checkbox("📌 Show Trend Insights", key="unique_key_rf8"):
-    st.info("Shows the unique customer count by their customer segments over the months")
+    st.info(
+        "This chart counts *every* order placed by each static segment each month. "
+        "Even one-time purchasers are shown in the months they actually bought—so the line "
+        "for Low-value only vanishes when *none* of those tagged Low-value customers made any purchases."    
+    )
 
 
 st.subheader("📈 Unique Customer Segment Over Time")
