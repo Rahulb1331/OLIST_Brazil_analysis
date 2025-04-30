@@ -97,16 +97,15 @@ if st.checkbox("📌 Show Segment Insights", key="unique_key_rf1"):
         st.info("""
         **Why we use a static, end-of-period segmentation**  
         - **Simplicity:** We compute RFM once on the full history to get three clear, stable groups (Low/Medium/High) for all downstream charts.  
-        - **Stability:** With many one-time purchasers, monthly re-segmentation produces huge spikes and drop‐offs (noise), not meaningful trends.  
-        - **Cross-sectional clarity:** Business users see “Right now these 31 K customers are Low-value” and can tie actions (promotions, retention offers) directly to that snapshot.
+        - **Stability:** Since the dataset is  having many one-time purchasers, monthly re-segmentation produces huge spikes and drop‐offs (noise), not meaningful trends.  
+        - **Cross-sectional clarity:** Business users see “Right now these 44.3 K customers are Low-value” and can tie actions (promotions, retention offers) directly to that snapshot.
 
-        **When (and why) to add a dynamic “segment flow” view**  
-        - If you need to **track cohort movement**—e.g. “Which Low-value customers in Q1 moved to Medium by Q3”—you can recompute RFM quarterly or on a rolling 3-month window.  
+        **Argument for adding a dynamic “segment flow” view**  
+        - If we need to **track cohort movement**—e.g. “Which Low-value customers in Q1 moved to Medium by Q3”—you can recompute RFM quarterly or on a rolling 3-month window.  
         - **Cohort flow charts** (e.g. Sankey diagrams or stacked area charts) will then show true migrations without the jagged noise of one-time buyers.
 
-        **Recommended setup**  
-        1. **Keep the core dashboard** on a **static segmentation** basis for all RFM, CLTV, churn, and MBA pages—this provides a consistent grouping and straightforward business actions.  
-        2. **Add a separate “Segment Migration” widget** (quarterly or rolling-window) so stakeholders can visualize customer journeys (up-grades and downgrades) in a smoother, more interpretable way.
+        **Current setup**  
+        **We have kept the core dashboard** on a **static segmentation** basis for all RFM, CLTV, churn, and MBA pages—this provides a consistent grouping and straightforward business actions.  
 
         ### How RFM Segments Are Computed
         - **Reference Date:** Set to one day after the latest order in the filtered dataset.
