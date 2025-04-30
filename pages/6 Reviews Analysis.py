@@ -152,9 +152,9 @@ with tab2:
         - Sellers with many low-rated, slow deliveries are highlighted for deeper evaluation.
 
         💡 **Key Insights**:
-        - Longer delivery times are associated with lower review scores, even when the product is satisfactory.
+        - Longer delivery times are associated with lower review scores, even when the product may be satisfactory.
         - On-time deliveries yield higher ratings; lateness consistently reduces satisfaction.
-        - Some sellers suffer reputational damage due to systemic delivery delays.
+        - Some sellers may suffer reputational damage due to systemic delivery delays.
 
         ✅ **Recommendations**:
         - Improve logistics to reduce actual delivery time and minimize delays.
