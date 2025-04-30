@@ -223,8 +223,6 @@ st.plotly_chart(fig_products, use_container_width=True)
 if st.checkbox("📌 Show Product Preference Insights", key="unique_key_rf4"):
     st.info("Olist can tailor promotions by the segment preference, for e.g., Frequent Buyers have heavily bought bed_bath_table products.")
 
-st.markdown("---")
-
 # --- Segment Revenue Contribution ---
 revenue_by_segment = rfm_df.groupby("BehaviorSegment")["Monetary"].sum().reset_index().sort_values("Monetary", ascending=False)
 st.subheader("💰 Revenue Contribution by Segment")
@@ -239,6 +237,8 @@ st.download_button(
     file_name='rfm_segments.csv',
     mime='text/csv'
 )
+
+st.markdown("---")
 
 # --- Customer Segment Orders Over Time ---
 st.subheader("📈 Orders by Customer Segment Over Time")
