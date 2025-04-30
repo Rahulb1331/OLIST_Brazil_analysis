@@ -64,7 +64,7 @@ rfm_df = calculate_rfm(filtered_orders)
 @st.cache_data
 def add_rfm_tags(rfm_df):
     rfm_df['CustomerGroup'] = rfm_df['RFM_Score'].apply(
-        lambda x: 'High-value' if int(x) >= 334 else ('Medium-value' if int(x) >= 222 else 'Low-value')
+        lambda x: 'High-value' if int(x) >= 344 else ('Medium-value' if int(x) >= 222 else 'Low-value')
     )
     rfm_df['BehaviorSegment'] = rfm_df.apply(lambda row:
         "Champions" if row['R'] == 4 and row['F'] == 4 and row['M'] == 4 else
@@ -93,35 +93,35 @@ st.dataframe(rfm_summary)
 if st.checkbox("📌 Show Segment Insights", key="unique_key_rf1"):
     st.info("High-value customers are frequent, recent, and big spenders. Target them with loyalty perks.")
 
-with st.expander("📌 Segmentation Strategy & RFM Calculation Details"):
-    st.info("""
-    **Why we use a static, end-of-period segmentation**  
-    - **Simplicity:** We compute RFM once on the full history to get three clear, stable groups (Low/Medium/High) for all downstream charts.  
-    - **Stability:** With many one-time purchasers, monthly re-segmentation produces huge spikes and drop‐offs (noise), not meaningful trends.  
-    - **Cross-sectional clarity:** Business users see “Right now these 31 K customers are Low-value” and can tie actions (promotions, retention offers) directly to that snapshot.
+    with st.expander("📌 Segmentation Strategy & RFM Calculation Details"):
+        st.info("""
+        **Why we use a static, end-of-period segmentation**  
+        - **Simplicity:** We compute RFM once on the full history to get three clear, stable groups (Low/Medium/High) for all downstream charts.  
+        - **Stability:** With many one-time purchasers, monthly re-segmentation produces huge spikes and drop‐offs (noise), not meaningful trends.  
+        - **Cross-sectional clarity:** Business users see “Right now these 31 K customers are Low-value” and can tie actions (promotions, retention offers) directly to that snapshot.
 
-    **When (and why) to add a dynamic “segment flow” view**  
-    - If you need to **track cohort movement**—e.g. “Which Low-value customers in Q1 moved to Medium by Q3”—you can recompute RFM quarterly or on a rolling 3-month window.  
-    - **Cohort flow charts** (e.g. Sankey diagrams or stacked area charts) will then show true migrations without the jagged noise of one-time buyers.
+        **When (and why) to add a dynamic “segment flow” view**  
+        - If you need to **track cohort movement**—e.g. “Which Low-value customers in Q1 moved to Medium by Q3”—you can recompute RFM quarterly or on a rolling 3-month window.  
+        - **Cohort flow charts** (e.g. Sankey diagrams or stacked area charts) will then show true migrations without the jagged noise of one-time buyers.
 
-    **Recommended setup**  
-    1. **Keep the core dashboard** on a **static segmentation** basis for all RFM, CLTV, churn, and MBA pages—this provides a consistent grouping and straightforward business actions.  
-    2. **Add a separate “Segment Migration” widget** (quarterly or rolling-window) so stakeholders can visualize customer journeys (up-grades and downgrades) in a smoother, more interpretable way.
+        **Recommended setup**  
+        1. **Keep the core dashboard** on a **static segmentation** basis for all RFM, CLTV, churn, and MBA pages—this provides a consistent grouping and straightforward business actions.  
+        2. **Add a separate “Segment Migration” widget** (quarterly or rolling-window) so stakeholders can visualize customer journeys (up-grades and downgrades) in a smoother, more interpretable way.
 
-    ### How RFM Segments Are Computed
-    - **Reference Date:** Set to one day after the latest order in the filtered dataset.
-    - **Recency (R):** Number of days since a customer’s most recent purchase.  
-      - Score 4 if ≤Q1, 3 if between Q1–Q2, 2 if between Q2–Q3, else 1.
-    - **Frequency (F):** Total number of orders per customer.  
-      - Score 1–4 by quartiles: 1 if ≤Q1 up to 4 if >Q3.
-    - **Monetary (M):** Total spend per customer.  
-      - Likewise scored by quartiles.
-    - **RFM Score:** Concatenate R, F, and M scores to form a three-digit code (e.g. “4-3-2”).  
-    - **CustomerGroup Assignment:**  
-      - **High-value** if RFM ≥ 444  
-      - **Medium-value** if 222 ≤ RFM < 444  
-      - **Low-value** otherwise  
-    """)
+        ### How RFM Segments Are Computed
+        - **Reference Date:** Set to one day after the latest order in the filtered dataset.
+        - **Recency (R):** Number of days since a customer’s most recent purchase.  
+          - Score 4 if ≤Q1, 3 if between Q1–Q2, 2 if between Q2–Q3, else 1.
+        - **Frequency (F):** Total number of orders per customer.  
+          - Score 1–4 by quartiles: 1 if ≤Q1 up to 4 if >Q3.
+        - **Monetary (M):** Total spend per customer.  
+          - Likewise scored by quartiles.
+        - **RFM Score:** Concatenate R, F, and M scores to form a three-digit code (e.g. “4-3-2”).  
+        - **CustomerGroup Assignment:**  
+          - **High-value** if RFM ≥ 344  
+          - **Medium-value** if 222 ≤ RFM < 344  
+          - **Low-value** otherwise  
+        """)
 
 
 # --- Segment Distribution Plot ---
