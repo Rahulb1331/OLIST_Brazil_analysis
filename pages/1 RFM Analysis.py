@@ -181,24 +181,6 @@ def get_product_preferences(full_orders, rfm_df):
     )
     return product_pref
 
-st.subheader("🛍️ Top Product Preferences by Segment")
-product_pref = get_product_preferences(filtered_orders, rfm_df)
-segments = sorted(product_pref['BehaviorSegment'].unique())
-selected_segment = st.selectbox("Select Segment", segments)
-filtered_pref = product_pref[product_pref["BehaviorSegment"] == selected_segment]
-fig_products = px.bar(
-    filtered_pref,
-    x="product_category",
-    y="count",
-    color="product_category",
-    title=f"Top Product Categories - {selected_segment}",
-    template="plotly_white"
-)
-fig_products.update_layout(xaxis_tickangle=-45, showlegend=False)
-st.plotly_chart(fig_products, use_container_width=True)
-if st.checkbox("📌 Show Product Preference Insights", key="unique_key_rf4"):
-    st.info("Olist can tailor promotions by the segment preference, for e.g., Frequent Buyers have heavily bought bed_bath_table products.")
-
 # --- Behavior Segments Table ---
 st.subheader("🧠 Behavioral Segments")
 st.dataframe(rfm_df["BehaviorSegment"].value_counts().reset_index().rename(columns={"index": "Segment", "BehaviorSegment": "Segment"}))
@@ -218,6 +200,25 @@ segment_definitions = {
 st.expander("📘 Click to view Segment Definitions").table(pd.DataFrame(segment_definitions))
 if st.checkbox("📌 Show Behavioral Insights", key="unique_key_rf5"):
     st.info("Insight: Champions and loyal customers can be incentivized by offering them exclusive deals.")
+
+
+st.subheader("🛍️ Top Product Preferences by Segment")
+product_pref = get_product_preferences(filtered_orders, rfm_df)
+segments = sorted(product_pref['BehaviorSegment'].unique())
+selected_segment = st.selectbox("Select Segment", segments)
+filtered_pref = product_pref[product_pref["BehaviorSegment"] == selected_segment]
+fig_products = px.bar(
+    filtered_pref,
+    x="product_category",
+    y="count",
+    color="product_category",
+    title=f"Top Product Categories - {selected_segment}",
+    template="plotly_white"
+)
+fig_products.update_layout(xaxis_tickangle=-45, showlegend=False)
+st.plotly_chart(fig_products, use_container_width=True)
+if st.checkbox("📌 Show Product Preference Insights", key="unique_key_rf4"):
+    st.info("Olist can tailor promotions by the segment preference, for e.g., Frequent Buyers have heavily bought bed_bath_table products.")
 
 
 # --- Segment Revenue Contribution ---
