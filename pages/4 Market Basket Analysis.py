@@ -239,12 +239,15 @@ if not multi_item_txns.empty:
         with st.expander("💬 How to Interpret This?"):
             st.info("""
                 **Top Revenue Bundles** show which combinations of products bring the most sales value.
+                
                 **Action Points:**
-                    - Bundle these products together in special offers.
-                    - Promote them in upsell/cross-sell campaigns to high CLTV segments.
+                    - Olist can bundle these products together in special offers.
+                    - They may also promote them in upsell/cross-sell campaigns to high CLTV segments.
                     - Prioritize stocking and marketing these bundles.
+                    
                 - Predicted uplift shows **extra revenue** if we bundle and successfully cross-sell.
-                - Higher uplift = better bundling opportunity.
+                
+                - Higher is the uplift better is the bundling opportunity.
             """)
 
         with st.expander("🧮 How Was Bundle Revenue Calculated?"):
@@ -281,7 +284,7 @@ if not multi_item_txns.empty:
         )
 
         # --- "So What?" Actionable Insights ---
-        st.subheader("🧠 So What? What Should We DO?")
+        st.subheader("🧠 So What? What can Olist DO?")
         with st.expander("Action Plan Based on Findings"):
             st.success("""
                 🎯 **Action Recommendations:**
