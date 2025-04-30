@@ -209,6 +209,7 @@ fig_trend = px.line(
         'order_month': 'Order Month',
          'order_count': 'Order Count',
          'CustomerGroup': 'Customer Segment'
+    }
     )
 st.plotly_chart(fig_trend, use_container_width=True)
 if st.checkbox("📌 Show Trend Insights", key="unique_key_rf7"):
