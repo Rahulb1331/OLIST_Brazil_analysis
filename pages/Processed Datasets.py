@@ -122,4 +122,4 @@ show_dataset_summary(
 )
 
 # --- Footer ---
-st.markdown("✅ **Tip:** Use this page as a reference for dataset structure, purpose, and linkages.")
+st.markdown("This page is a reference for the different datasets used for the different analysis and understanding their structure, purpose, and linkages.")
