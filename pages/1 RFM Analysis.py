@@ -91,21 +91,21 @@ rfm_summary = get_rfm_summary(rfm_df)
 st.subheader("📊 RFM Segment Summary")
 st.dataframe(rfm_summary)
 if st.checkbox("📌 Show Segment Insights", key="unique_key_rf1"):
-    st.info("High-value customers are frequent, recent, and big spenders. Target them with loyalty perks.")
+    st.info("It can be seen that High-value customers are more frequent, recent, and having a higher monetary value. They can be targeted with loyalty perks.")
 
     with st.expander("📌 Segmentation Strategy & RFM Calculation Details"):
         st.info("""
-        **Why we use a static, end-of-period segmentation**  
-        - **Simplicity:** We compute RFM once on the full history to get three clear, stable groups (Low/Medium/High) for all downstream charts.  
+        **Why I used a static, end-of-period segmentation**  
+        - **Simplicity:** I computed RFM once on the full history keeping the to get three clear, stable groups (Low/Medium/High) for all downstream charts. Each custtomer is assigned to these segments using their last purchase date relative to the final reference date (i.e. Sept 2018). 
         - **Stability:** Since the dataset is  having many one-time purchasers, monthly re-segmentation produces huge spikes and drop‐offs (noise), not meaningful trends.  
         - **Cross-sectional clarity:** Business users see “Right now these 44.3 K customers are Low-value” and can tie actions (promotions, retention offers) directly to that snapshot.
 
         **Argument for adding a dynamic “segment flow” view**  
-        - If we need to **track cohort movement**—e.g. “Which Low-value customers in Q1 moved to Medium by Q3”—you can recompute RFM quarterly or on a rolling 3-month window.  
+        - If we need to **track cohort movement**—e.g. “Which Low-value customers in Q1 moved to Medium by Q3”—we can recompute RFM quarterly or on a rolling 3-month window.  
         - **Cohort flow charts** (e.g. Sankey diagrams or stacked area charts) will then show true migrations without the jagged noise of one-time buyers.
 
         **Current setup**  
-        **We have kept the core dashboard** on a **static segmentation** basis for all RFM, CLTV, churn, and MBA pages—this provides a consistent grouping and straightforward business actions.  
+        **I have kept the core dashboard** on a **static segmentation** basis for all RFM, CLTV, churn, and MBA pages—this provides a consistent grouping and straightforward business actions.  
 
         ### How RFM Segments Are Computed
         - **Reference Date:** Set to one day after the latest order in the filtered dataset.
@@ -134,7 +134,17 @@ fig1 = px.bar(
 )
 st.plotly_chart(fig1)
 if st.checkbox("📌 Show Distribution Insights", key="unique_key_rf2"):
-    st.info("Insight: Monitor growth of High-value segment monthly to measure retention success.")
+    st.info(""" 
+        **What this shows:**  
+        - **Low-value** is the **largest** segment. These are mostly one-time or infrequent buyers (R=1–2 or F=1–2).  
+        - **Medium-value** have moderate recency and frequency. They’ve bought more than once but not enough to be high-value.  
+        - **High-value** are the best customers: **recent**, **frequent**, **big spenders** (R=3, F=4, M=4).
+
+        **Why it matters:**  
+        - A very large low-value base indicates heavy acquisition but weak retention—focus on win-back campaigns (e.g., welcome series, personalized offers).  
+        - Medium-value customers are “ripe” for upsell to high-value with targeted promotions or loyalty perks.  
+        - High-value customers should be protected. For which OList can deploy VIP programs and exclusive rewards to lock in continued spend.
+        """)
 
 
 # --- RFM Heatmaps ---
