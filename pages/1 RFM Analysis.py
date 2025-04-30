@@ -197,7 +197,7 @@ fig_products = px.bar(
 fig_products.update_layout(xaxis_tickangle=-45, showlegend=False)
 st.plotly_chart(fig_products, use_container_width=True)
 if st.checkbox("📌 Show Product Preference Insights", key="unique_key_rf4"):
-    st.info("Insight: Tailor promotions by segment preference — e.g., Frequent Buyers love {filtered_pref.iloc[0]['product_category']}.")
+    st.info("Olist can tailor promotions by the segment preference, for e.g., Frequent Buyers have heavily bought bed_bath_table products.")
 
 # --- Behavior Segments Table ---
 st.subheader("🧠 Behavioral Segments")
