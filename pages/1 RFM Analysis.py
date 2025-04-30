@@ -254,3 +254,55 @@ fig_trend = px.line(
 st.plotly_chart(fig_trend, use_container_width=True)
 if st.checkbox("📌 Show Trend Insights", key="unique_key_rf7"):
     st.info("Shows the orders placed by the customer segments over the months")
+
+st.markdown("---")
+
+with st.expander("Detailed explanation on whats going on"):
+    st.info(
+"""
+Here’s exactly what’s happening, step by step, in plain English:
+
+1. We pick a date range
+
+    - Using the sidebar, we tell the app “only look at orders between January 1 and October 31, 2018” (for example).
+
+2. We filter the orders
+
+    - From our master list of every order ever placed, we throw away anything that’s outside your chosen window.
+
+3. We score each customer once—over your entire window
+
+    - Recency: How many days ago was their last order within that window?
+
+    - Frequency: How many orders did they place total in that window?
+
+    - Monetary: How much money did they spend total in that window?
+
+4. We turn those three numbers into simple 1–4 scores
+
+    - We look at the full list of recency values and split it into four equal‐sized buckets (quartiles), then say “anyone in the top 25% freshest orders gets an R-score of 4, the next 25% an R-score of 3,” and so on.
+
+    - We do the same quartile trick separately for frequency and for monetary, so each customer ends up with an R, an F and an M score between 1 and 4.
+
+5. We collapse R + F + M into one label
+
+    - We concatenate (e.g.) R=3, F=1, M=4 into “314,” then say:
+
+    - If that three-digit number is 334 or above, you’re High-value
+
+    - If it’s between 222 and 333, you’re Medium-value
+
+    - Otherwise you’re Low-value
+
+6. We make the order count chart
+
+    - We take every order in your chosen window again, and we tag it with that customer’s static Low/Med/High label.
+
+    - Then we count “how many orders did Low-value customers place in July? in August? in September?” and draw a line.
+
+    - If none of those same Low-value people happen to place an order in August, that line falls to zero—because it’s literally counting only orders by that fixed group.
+
+Why the “Low-value” line can disappear
+Because once you’ve tagged someone Low-value (based on their overall July–October behavior), if they place no orders in August you’ll see zero orders from the “Low-value group” in August—even though new one-time buyers might also be technically “Low-value” if you re-ran RFM in a rolling way, you’re not re-tagging each month. You only tagged once, up front.
+"""
+    )
