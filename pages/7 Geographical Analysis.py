@@ -150,7 +150,7 @@ with st.expander("📦 1. CLTV by State and City", expanded=False):
 
     else:
         top_df = cltv_geo_df.groupby("customer_city").agg(
-            total_cltv=("predicted_cltv", "sum"),
+            total_cltv=("better_cltv", "sum"),
             unique_customers=("customer_unique_id", pd.Series.nunique)
         ).sort_values("total_cltv", ascending=False).head(top_n).reset_index()
 
