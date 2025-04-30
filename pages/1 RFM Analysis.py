@@ -64,7 +64,7 @@ rfm_df = calculate_rfm(filtered_orders)
 @st.cache_data
 def add_rfm_tags(rfm_df):
     rfm_df['CustomerGroup'] = rfm_df['RFM_Score'].apply(
-        lambda x: 'High-value' if int(x) >= 444 else ('Medium-value' if int(x) >= 222 else 'Low-value')
+        lambda x: 'High-value' if int(x) >= 334 else ('Medium-value' if int(x) >= 222 else 'Low-value')
     )
     rfm_df['BehaviorSegment'] = rfm_df.apply(lambda row:
         "Champions" if row['R'] == 4 and row['F'] == 4 and row['M'] == 4 else
