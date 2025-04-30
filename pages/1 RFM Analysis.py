@@ -195,17 +195,21 @@ st.download_button(
     mime='text/csv'
 )
 
-# --- Customer Segment Trend Over Time ---
-st.subheader("📈 Segment Trends Over Time")
+# --- Customer Segment Orders Over Time ---
+st.subheader("📈 Orders by Customer Segment Over Time")
 time_trend = filtered_orders.merge(rfm_df[['customer_unique_id', 'CustomerGroup']], on='customer_unique_id', how='inner')
-segment_month = time_trend.groupby(['order_month', 'CustomerGroup']).size().reset_index(name='count')
+segment_month = time_trend.groupby(['order_month', 'CustomerGroup']).size().reset_index(name='order_count')
 fig_trend = px.line(
     segment_month,
     x='order_month',
-    y='count',
+    y='order_count',
     color='CustomerGroup',
-    title='Customer Group Trend Over Time'
-)
+    title='Customer Group Trend Over Time',
+    labels={
+        'order_month': 'Order Month',
+         'order_count': 'Order Count',
+         'CustomerGroup': 'Customer Segment'
+    )
 st.plotly_chart(fig_trend, use_container_width=True)
 if st.checkbox("📌 Show Trend Insights", key="unique_key_rf7"):
-    st.info("Insight: Observe whether High-value segment is growing. Adjust retention strategy accordingly.")
+    st.info("Shows the orders placed by the customer segments over the months")
