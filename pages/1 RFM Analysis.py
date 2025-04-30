@@ -175,7 +175,7 @@ if st.checkbox("📌 Show Heatmap Insights", key="unique_key_rf3"):
     **Combined RFM Heatmap Insights:**
 
     **Recency vs. Frequency:**  
-    - A significant concentration of customers falls in the Frequency score of 0 across all recency levels, indicating a large base of one-time buyers.  
+    - A significant concentration of customers falls in the Frequency score of 1 across all recency levels, indicating a large base of one-time buyers.  
     - Conversely, a small but vital cluster with high frequency scores points to a loyal segment that, despite being smaller in number, is likely driving a higher share of repeat transactions.
 
     **Recency vs. Monetary:**  
@@ -183,7 +183,7 @@ if st.checkbox("📌 Show Heatmap Insights", key="unique_key_rf3"):
     - However, discernible clusters in the higher monetary scores—even across varying recency—indicate pockets of customers whose transactions are of higher value, highlighting an opportunity to boost revenue through targeted upselling.
 
     **Monetary vs. Frequency:**  
-    - The majority of one-time buyers are positioned in the lower monetary segments. Yet, the high monetary segment also features a notable group with high frequency scores, revealing an elite group of customers who not only spend more but also purchase repeatedly.
+    - The majority of one-time buyers are positioned in the lower monetary segments. Yet, the high monetary segment also features a somewhat notable group with high frequency scores, revealing an elite group of customers who not only spend more but also purchase repeatedly.
     - This dual insight bridges both value and engagement, underscoring that high-value customers are not just rare—they’re also consistently active.
 
     **Overall Takeaway:**  
@@ -192,8 +192,8 @@ if st.checkbox("📌 Show Heatmap Insights", key="unique_key_rf3"):
     - A small, yet crucial, group of high-frequency and high-value customers emerges across the analyses.
     
     **Actionable Strategy:** 
-    - Focus on devising re-engagement campaigns and loyalty programs to convert one-time buyers into repeat customers while nurturing the high-value segment to maximize overall revenue. 
-    - We can identify the likely churners with R = 1 and F = 4.
+    - Olist can focus on devising re-engagement campaigns and loyalty programs to convert one-time buyers into repeat customers while nurturing the high-value segment to maximize overall revenue. 
+    - Olist can identify the likely churners with R = 1 and F = 4.
     """
 )
 
@@ -226,8 +226,8 @@ segment_definitions = {
     ]
 }
 st.expander("📘 Click to view Segment Definitions").table(pd.DataFrame(segment_definitions))
-if st.checkbox("📌 Show Behavioral Insights", key="unique_key_rf5"):
-    st.info("Insight: Champions and loyal customers can be incentivized by offering them exclusive deals.")
+#if st.checkbox("📌 Show Behavioral Insights", key="unique_key_rf5"):
+ #   st.info("Champions and loyal customers can be incentivized by offering them exclusive deals.")
 
 
 st.subheader("🛍️ Top Product Preferences by Segment")
@@ -339,10 +339,12 @@ Here’s exactly what’s happening, step by step, in plain English:
 1. We pick a date range
 
     - Using the sidebar, we tell the app “only look at orders between January 1 and October 31, 2018” (for example).
+    
 
 2. We filter the orders
 
     - From our master list of every order ever placed, we throw away anything that’s outside your chosen window.
+    
 
 3. We score each customer once—over your entire window
 
@@ -351,12 +353,14 @@ Here’s exactly what’s happening, step by step, in plain English:
     - Frequency: How many orders did they place total in that window?
 
     - Monetary: How much money did they spend total in that window?
+    
 
 4. We turn those three numbers into simple 1–4 scores
 
     - We look at the full list of recency values and split it into four equal‐sized buckets (quartiles), then say “anyone in the top 25% freshest orders gets an R-score of 4, the next 25% an R-score of 3,” and so on.
 
     - We do the same quartile trick separately for frequency and for monetary, so each customer ends up with an R, an F and an M score between 1 and 4.
+
 
 5. We collapse R + F + M into one label
 
@@ -368,6 +372,7 @@ Here’s exactly what’s happening, step by step, in plain English:
 
     - Otherwise you’re Low-value
 
+
 6. We make the order count chart
 
     - We take every order in your chosen window again, and we tag it with that customer’s static Low/Med/High label.
@@ -376,7 +381,9 @@ Here’s exactly what’s happening, step by step, in plain English:
 
     - If none of those same Low-value people happen to place an order in August, that line falls to zero—because it’s literally counting only orders by that fixed group.
 
+
 Why the “Low-value” line can disappear
+
 Because once you’ve tagged someone Low-value (based on their overall July–October behavior), if they place no orders in August you’ll see zero orders from the “Low-value group” in August—even though new one-time buyers might also be technically “Low-value” if you re-ran RFM in a rolling way, you’re not re-tagging each month. You only tagged once, up front.
 """
     )
