@@ -71,7 +71,7 @@ st.subheader("🔍 CLTV Segments & Counts")
 seg_counts = cltv_df['CLTV_new_Segment'].value_counts().reset_index()
 seg_counts.columns = ['CLTV Segment', 'Customer Count']
 st.table(seg_counts)
-with st.expander("How segments were defined"):
+with st.expander("🧩 How segments were defined"):
     st.write(
         "Segments are based on the Pareto principle (80/20 rule) applied to predicted CLTV values:\n"
         "- **High CLTV**: Top 20% of customers contributing the most to revenue\n"
@@ -95,16 +95,16 @@ with st.expander("🔍 See Model Assumptions and Confidence"):
 # --- 3. CLTV Segments Explanation ---
 st.subheader("🎯 CLTV Segments Defined")
 
-with st.expander("🧩 How CLTV Segments Were Created"):
-    st.markdown("""
-Customers were segmented based on normalized CLTV scores:
+#with st.expander("🧩 How CLTV Segments Were Created"):
+ #   st.markdown("""
+#Customers were segmented based on normalized CLTV scores:
 
-- **High Value** (20%-50%)
-- **Medium Value** (50%-80%)
-- **Low Value** (Bottom 20%)
+#- **High Value** (20%-50%)
+#- **Medium Value** (50%-80%)
+#- **Low Value** (Bottom 20%)
 
-Segments help prioritize marketing and retention efforts.
-""")
+#Segments help prioritize marketing and retention efforts.
+#""")
 
 st.dataframe(cltv_df.head(10))
 
