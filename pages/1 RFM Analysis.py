@@ -255,6 +255,30 @@ st.plotly_chart(fig_trend, use_container_width=True)
 if st.checkbox("📌 Show Trend Insights", key="unique_key_rf7"):
     st.info("Shows the orders placed by the customer segments over the months")
 
+
+st.subheader("📈 Unique Customer Segment Over Time")
+segment_month = filtered_orders\
+    .merge(rfm_df[['customer_unique_id','CustomerGroup']], on='customer_unique_id')\
+    .groupby(['order_month','CustomerGroup'])['customer_unique_id']\
+    .nunique()\
+    .reset_index(name='unique_customers')
+
+fig_trend = px.line(
+    segment_month,
+    x='order_month',
+    y='unique_customers',
+    color='CustomerGroup',
+    title='Customer Group Trend Over Time',
+    labels={
+        'order_month': 'Order Month',
+         'count': 'Segment Count',
+         'CustomerGroup': 'Customer Segment'
+    }
+    )
+st.plotly_chart(fig_trend, use_container_width=True)
+if st.checkbox("📌 Show Trend Insights", key="unique_key_rf7"):
+    st.info("Shows the orders placed by the customer segments over the months")
+
 st.markdown("---")
 
 with st.expander("Detailed explanation on whats going on"):
