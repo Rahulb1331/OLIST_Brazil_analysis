@@ -110,8 +110,8 @@ with tab1:
         - Rolling average helps highlight broader trends without short-term noise.
 
         **Recommendations:**
-        - If a consistent upward trend is observed, consider scaling operations.
-        - If dips occur in specific months, investigate root causes like seasonality or operational issues.
+        - A consistent upward trend can be observed, and assuming that the sudden drop in both the orders and revenue after Aug 2018 is due to the lack of data, Olist can consider scaling their operations.
+        - The peak operations can be observed for the months of Nov-Jan, even though it can't be confirmed whether it is due to the festive season or due to Olist scaling up as the data for this season is available only once. But since the Olist operations have increased in the subsequent months, it would be more suitable to credit the scaling operations rather than seasonality.
         """)
 
 with tab2:
@@ -149,8 +149,8 @@ with tab2:
         - To detect seasonal patterns. For example, which months consistently perform better.
 
         **Recommendations:**
-        - Months with historically high sales (e.g. November/December) could be targeted for promotions.
-        - Slow months may benefit from retention campaigns or sales events.
+        - Festive Months (e.g. November/December) could be targeted for promotions, even though the low revenue and order count can be attributed to the lack of data for these months.
+        - Slow months can be targeted with retention campaigns or sales events.
         """)
 
 with tab3:
@@ -200,8 +200,8 @@ with tab3:
         - Help predict future demand and guide business planning.
 
         **Recommendations:**
-        - If forecasts show a decline, consider launching marketing campaigns or optimizing product offerings.
-        - If a spike is expected, plan for inventory and logistics scaling.
+        - The forecasts show a sharp peak in the month of Nov, and declining heavily by Feb, indicating that seasonality may be attributed to the rise of sales in the months of Nov-Jan, and the sellers on the Olist platform may plan for inventory and logistics scaling.
+        - In the off-season the sellers may try launching marketing campaigns or optimizing product offerings.
         """)
         
     st.markdown("---")
@@ -251,6 +251,6 @@ with tab4:
         - Understand product performance trends over time.
 
         **Recommendations:**
-        - Focus marketing or inventory efforts on top-performing categories.
-        - Monitor underperforming categories to adjust strategy or pricing.
+        - Since for almost all product categories maximum revenue and sales be seen in the month of Nov, the sellers may plan for inventory and logistics scaling, especially for their most profitable products. They shall focus on marketing or inventory efforts on top-performing categories.
+        - Monitor underperforming categories to adjust strategy or pricing, for example, the products in the agro_industry_and_commerce category don't see much revenue across the year except for Nov.
         """)
