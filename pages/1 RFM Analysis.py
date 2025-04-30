@@ -252,8 +252,8 @@ fig_trend = px.line(
     }
     )
 st.plotly_chart(fig_trend, use_container_width=True)
-if st.checkbox("📌 Show Trend Insights", key="unique_key_rf7"):
-    st.info("Shows the orders placed by the customer segments over the months")
+if st.checkbox("📌 Show Trend Insights", key="unique_key_rf8"):
+    st.info("Shows the unique customer count by their customer segments over the months")
 
 
 st.subheader("📈 Unique Customer Segment Over Time")
