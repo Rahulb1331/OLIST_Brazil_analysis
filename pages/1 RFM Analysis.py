@@ -252,8 +252,8 @@ if st.checkbox("📌 Show Product Preference Insights", key="unique_key_rf4"):
 revenue_by_segment = rfm_df.groupby("BehaviorSegment")["Monetary"].sum().reset_index().sort_values("Monetary", ascending=False)
 st.subheader("💰 Revenue Contribution by Segment")
 st.table(revenue_by_segment)
-if st.checkbox("📌 Show Revenue Insights", key="unique_key_rf6"):
-    st.info("Insight: A few segments often contribute disproportionately — focus retention and upsell there.")
+#if st.checkbox("📌 Show Revenue Insights", key="unique_key_rf6"):
+ #   st.info("Insight: A few segments often contribute disproportionately — focus retention and upsell there.")
 
 # --- Export CSV ---
 st.download_button(
