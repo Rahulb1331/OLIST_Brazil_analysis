@@ -329,8 +329,8 @@ with st.expander("🧭 3. Geo Segmentation (KMeans Clustering)", expanded=False)
         Each color on the map represents a unique cluster, helping to identify regional similarities or differences in performance.
 
         **Interpretations**:
-        - A cluster of high-revenue cities is represented by cluster indexed 1 (yellow color) and represents economic hotspots.
-        - Geographically close cities may still belong to different clusters if their revenues differ significantly. 
+        - A cluster of high-revenue cities is represented by cluster indexed 2 (yellow color) and represents economic hotspots.
+        - Geographically close cities may still belong to different clusters if their revenues differ significantly, ex Caceres even though it is closer to the cities in the 4th cluster (purple), it belongs to the 2nd cluster (yellow). 
         """)
         @st.cache_data
         def explain_geo_clusters(geo_clustered):
@@ -457,7 +457,7 @@ with st.expander("📊 6. CLTV vs Revenue by State + 🚨 Drop Detection", expan
 
     if st.checkbox("Show Insights", key="unique_key_6"):
         st.info("""
-        This dual analysis tracks **revenue vs CLTV over time** and **automatically flags major drops**.
+        This dual analysis tracks **revenue vs CLTV over time** and **automatically flags major drops (>20%)**.
 
         **Use Cases**:
         - Early detection of revenue slowdowns despite high CLTV
