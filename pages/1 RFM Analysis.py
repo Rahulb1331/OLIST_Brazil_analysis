@@ -170,7 +170,32 @@ st.plotly_chart(plot_heatmap(rfm_scores, "R", "F", "Recency vs Frequency", "Freq
 st.plotly_chart(plot_heatmap(rfm_scores, "R", "M", "Recency vs Monetary", "Monetary Score", "Recency Score"))
 st.plotly_chart(plot_heatmap(rfm_scores, "M", "F", "Monetary vs Frequency", "Frequency Score", "Monetary Score"))
 if st.checkbox("📌 Show Heatmap Insights", key="unique_key_rf3"):
-    st.info("Insight: Use these combos to find likely churners (e.g., R=1, F=4).")
+    st.info(
+    """
+    **Combined RFM Heatmap Insights:**
+
+    **Recency vs. Frequency:**  
+    - A significant concentration of customers falls in the Frequency score of 0 across all recency levels, indicating a large base of one-time buyers.  
+    - Conversely, a small but vital cluster with high frequency scores points to a loyal segment that, despite being smaller in number, is likely driving a higher share of repeat transactions.
+
+    **Recency vs. Monetary:**  
+    - The data shows that many customers reside in the lower monetary categories, often at intermediate recency levels. This suggests that while many buyers are active, they tend to spend less per transaction.  
+    - However, discernible clusters in the higher monetary scores—even across varying recency—indicate pockets of customers whose transactions are of higher value, highlighting an opportunity to boost revenue through targeted upselling.
+
+    **Monetary vs. Frequency:**  
+    - The majority of one-time buyers are positioned in the lower monetary segments. Yet, the high monetary segment also features a notable group with high frequency scores, revealing an elite group of customers who not only spend more but also purchase repeatedly.
+    - This dual insight bridges both value and engagement, underscoring that high-value customers are not just rare—they’re also consistently active.
+
+    **Overall Takeaway:**  
+    The three heatmaps together paint a comprehensive picture:
+    - There's a dominant population of one-time, low-value buyers.
+    - A small, yet crucial, group of high-frequency and high-value customers emerges across the analyses.
+    
+    **Actionable Strategy:** 
+    - Focus on devising re-engagement campaigns and loyalty programs to convert one-time buyers into repeat customers while nurturing the high-value segment to maximize overall revenue. 
+    - We can identify the likely churners with R = 1 and F = 4.
+    """
+)
 
 # --- Product Preferences by Group ---
 @st.cache_data
