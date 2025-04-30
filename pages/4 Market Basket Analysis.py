@@ -82,16 +82,13 @@ if not multi_item_txns.empty:
         with st.expander("🔍 Insights Behind This Analysis"):
             st.info(
                 """
-                **What We Did:**  
+                **What was done:**  
                 - Applied **FP-Growth** to discover frequent product combinations.
                 - Used **Association Rules** to find cross-sell opportunities.
                 - Estimated **revenue potential** per rule.
                 - Filtered **only meaningful rules** based on lift > 1.
                 - Used a low min_support (0.1%) to find hidden gems.
 
-                **Recommendations:**  
-                - Prioritize high-lift, high-revenue rules.
-                - Build bundles around top revenue-driving pairs.
                 """
             )
 
