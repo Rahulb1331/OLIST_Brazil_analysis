@@ -165,27 +165,31 @@ with tab2:
 with tab3:
     st.header("🚚 Freight Charges vs Review Score")
 
+    # compute freight-to-price ratio per order
+    orders_with_reviews["freight_ratio"] = (
+        orders_with_reviews["freight_value"] / orders_with_reviews["price"]
+    )
     freight_reviews = orders_with_reviews.groupby(["seller_id", "product_category"]).agg(
         num_reviews=("order_id", "count"),
         avg_rating=("review_score", "mean"),
-        avg_freight=("freight_value", "mean")
+        avg_freight_ratio=("freight_ratio", "mean")
     ).reset_index()
 
     freight_reviews = freight_reviews[freight_reviews["num_reviews"] > 10]
 
-    fig = px.scatter(freight_reviews, x="avg_freight", y="avg_rating", size="num_reviews",
+    fig = px.scatter(freight_reviews, x="avg_freight_ratio", y="avg_rating", size="num_reviews",
                      hover_data=["seller_id", "product_category"],
-                     title="Freight vs Rating by Seller and Product Category",
-                     labels={"avg_freight": "Average Freight", "avg_rating": "Average Rating"})
+                     title="Freight-to-Price Ratio vs Rating by Seller and Product Category",
+                     labels={"avg_freight_ratio": "Avg Freight / Price", "avg_rating": "Average Rating"})
     fig.update_traces(marker=dict(opacity=0.6))
     st.plotly_chart(fig)
 
     if st.checkbox("Show Insights for Freight Tab", key="unique_key_r3"):
         st.info("""
         🔍 **Analysis Explanation**:
-        - This tab investigates the relationship between freight costs and review scores.
-        - It aggregates ratings and average freight values at the seller and product category level.
-        - A bubble chart highlights potential overcharges or acceptable premium delivery segments.
+        - This tab examines **freight as a proportion of product price**, not just absolute cost.
+        - Here, the average freight-to-price ratio is calculated for each seller × product category.
+        - Bubble size highlights potential overcharges or acceptable premium delivery segments.
 
         💡 **Key Insights**:
         - Freight cost alone does not guarantee lower ratings; value perception matters.
@@ -193,8 +197,9 @@ with tab3:
         - Sellers with high freight and low ratings may be overcharging or underdelivering.
 
         ✅ **Recommendations**:
+        - Flag sellers where freight / price > 0.5 *and* avg_rating < 3 for immediate review.
         - Audit categories and sellers with disproportionately high freight and low ratings.
-        - Consider subsidizing freight for budget-conscious categories to boost satisfaction.
+        - Consider a minimum ratio threshold (e.g., 20%) below which shipping is guaranteed free or discounted.
         - Promote sellers who maintain good ratings despite premium freight—indicating added value or service.
         """)
 
