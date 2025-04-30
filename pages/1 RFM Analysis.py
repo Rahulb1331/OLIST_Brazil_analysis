@@ -146,6 +146,7 @@ if st.checkbox("📌 Show Distribution Insights", key="unique_key_rf2"):
         - High-value customers should be protected. For which OList can deploy VIP programs and exclusive rewards to lock in continued spend.
         """)
 
+st.markdown("---")
 
 # --- RFM Heatmaps ---
 st.subheader("🔥 RFM Heatmaps")
@@ -180,6 +181,8 @@ def get_product_preferences(full_orders, rfm_df):
         .sort_values("count", ascending=False)
     )
     return product_pref
+
+st.markdown("---")
 
 # --- Behavior Segments Table ---
 st.subheader("🧠 Behavioral Segments")
@@ -220,6 +223,7 @@ st.plotly_chart(fig_products, use_container_width=True)
 if st.checkbox("📌 Show Product Preference Insights", key="unique_key_rf4"):
     st.info("Olist can tailor promotions by the segment preference, for e.g., Frequent Buyers have heavily bought bed_bath_table products.")
 
+st.markdown("---")
 
 # --- Segment Revenue Contribution ---
 revenue_by_segment = rfm_df.groupby("BehaviorSegment")["Monetary"].sum().reset_index().sort_values("Monetary", ascending=False)
