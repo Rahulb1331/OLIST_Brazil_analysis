@@ -125,10 +125,9 @@ if not multi_item_txns.empty:
             - **Lift** shows **how much stronger** the buying pattern is than random chance.
 
             **⚠️ Why Bias Matters?**
-            
-                - Rules with **high confidence but very low support** are often misleading.
-                - They may look strong but occur rarely, making them risky to act on.
-                - **Check both confidence AND support** before trusting a rule!
+            - Rules with **high confidence but very low support** are often misleading.
+            - They may look strong but occur rarely, making them risky to act on.
+            - **Check both confidence AND support** before trusting a rule!
             """)
 
         # --- Scatterplot ---
