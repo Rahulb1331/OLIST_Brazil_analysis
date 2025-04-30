@@ -149,10 +149,14 @@ with col2:
 st.info("""
 ℹ️ **Note:**  
 We can see that the revenue across all three segments in the past 12 month is coming to be greater than the the predicted 12 month revenue by segment. 
+
 This is mainly because, for the previous 12 month we are collecting the **revenue of all the customers** even **one-time purchasers**.  
+
 The **BG/NBD + Gamma-Gamma** model predicts future revenue **only from current customers** based on their past behavior. That is those customers who have made **more than 1 purchases** on the platform. 
 It **does not account for new customer acquisitions**.
+
 Thus, the predicted 12-month revenue appears lower than the past 12 months.
+
 BG/NBD (Pareto/NBD) and Gamma-Gamma models we require at least two purchases to estimate recency/frequency parameters. Without a repeat purchase, we can’t infer their “decay rate” or expected future order rate.
 """)
 
