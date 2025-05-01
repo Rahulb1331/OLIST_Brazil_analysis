@@ -272,7 +272,7 @@ st.subheader("📈 Orders by Customer Segment Over Time")
 orders_and_segments = full_orders.merge(
      rfm_df[['customer_unique_id', 'CustomerGroup']],
      on='customer_unique_id',
-     how='inner'
+     how = 'left' #how='inner'
  )
 
 # extract month bucket
