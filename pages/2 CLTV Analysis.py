@@ -90,7 +90,7 @@ eval_df = pd.merge(
     on='customer_unique_id', how='inner'
 )
 mae = mean_absolute_error(eval_df['better_cltv'], eval_df['predicted_cltv'])
-rmse = mean_squared_error(eval_df['better_cltv'], eval_df['predicted_cltv'], squared=False)
+rmse = mean_squared_error(eval_df['better_cltv'], eval_df['predicted_cltv']) ** 0.5  # compute RMSE as sqrt(MSE)
 with st.expander("Insights on Model Fit"):
     st.info(
         f"""
