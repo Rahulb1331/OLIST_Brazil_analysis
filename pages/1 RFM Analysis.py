@@ -64,7 +64,7 @@ rfm_df = calculate_rfm(filtered_orders)
 @st.cache_data
 def add_rfm_tags(rfm_df):
     rfm_df['CustomerGroup'] = rfm_df['RFM_Score'].apply(
-        lambda x: 'High-value' if int(x) >= 344 else ('Medium-value' if int(x) >= 222 else 'Low-value')
+        lambda x: 'High-value' if int(x) >= 434 else ('Medium-value' if int(x) >= 222 else 'Low-value')
     )
     rfm_df['BehaviorSegment'] = rfm_df.apply(lambda row:
         "Champions" if row['R'] == 4 and row['F'] == 4 and row['M'] == 4 else
@@ -298,12 +298,30 @@ fig_trend = px.line(
     }
     )
 st.plotly_chart(fig_trend, use_container_width=True)
-if st.checkbox("📌 Show Trend Insights", key="unique_key_rf8"):
+if st.checkbox("🔍 Show Trend Insights for Segment Orders", key = 'unique_key_rf61'):
     st.info(
-        "This chart counts *every* order placed by each static segment each month. "
-        "Even one-time purchasers are shown in the months they actually bought—so the line "
-        "for Low-value only vanishes when *none* of those tagged Low-value customers made any purchases."    
+        """
+        **Why the Low-value and Medium-value lines disappear after certain months**  
+        - Each customer is tagged as Low/Medium/High **once** based on their overall RFM score over your chosen window.  
+        - **Only orders** placed by *those same* customers each month are then counted.  
+        - If none of them purchase in a month, that segment/month pair is missing and the line “breaks.”  
+
+        **What this means**  
+        - We’re seeing “orders by *existing* segment members,” not “all orders that ever would qualify as Low/Med/High.”  
+        - New one-time buyers won’t appear unless we re-run RFM and re-tag them for a later window.  
+
+        **What can be inferred from the chart**  
+        - **High-value segment** ramps up and stays strong → these top customers are consistently ordering, indicating good loyalty.  
+        - **Medium-value segment** shows a spike then collapse → some of these customers either **upgraded** into High-value or **churned** out of activity.  
+        - **Low-value segment** indicates the presence of many one time buyers.  
+
+        **Recommended next steps**  
+        1. Olist can try to **re-engage lapsed Low-value customers** with targeted win-back emails or introductory offers.  
+        2. They may try to **upsell Medium-value customers** during their peak engagement window to push them into the High-value tier.  
+        3. Their aim should be to **protect the High-value base** by launching loyalty perks (exclusive discounts, early access) to prevent churn.  
+        """
     )
+
 
 
 st.subheader("📈 Unique Customer Segment Over Time")
@@ -366,9 +384,9 @@ Here’s exactly what’s happening, step by step, in plain English:
 
     - We concatenate (e.g.) R=3, F=1, M=4 into “314,” then say:
 
-    - If that three-digit number is 344 or above, you’re High-value
+    - If that three-digit number is 434 or above, you’re High-value
 
-    - If it’s between 222 and 344, you’re Medium-value
+    - If it’s between 222 and 434, you’re Medium-value
 
     - Otherwise you’re Low-value
 
