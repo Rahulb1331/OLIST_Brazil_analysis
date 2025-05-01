@@ -99,8 +99,12 @@ rfm_summary = get_rfm_summary(rfm_df)
 st.subheader("📊 RFM Segment Summary")
 st.dataframe(rfm_summary)
 if st.checkbox("📌 Show Segment Insights", key="unique_key_rf1"):
-    st.info("It can be seen that High-value customers are more frequent, recent, and having a higher monetary value. They can be targeted with loyalty perks.")
-
+    st.info("""
+    - A vast majority of the customers are classified as Low Value customers, characterized by their less frequent purchases, older interactions and lower monetary contributions. They have to be targeted with thoughtfully designed re-engagement campaigns, considering that many might be one time customers.
+    - In contrast, the High-value customers are more frequent, recent, and generate a higher revenue. Rewarding this segment with loyalty perks can help boost long-term engagement.
+    - Because of this very skewed segmentation, relying solely on broad categories like "High-Value," "Medium-Value," and "Low-Value" may not be sufficient. Further segmentations - based on their recency, frequency and their monetary contributions - can enable the development of targeted strategies that cater to the unique behaviors and needs of each group. 
+            """)
+    
     with st.expander("📌 Segmentation Strategy & RFM Calculation Details"):
         st.info("""
         **Why I used a static, end-of-period segmentation**  
@@ -125,8 +129,8 @@ if st.checkbox("📌 Show Segment Insights", key="unique_key_rf1"):
           - Likewise scored by quartiles.
         - **RFM Score:** Concatenate R, F, and M scores to form a three-digit code (e.g. “4-3-2”).  
         - **CustomerGroup Assignment:**  
-          - **High-value** if RFM ≥ 344  
-          - **Medium-value** if 222 ≤ RFM < 344  
+          - **High-value** if R ≥ 3 & F ≥ 3 & M ≥ 3  
+          - **Medium-value** if R ≥ 2 & F ≥ 2 & M ≥ 2 
           - **Low-value** otherwise  
         """)
 
@@ -309,20 +313,19 @@ st.plotly_chart(fig_trend, use_container_width=True)
 if st.checkbox("🔍 Show Trend Insights for Segment Orders", key = 'unique_key_rf61'):
     st.info(
         """
-        **Why the Low-value and Medium-value lines disappear after certain months**  
-        - Each customer is tagged as Low/Medium/High **once** based on their overall RFM score over your chosen window.  
+        ** **  
+        - Each customer is tagged as Low/Medium/High **once** based on their overall RFM score over the chosen window.  
         - **Only orders** placed by *those same* customers each month are then counted.  
-        - If none of them purchase in a month, that segment/month pair is missing and the line “breaks.”  
 
         **What this means**  
         - We’re seeing “orders by *existing* segment members,” not “all orders that ever would qualify as Low/Med/High.”  
         - New one-time buyers won’t appear unless we re-run RFM and re-tag them for a later window.  
 
         **What can be inferred from the chart**  
-        - **High-value segment** ramps up and stays strong → these top customers are consistently ordering, indicating good loyalty.  
-        - **Medium-value segment** shows a spike then collapse → some of these customers either **upgraded** into High-value or **churned** out of activity.  
-        - **Low-value segment** indicates the presence of many one time buyers.  
-
+        - **High-Value Segment**: Post Dec 2017, this group initially ramped up steadily. However, the graph shows that after mid-2018 there’s a marked decline in activity, suggesting a shift or saturation that may need further investigation.
+        - **Medium-Value Segment**: shows a significant surge—peaking around late 2017—followed by a rapid collapse. This trend implies that during that period, many customers either upgraded into the high-value group or disengaged entirely.
+        - **Low-Value Segment**: The chart highlights a predominance of one-time buyers in the low-value group. There is an early peak in activity, after which the numbers taper off gradually, emphasizing the transient interactions of these customers.
+        
         **Recommended next steps**  
         1. Olist can try to **re-engage lapsed Low-value customers** with targeted win-back emails or introductory offers.  
         2. They may try to **upsell Medium-value customers** during their peak engagement window to push them into the High-value tier.  
@@ -352,9 +355,11 @@ fig_trend = px.line(
     }
     )
 st.plotly_chart(fig_trend, use_container_width=True)
-if st.checkbox("📌 Show Trend Insights", key="unique_key_rf7"):
-    st.info("Shows the orders placed by the customer segments over the months")
 
+if st.checkbox("📌 Show Trend Insights for Segment Count", key = 'unique_key_rf7'):
+    st.info(
+        "The graph is very similar to the order count graph, this is because most of the customers are one time purchasers, so for each month the order count ≈ number of unique customers each month."
+    )
 st.markdown("---")
 
 with st.expander("Detailed explanation on whats going on"):
@@ -362,17 +367,17 @@ with st.expander("Detailed explanation on whats going on"):
 """
 Here’s exactly what’s happening, step by step, in plain English:
 
-1. We pick a date range
+1. A date range is picked
 
-    - Using the sidebar, we tell the app “only look at orders between January 1 and October 31, 2018” (for example).
+    - Using the sidebar, the app is told “only look at orders between January 1 and October 31, 2018” (for example).
     
 
-2. We filter the orders
+2. Filtering the orders
 
-    - From our master list of every order ever placed, we throw away anything that’s outside your chosen window.
+    - From the master list of every order ever placed, those outside the chosen window are removed.
     
 
-3. We score each customer once—over your entire window
+3. Scoring each customer once—over the entire window
 
     - Recency: How many days ago was their last order within that window?
 
@@ -381,35 +386,22 @@ Here’s exactly what’s happening, step by step, in plain English:
     - Monetary: How much money did they spend total in that window?
     
 
-4. We turn those three numbers into simple 1–4 scores
+4. These three numbers are turnned into simple 1–4 scores
 
-    - We look at the full list of recency values and split it into four equal‐sized buckets (quartiles), then say “anyone in the top 25% freshest orders gets an R-score of 4, the next 25% an R-score of 3,” and so on.
+    - The full list of recency values are split into four equal‐sized buckets (quartiles), then scores are assigned as follows “anyone in the top 25% freshest orders gets an R-score of 4, the next 25% an R-score of 3,” and so on.
 
-    - We do the same quartile trick separately for frequency and for monetary, so each customer ends up with an R, an F and an M score between 1 and 4.
-
-
-5. We collapse R + F + M into one label
-
-    - We concatenate (e.g.) R=3, F=1, M=4 into “314,” then say:
-
-    - If that three-digit number is 434 or above, you’re High-value
-
-    - If it’s between 222 and 434, you’re Medium-value
-
-    - Otherwise you’re Low-value
+    - This same quartile trick is applied separately for frequency and for monetary, so each customer ends up with an R, an F and an M score between 1 and 4.
 
 
-6. We make the order count chart
+5. Collapsing R + F + M into one label
 
-    - We take every order in your chosen window again, and we tag it with that customer’s static Low/Med/High label.
+    - Concatenation is done. (e.g.) R=3, F=1, M=4 into “314,” then say:
 
-    - Then we count “how many orders did Low-value customers place in July? in August? in September?” and draw a line.
+    - If that three-digit number is 434 or above, the customer is High-value
 
-    - If none of those same Low-value people happen to place an order in August, that line falls to zero—because it’s literally counting only orders by that fixed group.
+    - If it’s between 222 and 434, the customer is Medium-value
 
+    - Otherwise the customer is Low-value
 
-Why the “Low-value” line can disappear
-
-Because once you’ve tagged someone Low-value (based on their overall July–October behavior), if they place no orders in August you’ll see zero orders from the “Low-value group” in August—even though new one-time buyers might also be technically “Low-value” if you re-ran RFM in a rolling way, you’re not re-tagging each month. You only tagged once, up front.
 """
     )
