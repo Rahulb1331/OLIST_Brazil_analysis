@@ -110,7 +110,7 @@ if st.checkbox("📌 Show Segment Insights", key="unique_key_rf1"):
         **Why I used a static, end-of-period segmentation**  
         - **Simplicity:** I computed RFM once on the full history keeping the to get three clear, stable groups (Low/Medium/High) for all downstream charts. Each custtomer is assigned to these segments using their last purchase date relative to the final reference date (i.e. Sept 2018). 
         - **Stability:** Since the dataset is  having many one-time purchasers, monthly re-segmentation produces huge spikes and drop‐offs (noise), not meaningful trends.  
-        - **Cross-sectional clarity:** Business users see “Right now these 44.3 K customers are Low-value” and can tie actions (promotions, retention offers) directly to that snapshot.
+        - **Cross-sectional clarity:** Business users see “Right now these 85.8 K customers are Low-value” and can tie actions (promotions, retention offers) directly to that snapshot.
 
         **Argument for adding a dynamic “segment flow” view**  
         - If we need to **track cohort movement**—e.g. “Which Low-value customers in Q1 moved to Medium by Q3”—we can recompute RFM quarterly or on a rolling 3-month window.  
