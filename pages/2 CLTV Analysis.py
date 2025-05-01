@@ -81,16 +81,26 @@ with st.expander("🧩 How segments were defined"):
     )
 
 # --- 2. Model Performance Summary ---
-st.subheader("📈 Model Performance")
-
-with st.expander("🔍 See Model Assumptions and Confidence"):
-    st.markdown("""
-- Models assume customer dropout and spending patterns are stable over time.
-- Prediction confidence is approximate; unexpected changes (economic, business, etc.) may cause deviations.
-- Evaluation metrics (example placeholders):
-    - **Mean Absolute Error (MAE):** ~\$10
-    - **Root Mean Squared Error (RMSE):** ~\$14
-""")
+st.subheader("📈 Model Performance & Evaluation")
+# merge actual vs predicted CLTV for evaluation
+eval_df = pd.merge(
+    summary_df[['customer_unique_id', 'predicted_cltv']],
+    cltv_df[['customer_unique_id', 'better_cltv']],
+    on='customer_unique_id', how='inner'
+)
+mae = mean_absolute_error(eval_df['better_cltv'], eval_df['predicted_cltv'])
+rmse = mean_squared_error(eval_df['better_cltv'], eval_df['predicted_cltv'], squared=False)
+with st.expander("Insights on Model Fit"):
+    st.info(
+        f"""
+        - Models assume customer dropout and spending patterns are stable over time.
+        - Prediction confidence is approximate; unexpected changes (economic, business, etc.) may cause deviations.
+        - Evaluation metrics (example placeholders):
+            - MAE of {mae:.2f} indicates average deviation of predictions from actual CLTV.
+            - RMSE of {rmse:.2f} highlights occasional larger errors.
+            - Periodic retraining and parameter tuning can reduce these errors.
+        """
+    )
 
 # --- 3. CLTV Segments Explanation ---
 st.subheader("🎯 CLTV Segments Defined")
