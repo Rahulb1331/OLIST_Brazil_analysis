@@ -4,6 +4,7 @@ import numpy as np
 import plotly.express as px
 from analysis.rfm import run_rfm_analysis
 from analysis.cltv import run_cltv_analysis, enrich_cltv_with_segments, model_cltv_lifetimes
+from sklearn.metrics import mean_absolute_error, mean_squared_error
 
 # --- Page Config ---
 import streamlit as st
