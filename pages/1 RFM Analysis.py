@@ -148,9 +148,9 @@ st.plotly_chart(fig1)
 if st.checkbox("📌 Show Distribution Insights", key="unique_key_rf2"):
     st.info(""" 
         **What this shows:**  
-        - **Low-value** is the **largest** segment. These are mostly one-time or infrequent buyers (R=1–2 or F=1–2).  
+        - **Low-value** is the **largest** segment. These are mostly one-time or infrequent buyers (R=1, F=1 and M=1).  
         - **Medium-value** have moderate recency and frequency. They’ve bought more than once but not enough to be high-value.  
-        - **High-value** are the best customers: **recent**, **frequent**, **big spenders** (R=3, F=4, M=4).
+        - **High-value** are the best customers: **recent**, **frequent**, **big spenders** (R≥3, F≥4, M≥4).
 
         **Why it matters:**  
         - A very large low-value base indicates heavy acquisition but weak retention—focus on win-back campaigns (e.g., welcome series, personalized offers).  
@@ -205,7 +205,7 @@ if st.checkbox("📌 Show Heatmap Insights", key="unique_key_rf3"):
     
     **Actionable Strategy:** 
     - Olist can focus on devising re-engagement campaigns and loyalty programs to convert one-time buyers into repeat customers while nurturing the high-value segment to maximize overall revenue. 
-    - Olist can identify the likely churners with R = 1 and F = 4.
+    - Olist can identify the likely churners ( R = 1 and F = 4).
     """
 )
 
@@ -313,7 +313,7 @@ st.plotly_chart(fig_trend, use_container_width=True)
 if st.checkbox("🔍 Show Trend Insights for Segment Orders", key = 'unique_key_rf61'):
     st.info(
         """
-        ** **  
+        **What is done**
         - Each customer is tagged as Low/Medium/High **once** based on their overall RFM score over the chosen window.  
         - **Only orders** placed by *those same* customers each month are then counted.  
 
@@ -365,7 +365,7 @@ st.markdown("---")
 with st.expander("Detailed explanation on whats going on"):
     st.info(
 """
-Here’s exactly what’s happening, step by step, in plain English:
+Here’s exactly what’s happening, step by step:
 
 1. A date range is picked
 
@@ -395,13 +395,10 @@ Here’s exactly what’s happening, step by step, in plain English:
 
 5. Collapsing R + F + M into one label
 
-    - Concatenation is done. (e.g.) R=3, F=1, M=4 into “314,” then say:
-
-    - If that three-digit number is 434 or above, the customer is High-value
-
-    - If it’s between 222 and 434, the customer is Medium-value
-
-    - Otherwise the customer is Low-value
-
+    - **High-value** if R ≥ 3 & F ≥ 3 & M ≥ 3  
+          
+    - **Medium-value** if R ≥ 2 & F ≥ 2 & M ≥ 2 
+          
+    - **Low-value** otherwise  
 """
     )
