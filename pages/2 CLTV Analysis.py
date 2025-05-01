@@ -95,8 +95,7 @@ with st.expander("Insights on Model Fit"):
     st.info(
         f"""
         - Models assume customer dropout and spending patterns are stable over time.
-        - Prediction confidence is approximate; unexpected changes (economic, business, etc.) may cause deviations.
-        - Evaluation metrics (example placeholders):
+        - Evaluation metrics:
             - MAE of {mae:.2f} indicates average deviation of predictions from actual CLTV.
             - RMSE of {rmse:.2f} highlights occasional larger errors.
             - Periodic retraining and parameter tuning can reduce these errors.
