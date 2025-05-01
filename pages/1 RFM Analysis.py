@@ -63,9 +63,17 @@ rfm_df = calculate_rfm(filtered_orders)
 # --- Customer Group Tagging ---
 @st.cache_data
 def add_rfm_tags(rfm_df):
-    rfm_df['CustomerGroup'] = rfm_df['RFM_Score'].apply(
-        lambda x: 'High-value' if int(x) >= 434 else ('Medium-value' if int(x) >= 222 else 'Low-value')
-    )
+    # 1) Default everyone to Low-value
+    rfm_df['CustomerGroup'] = 'Low-value'
+
+    # 2) High-value = R ≥ 3 AND F ≥ 3 AND M ≥ 3
+    high_mask = (rfm_df['R'] >= 3) & (rfm_df['F'] >= 3) & (rfm_df['M'] >= 3)
+    rfm_df.loc[high_mask, 'CustomerGroup'] = 'High-value'
+
+    # 3) Medium-value = anyone else who is at least “above average” on all three
+    med_mask = ~high_mask & (rfm_df['R'] >= 2) & (rfm_df['F'] >= 2) & (rfm_df['M'] >= 2)
+    rfm_df.loc[med_mask, 'CustomerGroup'] = 'Medium-value'
+
     rfm_df['BehaviorSegment'] = rfm_df.apply(lambda row:
         "Champions" if row['R'] == 4 and row['F'] == 4 and row['M'] == 4 else
         "Loyal Customers" if row['R'] >= 3 and row['F'] >= 3 else
