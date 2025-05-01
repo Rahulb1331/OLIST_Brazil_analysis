@@ -366,9 +366,9 @@ Here’s exactly what’s happening, step by step, in plain English:
 
     - We concatenate (e.g.) R=3, F=1, M=4 into “314,” then say:
 
-    - If that three-digit number is 334 or above, you’re High-value
+    - If that three-digit number is 344 or above, you’re High-value
 
-    - If it’s between 222 and 333, you’re Medium-value
+    - If it’s between 222 and 344, you’re Medium-value
 
     - Otherwise you’re Low-value
 
