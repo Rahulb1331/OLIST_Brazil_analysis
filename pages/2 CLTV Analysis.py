@@ -258,14 +258,14 @@ if st.checkbox("Show Retention Insights"):
 
         All the three segments have a low retention rate, further validating the observation that most of the customers are only making one puurchase on the platform. However, if the three segments have to be compared with each other. We can make the following conlusions:
         
-            - **Highest Retention in Medium CLTV:**  
-              The graph shows that the Medium CLTV segment has the highest repeat purchase (retention) rate, slightly above 0.03. This indicates that customers in this group are the most likely to make repeat purchases, perhaps due to a balanced mix of engagement and spending behavior.
+        - **Highest Retention in Medium CLTV:**  
+          The graph shows that the Medium CLTV segment has the highest repeat purchase (retention) rate, slightly above 0.03. This indicates that customers in this group are the most likely to make repeat purchases, perhaps due to a balanced mix of engagement and spending behavior.
           
-            - **Strong, Yet Lower, Retention in High CLTV:**  
-              Although the High CLTV segment consists of customers with a high lifetime value, their repeat purchase rate is slightly lower—just under 0.03. This may suggest that while these customers contribute significant value when they purchase, they might do so less frequently.
+        - **Strong, Yet Lower, Retention in High CLTV:**  
+        Although the High CLTV segment consists of customers with a high lifetime value, their repeat purchase rate is slightly lower—just under 0.03. This may suggest that while these customers contribute significant value when they purchase, they might do so less frequently.
           
-            - **Lowest Retention in Low CLTV:**  
-              The Low CLTV segment displays the lowest retention rate, about 0.02. This points to the possibility that customers in this segment are either less engaged or require different strategies to boost repeat activity.
+        - **Lowest Retention in Low CLTV:**  
+          The Low CLTV segment displays the lowest retention rate, about 0.02. This points to the possibility that customers in this segment are either less engaged or require different strategies to boost repeat activity.
 
         These insights highlight that while high-spending customers are valuable, the medium CLTV group demonstrates the best retention, suggesting targeted strategies for nurturing this cohort could potentially yield substantial long-term benefits.
         """
