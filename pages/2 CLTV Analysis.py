@@ -254,8 +254,6 @@ st.plotly_chart(fig4, use_container_width=True)
 if st.checkbox("Show Retention Insights"):
     st.info(
         """
-        **Insights from the Retention Rate by CLTV Segment Graph:**
-
         All the three segments have a low retention rate, further validating the observation that most of the customers are only making one puurchase on the platform. However, if the three segments have to be compared with each other. We can make the following conlusions:
         
         - **Highest Retention in Medium CLTV:**  
