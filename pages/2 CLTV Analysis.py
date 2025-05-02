@@ -151,11 +151,18 @@ with st.expander("📦 Box Plot of CLTV"):
 with st.expander("🧬 Scatterplots"):
     scatter_df = rfm_cltv_df.copy()
 
+    color_map = {
+     "High CLTV": "#636EFA",
+     "Medium CLTV": "#EF553B",
+     "Low CLTV": "#00CC96"
+     }
+    
     fig4 = px.scatter(
         scatter_df,
         x="F",
         y="M",
         color="CLTV_new_Segment",
+        color_discrete_map=color_map,
         title="Frequency vs Monetary Value by CLTV Segment",
         size_max=10
     )
