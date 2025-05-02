@@ -81,7 +81,60 @@ with st.expander("🧩 How segments were defined"):
         "This segmentation helps prioritize high-value customers while still monitoring the broader base."
     )
 
-# --- 2. Model Performance Summary ---
+# --- 3. Visualizations ---
+st.subheader("📊 CLTV Distributions and Relationships")
+
+if 'log_applied' not in st.session_state:
+    st.session_state.log_applied = False
+
+log_toggle = st.toggle("Apply Log Transformation", value=st.session_state.log_applied)
+st.session_state.log_applied = log_toggle
+
+cltv_pd = rfm_cltv_df[["cltv_normalized", "CLTV_new_Segment"]].copy()
+
+if st.session_state.log_applied:
+    cltv_pd['cltv_transformed'] = np.log1p(cltv_pd['cltv_normalized'] * 1000)
+    title_suffix = "(Log Scale)"
+else:
+    cltv_pd['cltv_transformed'] = cltv_pd['cltv_normalized']
+    title_suffix = "(Raw Scale)"
+
+
+with st.expander("📦 Box Plot of CLTV"):
+    fig = px.box(
+        cltv_pd,
+        x="CLTV_new_Segment",
+        y="cltv_transformed",
+        color="CLTV_new_Segment",
+        title=f"Boxplot: CLTV Distribution by Segment {title_suffix}"
+    )
+    st.plotly_chart(fig, use_container_width=True)
+
+
+with st.expander("🧬 Scatterplots"):
+    scatter_df = rfm_cltv_df.copy()
+
+    fig4 = px.scatter(
+        scatter_df,
+        x="F",
+        y="M",
+        color="CLTV_new_Segment",
+        title="Frequency vs Monetary Value by CLTV Segment",
+        size_max=10
+    )
+    st.plotly_chart(fig4, use_container_width=True)
+
+    fig5 = px.scatter(
+        scatter_df,
+        x="RFM_Score",
+        y="cltv_normalized",
+        color="CLTV_new_Segment",
+        title="RFM Score vs CLTV Normalized",
+        size_max=10
+    )
+    st.plotly_chart(fig5, use_container_width=True)
+
+# --- 3. Model Performance Summary ---
 st.subheader("📈 Model Performance & Evaluation")
 # merge actual vs predicted CLTV for evaluation
 eval_df = pd.merge(
@@ -102,7 +155,7 @@ with st.expander("Insights on Model Fit"):
         """
     )
 
-# --- 3. CLTV Segments Explanation ---
+# --- 5. CLTV Segments Explanation ---
 st.subheader("🎯 CLTV Segments Defined")
 
 #with st.expander("🧩 How CLTV Segments Were Created"):
@@ -211,7 +264,7 @@ fig_top_products = px.bar(
 fig_top_products.update_layout(showlegend=False)
 st.plotly_chart(fig_top_products, use_container_width=True)
 
-st.info("Visualising the most popular products purchased by each CLTV segment")
+st.info("Visualising the products popularity for each CLTV segment")
 
 st.markdown("---")
 
@@ -314,59 +367,6 @@ if st.checkbox("Show Retention Insights", key="retention"):
         """
     )
 
-
-# --- 6. Visualizations ---
-st.subheader("📊 CLTV Distributions and Relationships")
-
-if 'log_applied' not in st.session_state:
-    st.session_state.log_applied = False
-
-log_toggle = st.toggle("Apply Log Transformation", value=st.session_state.log_applied)
-st.session_state.log_applied = log_toggle
-
-cltv_pd = rfm_cltv_df[["cltv_normalized", "CLTV_new_Segment"]].copy()
-
-if st.session_state.log_applied:
-    cltv_pd['cltv_transformed'] = np.log1p(cltv_pd['cltv_normalized'] * 1000)
-    title_suffix = "(Log Scale)"
-else:
-    cltv_pd['cltv_transformed'] = cltv_pd['cltv_normalized']
-    title_suffix = "(Raw Scale)"
-
-
-with st.expander("📦 Box Plot of CLTV"):
-    fig = px.box(
-        cltv_pd,
-        x="CLTV_new_Segment",
-        y="cltv_transformed",
-        color="CLTV_new_Segment",
-        title=f"Boxplot: CLTV Distribution by Segment {title_suffix}"
-    )
-    st.plotly_chart(fig, use_container_width=True)
-
-
-with st.expander("🧬 Scatterplots"):
-    scatter_df = rfm_cltv_df.copy()
-
-    fig4 = px.scatter(
-        scatter_df,
-        x="F",
-        y="M",
-        color="CLTV_new_Segment",
-        title="Frequency vs Monetary Value by CLTV Segment",
-        size_max=10
-    )
-    st.plotly_chart(fig4, use_container_width=True)
-
-    fig5 = px.scatter(
-        scatter_df,
-        x="RFM_Score",
-        y="cltv_normalized",
-        color="CLTV_new_Segment",
-        title="RFM Score vs CLTV Normalized",
-        size_max=10
-    )
-    st.plotly_chart(fig5, use_container_width=True)
 
 # --- 7. User Actions by Segment ---
 st.subheader("🚀 Actions Suggested by Customer Segment")
