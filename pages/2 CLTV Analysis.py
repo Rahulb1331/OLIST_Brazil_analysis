@@ -81,6 +81,22 @@ with st.expander("🧩 How segments were defined"):
         "This segmentation helps prioritize high-value customers while still monitoring the broader base."
     )
 
+# --- 5. CLTV Segments Explanation ---
+st.subheader("🎯 CLTV Segments Defined")
+
+#with st.expander("🧩 How CLTV Segments Were Created"):
+ #   st.markdown("""
+#Customers were segmented based on normalized CLTV scores:
+
+#- **High Value** (20%-50%)
+#- **Medium Value** (50%-80%)
+#- **Low Value** (Bottom 20%)
+
+#Segments help prioritize marketing and retention efforts.
+#""")
+
+st.dataframe(cltv_df.head(10))
+
 # --- 3. Visualizations ---
 st.subheader("📊 CLTV Distributions and Relationships")
 
@@ -155,21 +171,6 @@ with st.expander("Insights on Model Fit"):
         """
     )
 
-# --- 5. CLTV Segments Explanation ---
-st.subheader("🎯 CLTV Segments Defined")
-
-#with st.expander("🧩 How CLTV Segments Were Created"):
- #   st.markdown("""
-#Customers were segmented based on normalized CLTV scores:
-
-#- **High Value** (20%-50%)
-#- **Medium Value** (50%-80%)
-#- **Low Value** (Bottom 20%)
-
-#Segments help prioritize marketing and retention efforts.
-#""")
-
-st.dataframe(cltv_df.head(10))
 
 # --- 4. Past vs Predicted Revenue ---
 st.subheader("💵 Revenue Comparison: Past vs Predicted")
@@ -384,7 +385,7 @@ csv = cltv_df.to_csv(index=False).encode('utf-8')
 st.download_button("Download CLTV Data as CSV", data=csv, file_name="cltv_analysis.csv", mime='text/csv')
 
 # --- 9. Filtering Section ---
-st.subheader("🔍 Optional: Filter Customers")
+st.subheader("🔍 Filter Customers")
 
 with st.expander("📂 Filter Options"):
     state_filter = st.multiselect("Select States", full_orders['customer_state'].unique())
