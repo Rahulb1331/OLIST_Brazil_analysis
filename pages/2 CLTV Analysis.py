@@ -125,7 +125,28 @@ with st.expander("📦 Box Plot of CLTV"):
         title=f"Boxplot: CLTV Distribution by Segment {title_suffix}"
     )
     st.plotly_chart(fig, use_container_width=True)
+    if st.checkbox("Show Graph Insights", key = "cltv_box"):
+        st.info(
+            """
+            - **Improved Visibility Through Log Transformation:**  
+              Applying a log transformation compresses the range of the highly skewed CLTV data. This makes differences across segments clearer by reducing the impact of extreme high values and helping to standardize the scale.
 
+            - **Segment-Specific Observations:**  
+              • **Low CLTV Segment:**  
+                The transformed values for this group are concentrated at a lower range. Their tight distribution suggests that these customers have very low lifetime values.  
+              • **Medium CLTV Segment:**  
+                This segment shows a moderate, narrow spread around a middle range log value, indicating a relatively consistent but modest contribution from these customers.  
+              • **High CLTV Segment:**  
+                Even after transformation, this group exhibits a wider spread with several outliers above the typical range. The presence of these outliers warns that a small fraction of customers are driving significant value variability.
+
+            - **Business Implications:**  
+              The log scale helps in highlighting the subtle differences between segments that are obscured by raw monetary values. For strategic targeting:
+                - Olist might explore tailored retention or upsell strategies for the High CLTV group, given their variability and occasional high contribution.  
+                - Optimizing engagement in the Medium segment could help lift lower-performing customers without the distortion of extreme outliers.
+                - The clear separation in distributions indicates that different segments might need different treatment in Olist's marketing and customer relationship management strategies.
+
+        """
+    )
 
 with st.expander("🧬 Scatterplots"):
     scatter_df = rfm_cltv_df.copy()
