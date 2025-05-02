@@ -170,6 +170,51 @@ Thus, the predicted 12-month revenue appears lower than the past 12 months.
 BG/NBD (Pareto/NBD) and Gamma-Gamma models we require at least two purchases to estimate recency/frequency parameters. Without a repeat purchase, we can’t infer their “decay rate” or expected future order rate.
 """)
 
+st.markdown("---")
+
+# --- Top Products by CLTV Segment ---
+st.subheader("🏆 Top Products by CLTV Segment")
+
+top_n = st.slider("Select number of top products to show:", min_value=3, max_value=15, value=5)
+
+# Merge product info with segment info
+product_segment_df = pd.merge(
+    full_orders[['customer_unique_id', 'product_category']],
+    cltv_df[['customer_unique_id', 'CLTV_new_Segment']],
+    on='customer_unique_id', how='inner'
+)
+
+# Count top products per segment
+top_products = (
+    product_segment_df
+    .groupby(['CLTV_new_Segment', 'product_category'])
+    .size()
+    .reset_index(name='purchase_count')
+)
+
+# Sort and pick top N per segment
+top_products = top_products.sort_values(['CLTV_new_Segment', 'purchase_count'], ascending=[True, False])
+top_n_products_per_segment = top_products.groupby('CLTV_new_Segment').head(top_n)
+
+# Plotting
+fig_top_products = px.bar(
+    top_n_products_per_segment,
+    x='product_category',
+    y='purchase_count',
+    color='CLTV_new_Segment',
+    barmode='group',
+    facet_col='CLTV_new_Segment',
+    title=f"Top {top_n} Products Bought by Each CLTV Segment",
+    labels={'purchase_count': 'Number of Purchases', 'product_category': 'Product Category'},
+    height=500
+)
+fig_top_products.update_layout(showlegend=False)
+st.plotly_chart(fig_top_products, use_container_width=True)
+
+st.info("Visualising the most popular products purchased by each CLTV segment")
+
+st.markdown("---")
+
 # --- 5. Cohort Analysis ---
 st.subheader("👥 Customer Cohort Analysis")
 
@@ -251,7 +296,7 @@ fig4 = px.bar(seg_rate, x='CLTV_new_Segment', y='repeat_flag',
     labels={'repeat_flag':'Repeat Purchase Rate'}, title="Repeat Rate by Segment")
 st.plotly_chart(fig4, use_container_width=True)
 
-if st.checkbox("Show Retention Insights"):
+if st.checkbox("Show Retention Insights", key="retention"):
     st.info(
         """
         All the three segments have a low retention rate, further validating the observation that most of the customers are only making one puurchase on the platform. However, if the three segments have to be compared with each other. We can make the following conlusions:
