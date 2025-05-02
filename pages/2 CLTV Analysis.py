@@ -196,7 +196,7 @@ st.plotly_chart(fig3, use_container_width=True)
 if st.checkbox("🔍 Show Cohort Chart Insights", key = "cohort_analysis"):
     st.info(
         """
-        **What we did**  
+        **Methodology followed**  
         • Here I am summing all lifetime revenue from every customer whose first purchase fell in Q1 (or Q2, etc.), not the revenue earned during that quarter. I grouped every customer by the quarter of *their first order*.  
         • For each cohort (the “first_purchase_quarter”), I have plotted:
           1. **customer_count** = number of unique new customers in that quarter  
@@ -219,6 +219,20 @@ fig3 = px.line(
     markers=True, title="Avg Normalized CLTV by Cohort"
 )
 st.plotly_chart(fig3, use_container_width=True)
+
+if st.checkbox("Show CLTV Growth Insights", key="cohort"):
+    st.info("""
+    **Insights on the Graph:**
+
+    - **Distinct Cohort Behavior:**  
+      The graph clearly differentiates between customer cohorts. The High CLTV segment shows consistently higher normalized values compared to the Medium and Low segments. This suggests that even though the High-value segment may comprise fewer customers, they are driving a more significant portion of the overall value.
+
+    - **Stability vs. Variability:**  
+      While the Low and Medium cohorts exhibit stable trends over time—indicating a baseline level of customer value—the High cohort, despite minor fluctuations, remains markedly elevated. This hints at a dynamic purchasing pattern among the top customers, implying that strategies to nurture these relationships could yield high returns.
+
+    - **Normalized vs. Actual CLTV:**  
+      Using normalized CLTV is used here to compare the trends across cohorts, as it puts all values on a comparable scale. This is helpful to understand relative performance over time. 
+      """)
 
 # --- 6. Retention by Segment ---
 st.subheader("🔄 Retention Rate by CLTV Segment")
