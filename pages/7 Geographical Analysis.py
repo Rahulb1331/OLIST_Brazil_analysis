@@ -369,12 +369,10 @@ with st.expander("📈 4. Monthly Revenue Time-Series by State", expanded=False)
         - Help with **regional marketing timing**
 
         **Insights**:
-        - Consistent upward trends may signal strong market penetration.
+        - Consistent upward trends signals strong market penetration.
         - States with flat or declining lines warrant attention or intervention.
         """)
 
-# --- Section 5: 🧭 Top Customer Segments per State ---
-# --- Section 5: 🧭 Top Customer Segments per State ---
 # --- Section 5: 🧭 Top Customer Segments per State ---
 @st.cache_data
 def get_top_segments_by_state(cltv_df, full_orders):
