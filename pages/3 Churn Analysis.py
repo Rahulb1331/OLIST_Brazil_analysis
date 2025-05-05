@@ -228,20 +228,6 @@ st.subheader(f"🧮 Confusion Matrix")
 fig = px.imshow(results['confusion_matrix'], text_auto=True, color_continuous_scale='Blues', labels=dict(x="Predicted", y="Actual"))
 st.plotly_chart(fig)
 
-if st.checkbox("Show insights for model evaluation", key = "key5"):
-    st.info("""
-    **What was done:**
-    - Compared Random Forest model against a Dummy Classifier (predicts most frequent class).
-    - Evaluated using accuracy, precision, recall, F1-score.
-
-    **Why:**
-    - Baseline models help gauge if our model is actually learning patterns.
-
-    **Recommendations:**
-    - If your model barely beats the dummy, rethink feature engineering.
-    - Focus on improving recall and F1-score, especially if churners are minority class.
-    """)
-
 
 # Cross Validation Score
 st.subheader(f"🔁 Cross-Validation Score")
@@ -270,6 +256,10 @@ if st.checkbox("📌 Show Model Comparison Insights", key = "coomparison"):
     **What was done:**
     - Three classifiers (Random Forest, XGBoost, Logistic Regression) were trained, all with class‑imbalance handling.
     - Each were evaluated on accuracy, precision, recall, F1‑score, ROC AUC and 5‑fold cross‑validation.
+    - The models are compared against a Dummy Classifier (predicts most frequent class). It is evaluated using accuracy, precision, recall, F1-score.
+
+    **Why use a Dummy Classifier:**
+    - Baseline models help gauge if the model is actually learning patterns.
 
     **Key Observations:**
     - **Random Forest** tops on overall accuracy (94.3%), recall (99.8%) and cross‑val score (93.99%). It catches nearly all churners but risks more false positives. 
