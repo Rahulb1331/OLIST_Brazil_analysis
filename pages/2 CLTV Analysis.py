@@ -84,17 +84,6 @@ with st.expander("🧩 How segments were defined"):
 # --- 5. CLTV Segments Explanation ---
 st.subheader("🎯 CLTV Segments Defined")
 
-#with st.expander("🧩 How CLTV Segments Were Created"):
- #   st.markdown("""
-#Customers were segmented based on normalized CLTV scores:
-
-#- **High Value** (20%-50%)
-#- **Medium Value** (50%-80%)
-#- **Low Value** (Bottom 20%)
-
-#Segments help prioritize marketing and retention efforts.
-#""")
-
 st.dataframe(cltv_df.head(10))
 
 # --- 3. Visualizations ---
@@ -198,7 +187,8 @@ with st.expander("Insights on Model Fit"):
             - Periodic retraining and parameter tuning can reduce these errors.
         """
     )
-
+with st.expander("Predicted CLTV using BG/NBD + Gamma-Gamma"):
+    st.dataframe(summary_df.head(10))
 
 # --- 4. Past vs Predicted Revenue ---
 st.subheader("💵 Revenue Comparison: Past vs Predicted")
