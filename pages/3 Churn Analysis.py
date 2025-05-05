@@ -79,7 +79,7 @@ st.plotly_chart(fig)
 if st.checkbox("Show insights for data preparation", key = "key1"):
     st.info("""
     **What was done:**
-    - Customers were labeled as churned if they did not purchase in the 180 days after a cutoff.
+    - Customers were labeled as churned if they did not purchase in the 180 days after the cutoff date (i.e., the date on which the last order was recorded).
     - Features are built only from the data available **before** the cutoff to prevent leakage.
 
     **Why:**
