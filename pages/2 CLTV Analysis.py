@@ -136,36 +136,21 @@ with st.expander("📦 Box Plot of CLTV"):
 
         """
     )
-# Recency distribution
-fig_recency = px.histogram(summary, x="recency", nbins=50, marginal="rug", title="Recency Distribution", opacity=0.7)
-fig_recency.update_layout(bargap=0.1)
-st.plotly_chart(fig_recency, use_container_width=True)
 
-# T distribution
-fig_T = px.histogram(summary, x="T", nbins=50, marginal="rug", title="T Distribution", opacity=0.7)
-fig_T.update_layout(bargap=0.1)
-st.plotly_chart(fig_T, use_container_width=True)
+with st.expander("Distribution Plots"):
+    # Recency distribution
+    fig_recency = px.histogram(summary_df, x="recency", nbins=50, marginal="rug", title="Recency Distribution", opacity=0.7)
+    fig_recency.update_layout(bargap=0.1)
+    st.plotly_chart(fig_recency, use_container_width=True)
+
+    # T distribution
+    fig_T = px.histogram(summary_df, x="T", nbins=50, marginal="rug", title="T Distribution", opacity=0.7)
+    fig_T.update_layout(bargap=0.1)
+    st.plotly_chart(fig_T, use_container_width=True)
 
 
-with st.expander("🧬 Scatterplots"):
+with st.expander("🧬 Scatterplot"):
     scatter_df = rfm_cltv_df.copy()
-
-    color_map = {
-     "High CLTV": "#636EFA",
-     "Medium CLTV": "#EF553B",
-     "Low CLTV": "#00CC96"
-     }
-    
-    fig4 = px.scatter(
-        scatter_df,
-        x="F",
-        y="M",
-        color="CLTV_new_Segment",
-        color_discrete_map=color_map,
-        title="Frequency vs Monetary Value by CLTV Segment",
-        size_max=10
-    )
-    st.plotly_chart(fig4, use_container_width=True)
 
     fig5 = px.scatter(
         scatter_df,
