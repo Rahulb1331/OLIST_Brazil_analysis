@@ -156,7 +156,7 @@ with st.expander("📦 1. CLTV by State and City", expanded=False):
         ).sort_values("cltv_per_cust", ascending=False).head(top_n).reset_index()
 
         st.subheader(f"Top {top_n} States by Avg CLTV per customer")
-        st.bar_chart(top_df.set_index("customer_state")["total_cltv"])
+        st.bar_chart(top_df.set_index("customer_state")["total_revenue"])
 
     else:
         #top_df = cltv_geo_df.groupby("customer_city").agg(
