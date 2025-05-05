@@ -164,7 +164,7 @@ with st.expander("Distribution Plots"):
     **Integrated Insights from Recency and T Distribution Histograms:**
 
     - **Understanding Customer Behavior over Time:**  
-        The recency histogram reveals two distinct segments – one with very recent transactions (low recency) and another with customers inactive for nearly a year (high recency). In parallel, the T distribution histogram displays a heavy right skew with a prominent peak around T = 350, indicating that many customers have been observed for a long time. This juxtaposition suggests that while a significant portion of Olist's customer base is established (long T), only a subset of these actively transact.
+        The recency histogram reveals two distinct segments – one with very recent transactions (low recency) and another with customers inactive for nearly a year (high recency). In parallel, the T distribution histogram displays a heavy right skew with a prominent peak around T = 360, indicating that many customers have been observed for a long time. This juxtaposition suggests that while a significant portion of Olist's customer base is established (long T), only a subset of these actively transact.
 
     - **Implications for BG/NBD & Gamma Gamma Modeling:**  
       In the BG/NBD model, a low recency combined with a long observation period (high T) bolsters the confidence in predicting future transactions and enhancing CLTV. Customers who are both long-term (high T) and active (low recency) are valuable for targeted promotions and upsell strategies. Conversely, customers with high recency despite a long observation period may indicate potential churn, which could skew the Gamma Gamma model's revenue estimates if not adjusted for properly.
@@ -172,7 +172,6 @@ with st.expander("Distribution Plots"):
     - **Strategic Recommendations for Olist:**  
       - **Targeted Re-engagement:** Deploy campaigns to re-engage customers with high recency and long observation durations to awaken their dormant behavior.  
       - **Refined Customer Segmentation:** Differentiate between active, established customers and those with a prolonged inactive period even if they’ve been around for a while. Tailor loyalty programs and personalized offers accordingly.  
-      - **Model Calibration:** Use these insights to fine-tune your BG/NBD parameters—ensuring that predictions appropriately reflect the value of long-standing but active customers, while accounting for the risk from those showing inactivity over similar extended periods.
 
     Combining these insights provides a holistic understanding of customer lifetime dynamics, enabling more accurate CLTV predictions and more focused strategic initiatives.
     """)
@@ -190,6 +189,29 @@ with st.expander("🧬 RFM Vs CLTV Scatterplot"):
         size_max=10
     )
     st.plotly_chart(fig5, use_container_width=True)
+    # --- Integrated Insights using st.info() ---
+    if st.checkbox("Show Insights and Inferences", key="rfmvcltv"):
+        st.info(
+            """
+            **Integrated Insights from RFM Score vs Normalized CLTV Analysis:**
+
+            - **Customer Segmentation & Behavior:**  
+              The scatter plot reveals that the high value (pink) group—customers with a high normalized CLTV—tend to cluster at lower RFM scores. This indicates such customers exhibit favorable recency, frequency, and monetary behaviors, making them ideal candidates for retention and upselling. Conversely, customers with higher RFM scores tend to have lower normalized CLTV, suggesting they might be less engaged or more sporadic in their transactions.
+
+            - **The Role of Normalized CLTV:**  
+              Normalized CLTV is employed to standardize the raw CLTV values into a 0-to-1 range. This transformation is crucial as it:
+                • **Facilitates Comparison:** Standardizing enables a direct comparison across diverse customer segments, irrespective of the inherent scale of raw monetary values.
+                • **Highlights Patterns:** The normalized range helps in easily spotting trends, clusters, and outliers, which might have been obscured by large value disparities in raw data.
+                • **Integrates with Predictive Models:** Using a normalized metric ensures that subsequent modeling or clustering algorithms are robust and not skewed by extreme values.
+
+            - **Strategic Recommendations for Olist:**  
+              • **Target High-Value Customers:** Focus on maintaining and expanding engagement with customers in the High CLTV segment, as their behaviors indicate strong loyalty and potential for additional upsell.  
+              • **Boost Medium Segment Engagement:** For customers in the Medium CLTV segment, calculated interventions—such as personalized offers—could help shift them into the higher CLTV bracket.  
+              • **Revisit Low CLTV Group:** Investigate the reasons behind the low CLTV scores among customers with higher RFM scores. They may need reactivation campaigns or adjustments in service delivery to enhance satisfaction and transaction frequency.
+
+            By combining the RFM scoring with a normalized CLTV metric, Olist gains a clearer, more actionable overview of customer value dynamics, making it easier to tailor strategic initiatives and improve overall revenue management.
+        """
+    )
 
 # --- 3. Model Performance Summary ---
 st.subheader("📈 Model Performance & Evaluation")
