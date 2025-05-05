@@ -148,6 +148,20 @@ with st.expander("Distribution Plots"):
     fig_T.update_layout(bargap=0.1)
     st.plotly_chart(fig_T, use_container_width=True)
 
+    if st.checkbox("Get Insights", key="distribution"):
+        st.info("""
+    **What is `T` in CLTV Analysis?**
+
+    In the BG/NBD model, **`T`** represents the **"customer's age"** in the dataset. It is calculated as the time (in days) between a customer's **first purchase** and the **end of the observation period**.
+
+    This value helps the model understand how long a customer has been "alive" or observed in your system. The longer the `T`, the more time the customer has had to make repeat purchases, which is crucial for predicting future behavior.
+
+    **Formula used:**
+    `T = (date of analysis - first purchase date)`
+
+    This is essential for estimating the customer’s lifetime value (CLTV) accurately.
+    """)
+
 
 with st.expander("🧬 Scatterplot"):
     scatter_df = rfm_cltv_df.copy()
