@@ -261,6 +261,21 @@ if st.checkbox("Show insights for model performance", key = "key6"):
     - Tune model thresholds depending on your business objective (maximize recall if losing a customer is costly).
     """)
 
+# --- Prediction Output ---
+st.header("📋 Sample Predictions")
+results_df = X_test.copy()
+results_df["actual_churn"] = y_test.values
+results_df["predicted_churn"] = results["model"].predict(X_test)
+results_df["churn_probability"] = results["proba"]
+st.dataframe(results_df.head(10))
+
+st.download_button(
+    "📥 Download Full Predictions",
+    data=results_df.to_csv(index=False),
+    file_name="churn_predictions.csv",
+    mime="text/csv"
+)
+
 # --- Model Comparison
 st.header("📈 Model Comparison Table")
 
