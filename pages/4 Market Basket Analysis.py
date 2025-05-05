@@ -141,6 +141,32 @@ if not multi_item_txns.empty:
         )
         st.plotly_chart(fig1, use_container_width=True)
 
+        # --- Combined Insights in an Expander ---
+        with st.expander("Show Combined Market Basket Analysis Insights"):
+            st.info(
+            """
+                **Integrated Insights from Market Basket Analysis Across CLTV Segments:**
+
+                - **High CLTV Segment:**  
+                  The network graph for high CLTV customers reveals strong, well-defined clusters of product associations. This indicates that these customers tend to purchase complementary products in a consistent, predictable manner. Such tight clusters suggest that high-value customers benefit from specific product pairings, making them excellent candidates for premium bundles and targeted cross-selling efforts.
+
+                - **Medium CLTV Segment:**  
+                  The medium segment exhibits moderately dense connections between product nodes. The associations here appear less tightly knit compared to the high segment, reflecting a blend of planned and occasional purchases. This points to an opportunity for interventions—like personalized recommendations—that can help shift these customers towards higher transaction values.
+
+                - **Low CLTV Segment:**  
+                  In contrast, the network graph for low CLTV customers shows a more dispersed and sparse set of connections. This pattern suggests that these customers have sporadic and less predictable purchasing behavior. Such a network structure may signal an opportunity to stimulate complementary purchases through targeted promotions or by optimizing the recommendation engine.
+
+                **Overall Strategic Implications:**  
+                The varying connectivity across the product networks indicates different purchasing patterns by CLTV segments. Recognizing these differences allows Olist to:
+                  • Focus on reinforcing strong product bundles among high CLTV customers.  
+                  • Leverage tailored strategies to move medium CLTV customers towards more consistent buying behaviors.  
+                  • Develop targeted interventions to encourage complementary purchases in low CLTV segments, potentially increasing overall basket value.
+
+                This consolidated insight not only highlights the distinct nature of customer behavior across CLTV segments but also guides Olist in tailoring differentiated marketing and merchandising strategies to maximize revenue.
+                """
+            )
+
+        
         # --- Dead-End Products Section ---
         st.subheader("🚫 Dead-End Products (No Follow-up Sales)")
         dead_ends = set()
