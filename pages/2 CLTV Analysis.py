@@ -193,8 +193,9 @@ with st.expander("Insights on Model Fit"):
         - Each customer has their own average spend, drawn from a Gamma distribution.
         - Individual transaction amounts are Gamma-distributed around each customer's average.
         
-        - Models assume customer dropout and spending patterns are stable over time.
-        - Evaluation metrics:
+        Models assume customer dropout and spending patterns are stable over time.
+        
+        **Evaluation metrics:**
             - MAE of {mae:.2f} indicates average deviation of predictions from actual CLTV.
             - RMSE of {rmse:.2f} highlights occasional larger errors.
             - Periodic retraining and parameter tuning can reduce these errors.
