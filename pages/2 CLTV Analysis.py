@@ -150,16 +150,18 @@ with st.expander("Distribution Plots"):
 
     if st.checkbox("Get Insights", key="distribution"):
         st.info("""
-    **What is `T` in CLTV Analysis?**
+    **Recency vs T in CLTV Modeling**
 
-    In the BG/NBD model, **`T`** represents the **"customer's age"** in the dataset. It is calculated as the time (in days) between a customer's **first purchase** and the **end of the observation period**.
+    - **Recency**: Time between a customer's **first and most recent** purchase.
+      - Formula: `recency = last_purchase_date - first_purchase_date`
+      - It shows **how recently** a customer has bought from you.
 
-    This value helps the model understand how long a customer has been "alive" or observed in your system. The longer the `T`, the more time the customer has had to make repeat purchases, which is crucial for predicting future behavior.
+    - **T**: Time between the customer's **first purchase** and the **end of the analysis period**.
+      - Formula: `T = current_date - first_purchase_date`
+      - It represents **how long** the customer has been observed. 
+      - The longer the `T`, the more time the customer has had to make repeat purchases, which is crucial for predicting future behavior.
 
-    **Formula used:**
-    `T = (date of analysis - first purchase date)`
-
-    This is essential for estimating the customer’s lifetime value (CLTV) accurately.
+    These two metrics are crucial in determining a customer’s purchasing behavior and in predicting future activity using the BG/NBD model.
     """)
 
 
