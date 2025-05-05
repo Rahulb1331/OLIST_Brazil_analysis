@@ -170,20 +170,7 @@ with st.expander("📦 1. CLTV by State and City", expanded=False):
         - A city with fewer customers but high avg CLTV likely has loyal or high-spending buyers.
         - Large cities with low avg CLTV may need improved engagement or upselling strategies.
         """)
-    avg_cltv_by_city = (
-    full_orders
-    .groupby('customer_city')
-    .agg(
-      total_revenue=('payment_value','sum'),
-      unique_customers=('customer_unique_id','nunique')
-    )
-    .assign(
-      cltv_per_cust=lambda df: df['total_revenue'] / df['unique_customers']
-    )
-    .sort_values('cltv_per_cust', ascending=False)
-    .head(top_n)
-    )
-    st.bar_chart(avg_cltv_by_city['historical_cltv_per_cust'])
+    
 # --- Section 2: Monthly Sales/Orders Map with Pydeck ---
 with st.expander("🌍 2. Monthly Revenue/Orders Map", expanded=True):
     geo_pd = get_geo_bubble_data(full_orders, geolocation)
