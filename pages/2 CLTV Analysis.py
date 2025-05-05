@@ -200,9 +200,9 @@ with st.expander("🧬 RFM Vs CLTV Scatterplot"):
 
             - **The Role of Normalized CLTV:**  
               Normalized CLTV is employed to standardize the raw CLTV values into a 0-to-1 range. This transformation is crucial as it:
-                • **Facilitates Comparison:** Standardizing enables a direct comparison across diverse customer segments, irrespective of the inherent scale of raw monetary values.
-                • **Highlights Patterns:** The normalized range helps in easily spotting trends, clusters, and outliers, which might have been obscured by large value disparities in raw data.
-                • **Integrates with Predictive Models:** Using a normalized metric ensures that subsequent modeling or clustering algorithms are robust and not skewed by extreme values.
+              • **Facilitates Comparison:** Standardizing enables a direct comparison across diverse customer segments, irrespective of the inherent scale of raw monetary values.
+              • **Highlights Patterns:** The normalized range helps in easily spotting trends, clusters, and outliers, which might have been obscured by large value disparities in raw data.
+              • **Integrates with Predictive Models:** Using a normalized metric ensures that subsequent modeling or clustering algorithms are robust and not skewed by extreme values.
 
             - **Strategic Recommendations for Olist:**  
               • **Target High-Value Customers:** Focus on maintaining and expanding engagement with customers in the High CLTV segment, as their behaviors indicate strong loyalty and potential for additional upsell.  
