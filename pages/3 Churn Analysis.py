@@ -247,35 +247,6 @@ if st.checkbox("Show insights for model evaluation", key = "key5"):
 st.subheader(f"🔁 Cross-Validation Score")
 st.write(f"**{results['cross_val']:.4f}**")
 
-if st.checkbox("Show insights for model performance", key = "key6"):
-    st.info("""
-    **What was done:**
-    - Evaluated model using ROC AUC and Precision-Recall curves.
-    - Cross-validated Random Forest across 5 folds.
-
-    **Why:**
-    - ROC AUC summarizes performance across thresholds.
-    - Precision-Recall is better suited when classes are imbalanced.
-
-    **Recommendations:**
-    - Tune model thresholds depending on your business objective (maximize recall if losing a customer is costly).
-    """)
-
-# --- Prediction Output ---
-st.header("📋 Sample Predictions")
-results_df = X_test.copy()
-results_df["actual_churn"] = y_test.values
-results_df["predicted_churn"] = results["model"].predict(X_test)
-results_df["churn_probability"] = results["proba"]
-st.dataframe(results_df.head(10))
-
-st.download_button(
-    "📥 Download Full Predictions",
-    data=results_df.to_csv(index=False),
-    file_name="churn_predictions.csv",
-    mime="text/csv"
-)
-
 # --- Model Comparison
 st.header("📈 Model Comparison Table")
 
@@ -294,7 +265,7 @@ comparison_df = pd.DataFrame([
 
 st.dataframe(comparison_df.sort_values(by="F1-Score", ascending=False))
 
-if st.checkbox("📌 Show Model Comparison Insights", key = "key7"):
+if st.checkbox("📌 Show Model Comparison Insights", key = "coomparison"):
     st.info("""
     **What was done:**
     - Three classifiers (Random Forest, XGBoost, Logistic Regression) were trained, all with class‑imbalance handling.
@@ -312,3 +283,20 @@ if st.checkbox("📌 Show Model Comparison Insights", key = "key7"):
     - Olist can design retention offers on customers with churn probability between 0.5 to 0.8 (uncertain cases).
     - Highly likely churners (>0.8) may require aggressive win-back campaigns.
     """)
+
+
+# --- Prediction Output ---
+st.header("📋 Sample Predictions")
+results_df = X_test.copy()
+results_df["actual_churn"] = y_test.values
+results_df["predicted_churn"] = results["model"].predict(X_test)
+results_df["churn_probability"] = results["proba"]
+st.dataframe(results_df.head(10))
+
+st.download_button(
+    "📥 Download Full Predictions",
+    data=results_df.to_csv(index=False),
+    file_name="churn_predictions.csv",
+    mime="text/csv"
+)
+
