@@ -136,11 +136,20 @@ def run_customer_segmentation(customer_features):
 # --- Section 1: CLTV by State and City ---
 with st.expander("📦 1. CLTV by State and City", expanded=False):
     cltv_geo_df = prepare_cltv_geo_df(full_orders, cltv_df)
+    # new lines
+    unique_cltv = (
+         cltv_geo_df[
+             ['customer_unique_id','customer_state','customer_city','better_cltv']
+         ]
+         .drop_duplicates(['customer_unique_id','customer_state','customer_city'])
+     )
+    # new lines end here    
     group_choice = st.selectbox("Group by", ["State", "City"])
     top_n = st.slider("Select Top N", min_value=5, max_value=30, value=10)
 
     if group_choice == "State":
-        top_df = cltv_geo_df.groupby("customer_state").agg(
+        #top_df = cltv_geo_df.groupby("customer_state").agg(
+        top_df = unique_cltv.groupby("customer_state").agg(
             total_cltv=("better_cltv", "sum"),
             unique_customers=("customer_unique_id", pd.Series.nunique)
         ).sort_values("total_cltv", ascending=False).head(top_n).reset_index()
@@ -149,7 +158,8 @@ with st.expander("📦 1. CLTV by State and City", expanded=False):
         st.bar_chart(top_df.set_index("customer_state")["total_cltv"])
 
     else:
-        top_df = cltv_geo_df.groupby("customer_city").agg(
+        #top_df = cltv_geo_df.groupby("customer_city").agg(
+        top_df = unique_cltv.groupby("customer_city").agg(            
             total_cltv=("better_cltv", "sum"),
             unique_customers=("customer_unique_id", pd.Series.nunique)
         ).sort_values("total_cltv", ascending=False).head(top_n).reset_index()
