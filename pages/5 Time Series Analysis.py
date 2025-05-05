@@ -221,7 +221,7 @@ with tab3:
             **Revenue Forecast Analysis & Strategic Insights for Olist:**
 
             - **Forecast Trend Analysis:**  
-              The solid blue line represents the predicted revenue trajectory from January 2017 to January 2019. This trend line helps in visualizing the expected growth pattern. An upward trend could signal effective past strategies that might be further capitalized upon, while a downward or flat trend suggests a need for new measures.
+              The solid blue line represents the predicted revenue trajectory from January 2017 to March 2019. This trend line helps in visualizing the expected growth pattern. An upward trend could signal effective past strategies that might be further capitalized upon, while a downward or flat trend suggests a need for new measures.
 
             - **Understanding Confidence Intervals:**  
               The dotted lines (upper and lower bounds) alongside the filled area denote the confidence interval around the forecast. Narrow intervals generally indicate higher certainty in the prediction, whereas wider intervals signal increased uncertainty, highlighting periods where external factors or market volatility might have a stronger impact.
@@ -268,31 +268,28 @@ with tab3:
             """
             **Interpreting the Forecast Accuracy Metrics:**
 
-            - **MAE (222,806):**  
-              This metric represents the average absolute error between the forecasted and actual revenue. In isolation, it gives a general sense of error magnitude. However, its value must be contextualized by the overall revenue scale to assess if this error is acceptable.
+            **1. Interpretation of Accuracy Metrics:**
+            - **MAE (≈222,806) and RMSE (≈280,451):**  
+              In the context of revenues measured in millions, these absolute error metrics indicate that, overall, the model’s performance is quite acceptable. The errors represent only a small fraction of monthly revenue.
+            - **MAPE (≈23,725.54%):**  
+              This exceptionally high value is a result of percentage errors being vastly inflated by the extremely low revenue figures in some months. Hence, MAPE may not be the most reliable measure here.
 
-            - **RMSE (280,451):**  
-              Being higher than MAE, the RMSE reflects that there are instances with large deviations. The fact that RMSE is significantly higher suggests that the model occasionally over- or under-predicts by a sizable margin, pointing to some large forecasting errors.
+            **2. Data Quality and Seasonal Considerations:**
+            - Observations for Sept–Dec 2016 and Sept–Oct 2018 display very low revenue values, which could be due to limited or outdated data entries. These periods contribute disproportionately to the MAPE.
+            - The low revenue months cause even modest absolute errors to register as astronomically high percentage errors, skewing the MAPE metric.
 
-            - **MAPE (23725.54%):**  
-              This exceptionally high percentage error typically indicates that the model has encountered instances where the actual values are very low (or near zero) or that outliers are skewing the metric. It suggests caution when interpreting percentage errors in this context and might warrant complementary error metrics or transformations.
+            **3. Actionable Recommendations:**
+            - **Data Quality Enhancement:**  
+              Investigate and potentially correct the data for the low-value months (Sept–Dec 2016 and Sept–Oct 2018) to ensure they reflect true operational figures.
+            - **Focus on Absolute Metrics:**  
+              Prioritize MAE and RMSE for performance evaluation, as these provide a more relevant perspective given the revenue scale.
+            - **Model Refinement:**  
+              Consider incorporating additional variables or adjusting for seasonal effects/outliers to better handle gap periods and capture revenue volatility.
+            - **Operational and Marketing Alignment:**  
+              Use forecast trends in conjunction with confirmed high-confidence periods to optimize marketing strategies and inventory planning. Address anomalies proactively by reviewing the underlying causes of low-data months.
 
-            **Strategic Insights & Recommendations for Olist:**
-    
-            1. **Investigate Outliers and Low-Volume Periods:**  
-               A soaring MAPE can be a sign of revenue values that are very small or erratic, which dramatically inflate percentage errors. Analyzing these periods could help identify if special events, data quality issues, or seasonal effects are at play.
-
-            2. **Model Refinement:**  
-               The discrepancy between MAE and RMSE indicates that while the model performs reasonably on average, some high-error instances adversely affect the performance. Consider either re-calibrating the model or introducing additional predictors (such as market signals or promotional events) to better capture these fluctuations.
-
-            3. **Enhanced Error Evaluation:**  
-               Given the skewed MAPE results, using additional or alternative error measurements—such as symmetric MAPE or incorporating revenue scaling—might provide a more balanced view of forecast performance.
-
-            4. **Operational Preparedness:**  
-               Use these error insights as a cue for operational planning. Periods with higher forecast variability may require improved contingency measures such as flexible resource allocation or proactive inventory adjustments.
-
-            By delving into these metrics and refining the forecasting model, Olist can enhance the reliability of future predictions and better drive decision-making in marketing, operational planning, and overall business strategy.
-            """
+            This integrated view of the revenue forecast, alongside model accuracy insights, will help guide strategic decisions and operational improvements at Olist.
+             """
         )
 
 with tab4:
