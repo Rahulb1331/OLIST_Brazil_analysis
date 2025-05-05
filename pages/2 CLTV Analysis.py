@@ -163,18 +163,18 @@ with st.expander("Distribution Plots"):
 
     **Integrated Insights from Recency and T Distribution Histograms:**
 
-        - **Understanding Customer Behavior over Time:**  
-          The recency histogram reveals two distinct segments – one with very recent transactions (low recency) and another with customers inactive for nearly a year (high recency). In parallel, the T distribution histogram displays a heavy right skew with a prominent peak around T = 350, indicating that many customers have been observed for a long time. This juxtaposition suggests that while a significant portion of Olist's customer base is established (long T), only a subset of these actively transact.
+    - **Understanding Customer Behavior over Time:**  
+        The recency histogram reveals two distinct segments – one with very recent transactions (low recency) and another with customers inactive for nearly a year (high recency). In parallel, the T distribution histogram displays a heavy right skew with a prominent peak around T = 350, indicating that many customers have been observed for a long time. This juxtaposition suggests that while a significant portion of Olist's customer base is established (long T), only a subset of these actively transact.
 
-        - **Implications for BG/NBD & Gamma Gamma Modeling:**  
-          In the BG/NBD model, a low recency combined with a long observation period (high T) bolsters the confidence in predicting future transactions and enhancing CLTV. Customers who are both long-term (high T) and active (low recency) are valuable for targeted promotions and upsell strategies. Conversely, customers with high recency despite a long observation period may indicate potential churn, which could skew the Gamma Gamma model's revenue estimates if not adjusted for properly.
+    - **Implications for BG/NBD & Gamma Gamma Modeling:**  
+      In the BG/NBD model, a low recency combined with a long observation period (high T) bolsters the confidence in predicting future transactions and enhancing CLTV. Customers who are both long-term (high T) and active (low recency) are valuable for targeted promotions and upsell strategies. Conversely, customers with high recency despite a long observation period may indicate potential churn, which could skew the Gamma Gamma model's revenue estimates if not adjusted for properly.
 
-        - **Strategic Recommendations for Olist:**  
-          - **Targeted Re-engagement:** Deploy campaigns to re-engage customers with high recency and long observation durations to awaken their dormant behavior.  
-          - **Refined Customer Segmentation:** Differentiate between active, established customers and those with a prolonged inactive period even if they’ve been around for a while. Tailor loyalty programs and personalized offers accordingly.  
-          - **Model Calibration:** Use these insights to fine-tune your BG/NBD parameters—ensuring that predictions appropriately reflect the value of long-standing but active customers, while accounting for the risk from those showing inactivity over similar extended periods.
+    - **Strategic Recommendations for Olist:**  
+      - **Targeted Re-engagement:** Deploy campaigns to re-engage customers with high recency and long observation durations to awaken their dormant behavior.  
+      - **Refined Customer Segmentation:** Differentiate between active, established customers and those with a prolonged inactive period even if they’ve been around for a while. Tailor loyalty programs and personalized offers accordingly.  
+      - **Model Calibration:** Use these insights to fine-tune your BG/NBD parameters—ensuring that predictions appropriately reflect the value of long-standing but active customers, while accounting for the risk from those showing inactivity over similar extended periods.
 
-        Combining these insights provides a holistic understanding of customer lifetime dynamics, enabling more accurate CLTV predictions and more focused strategic initiatives.
+    Combining these insights provides a holistic understanding of customer lifetime dynamics, enabling more accurate CLTV predictions and more focused strategic initiatives.
     """)
 
 
