@@ -107,11 +107,13 @@ if st.checkbox("Show insights for feature exploration", key = "key2"):
     - Visualized recency (days since last purchase) against churn behavior.
 
     **Why:**
-    - Understanding correlations helps in feature selection and model building.
+    - **Recency** is computed using the customer’s **last pre‑cutoff** purchase and the cutoff date (max_date − 180 days).
+    - **Churn** is flagged **only** if they make **no** purchases **after** that cutoff window.
+    - So a point like **561 days, churn = 0** means the customer went 561 days before cutoff but **did** return in the post‑cutoff period—hence they aren’t marked as churned.
 
     **Recommendations:**
-    - Higher recency (longer time since last purchase) correlates with higher churn.
-    - Lower CLTV segments show higher churn rates; target them with retention campaigns.
+    - When interpreting recency vs. churn, remember these two windows are separate—consider showing both pre‑cutoff recency and “days since last order overall” if you need deeper context.
+    - This can be used to identify “at‑risk” customers who had long pre‑cutoff gaps but eventually returned (case in point, a non churned customer with days since last purchase being 561 days), and see if they need different re‑engagement tactics.
     """)
 
 le = LabelEncoder()
