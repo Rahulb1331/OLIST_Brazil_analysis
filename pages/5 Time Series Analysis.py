@@ -214,6 +214,39 @@ with tab3:
     fig_ci.update_layout(title="💡 Revenue Forecast with Confidence Intervals", xaxis_title="Date", yaxis_title="Revenue")
     st.plotly_chart(fig_ci, use_container_width=True)
 
+    # Interactive checkbox to display insights below the graph
+    if st.checkbox("Show Revenue Forecast Insights", key ="confidennce_interval"):
+        st.info(
+            """
+            **Revenue Forecast Analysis & Strategic Insights for Olist:**
+
+            - **Forecast Trend Analysis:**  
+              The solid blue line represents the predicted revenue trajectory from January 2017 to January 2019. This trend line helps in visualizing the expected growth pattern. An upward trend could signal effective past strategies that might be further capitalized upon, while a downward or flat trend suggests a need for new measures.
+
+            - **Understanding Confidence Intervals:**  
+              The dotted lines (upper and lower bounds) alongside the filled area denote the confidence interval around the forecast. Narrow intervals generally indicate higher certainty in the prediction, whereas wider intervals signal increased uncertainty, highlighting periods where external factors or market volatility might have a stronger impact.
+
+            - **Seasonal and Cyclical Patterns Identification:**  
+              If there are recurring patterns within the forecast (e.g., periodic peaks or troughs), these may correspond to seasonal trends, festive seasons, or promotional periods. Recognizing such cycles allows Olist to adjust marketing efforts or operational resource allocation proactively.
+
+            **Actionable Recommendations:**
+    
+            1. **Enhance Marketing Initiatives:**  
+               Capitalize on periods with a strong upward forecast by deploying targeted marketing campaigns and upselling strategies to further boost revenue.
+
+            2. **Mitigate Uncertainty During High Variability:**  
+               In phases where the confidence interval widens, investigate potential external factors influencing the revenue. This is a good opportunity to review competitive activity or sudden market changes and adjust strategies accordingly.
+
+            3. **Operational Readiness:**  
+               Align inventory and operational planning with the forecasted revenue trends. During predicted peak revenue periods, ensure that supply chains and customer service are well-prepared to handle the increased demand.
+
+            4. **Continuous Model Improvement:**  
+               Regularly update and refine the forecast model with additional data and identify factors not previously included (such as promotional events or economic indicators) to improve forecasting accuracy.
+
+            These insights provide a strategic roadmap, enabling Olist to synchronize marketing, operations, and sales initiatives with the anticipated revenue trends, thereby fostering a proactive approach to business management.
+            """
+        )
+    
     st.markdown("---")
     st.subheader("📏 Forecast Accuracy Metrics")
 
@@ -228,6 +261,39 @@ with tab3:
     st.metric("MAE (Mean Absolute Error)", f"{mae:,.0f}")
     st.metric("RMSE (Root Mean Squared Error)", f"{rmse:,.0f}")
     st.metric("MAPE (Mean Absolute Percentage Error)", f"{mape:.2f}%")
+
+    # An interactive checkbox to show insights based on these metrics
+    if st.checkbox("Show Forecast Accuracy Insights", key = "metrics_insight):
+        st.info(
+            """
+            **Interpreting the Forecast Accuracy Metrics:**
+
+            - **MAE (222,806):**  
+              This metric represents the average absolute error between the forecasted and actual revenue. In isolation, it gives a general sense of error magnitude. However, its value must be contextualized by the overall revenue scale to assess if this error is acceptable.
+
+            - **RMSE (280,451):**  
+              Being higher than MAE, the RMSE reflects that there are instances with large deviations. The fact that RMSE is significantly higher suggests that the model occasionally over- or under-predicts by a sizable margin, pointing to some large forecasting errors.
+
+            - **MAPE (23725.54%):**  
+              This exceptionally high percentage error typically indicates that the model has encountered instances where the actual values are very low (or near zero) or that outliers are skewing the metric. It suggests caution when interpreting percentage errors in this context and might warrant complementary error metrics or transformations.
+
+            **Strategic Insights & Recommendations for Olist:**
+    
+            1. **Investigate Outliers and Low-Volume Periods:**  
+               A soaring MAPE can be a sign of revenue values that are very small or erratic, which dramatically inflate percentage errors. Analyzing these periods could help identify if special events, data quality issues, or seasonal effects are at play.
+
+            2. **Model Refinement:**  
+               The discrepancy between MAE and RMSE indicates that while the model performs reasonably on average, some high-error instances adversely affect the performance. Consider either re-calibrating the model or introducing additional predictors (such as market signals or promotional events) to better capture these fluctuations.
+
+            3. **Enhanced Error Evaluation:**  
+               Given the skewed MAPE results, using additional or alternative error measurements—such as symmetric MAPE or incorporating revenue scaling—might provide a more balanced view of forecast performance.
+
+            4. **Operational Preparedness:**  
+               Use these error insights as a cue for operational planning. Periods with higher forecast variability may require improved contingency measures such as flexible resource allocation or proactive inventory adjustments.
+
+            By delving into these metrics and refining the forecasting model, Olist can enhance the reliability of future predictions and better drive decision-making in marketing, operational planning, and overall business strategy.
+            """
+        )
 
 with tab4:
     st.subheader("📦 Category-wise Revenue Trends")
