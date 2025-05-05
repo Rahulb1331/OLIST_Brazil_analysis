@@ -180,7 +180,7 @@ rmse = mean_squared_error(eval_df['better_cltv'], eval_df['predicted_cltv']) ** 
 with st.expander("Insights on Model Fit"):
     st.info(
         f"""
-        ### 📊 BG/NBD & Gamma-Gamma Model Assumptions
+        ### 📊 BG/NBD & Gamma-Gamma Model Assumptions And Evaluation Metrics Result
 
         **🔁 BG/NBD (Purchase Frequency Model):**
         - Customers purchase at a constant but varied rate (Poisson process).
