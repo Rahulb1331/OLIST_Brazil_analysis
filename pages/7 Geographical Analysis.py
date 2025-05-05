@@ -150,7 +150,7 @@ with st.expander("📦 1. CLTV by State and City", expanded=False):
     if group_choice == "State":
         #top_df = cltv_geo_df.groupby("customer_state").agg(
         top_df = full_orders.groupby("customer_state").agg(
-            total_cltv=("payment_value", "sum"),
+            total_revenue=("payment_value", "sum"),
             unique_customers=("customer_unique_id", pd.Series.nunique)
         ).assign(cltv_per_cust=lambda df: df['total_revenue'] / df['unique_customers']
         ).sort_values("cltv_per_cust", ascending=False).head(top_n).reset_index()
