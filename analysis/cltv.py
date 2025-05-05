@@ -383,7 +383,18 @@ def model_cltv_lifetimes(df):
     )
 
     summary["predicted_cltv"] = summary["predicted_purchases"] * summary["predicted_avg_value"]
-    summary["cltv_segment"] = pd.qcut(summary["predicted_cltv"], q=3, labels=["Low", "Mid", "High"])
+    #summary["cltv_segment"] = pd.qcut(summary["predicted_cltv"], q=3, labels=["Low", "Mid", "High"])
+    # Sort by predicted CLTV descending
+    summary = summary.sort_values("predicted_cltv", ascending=False).reset_index(drop=True)
 
+    # Calculate cumulative CLTV and percentage
+    summary["cum_cltv"] = summary["predicted_cltv"].cumsum()
+    summary["cum_cltv_perc"] = summary["cum_cltv"] / summary["predicted_cltv"].sum()
+
+    # Assign Pareto segments
+    summary["cltv_segment"] = "Low"
+    summary.loc[summary["cum_cltv_perc"] <= 0.80, "cltv_segment"] = "High"
+    summary.loc[(summary["cum_cltv_perc"] > 0.80) & (summary["cum_cltv_perc"] <= 0.95), "cltv_segment"] = "Mid"
+    
     return summary
 
