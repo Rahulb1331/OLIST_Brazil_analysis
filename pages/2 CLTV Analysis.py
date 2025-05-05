@@ -136,6 +136,16 @@ with st.expander("📦 Box Plot of CLTV"):
 
         """
     )
+# Recency distribution
+fig_recency = px.histogram(summary, x="recency", nbins=50, marginal="rug", title="Recency Distribution", opacity=0.7)
+fig_recency.update_layout(bargap=0.1)
+st.plotly_chart(fig_recency, use_container_width=True)
+
+# T distribution
+fig_T = px.histogram(summary, x="T", nbins=50, marginal="rug", title="T Distribution", opacity=0.7)
+fig_T.update_layout(bargap=0.1)
+st.plotly_chart(fig_T, use_container_width=True)
+
 
 with st.expander("🧬 Scatterplots"):
     scatter_df = rfm_cltv_df.copy()
@@ -196,9 +206,9 @@ with st.expander("Insights on Model Fit"):
         Models assume customer dropout and spending patterns are stable over time.
         
         **Evaluation metrics:**
-            - MAE of {mae:.2f} indicates average deviation of predictions from actual CLTV.
-            - RMSE of {rmse:.2f} highlights occasional larger errors.
-            - Periodic retraining and parameter tuning can reduce these errors.
+        - MAE of {mae:.2f} indicates average deviation of predictions from actual CLTV.
+        - RMSE of {rmse:.2f} highlights occasional larger errors.
+        - Periodic retraining and parameter tuning can reduce these errors.
         """
     )
 with st.expander("Predicted CLTV using BG/NBD + Gamma-Gamma"):
