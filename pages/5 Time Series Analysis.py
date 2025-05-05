@@ -279,12 +279,8 @@ with tab3:
             - The low revenue months cause even modest absolute errors to register as astronomically high percentage errors, skewing the MAPE metric.
 
             **3. Actionable Recommendations:**
-            - **Data Quality Enhancement:**  
-              Investigate and potentially correct the data for the low-value months (Sept–Dec 2016 and Sept–Oct 2018) to ensure they reflect true operational figures.
             - **Focus on Absolute Metrics:**  
               Prioritize MAE and RMSE for performance evaluation, as these provide a more relevant perspective given the revenue scale.
-            - **Model Refinement:**  
-              Consider incorporating additional variables or adjusting for seasonal effects/outliers to better handle gap periods and capture revenue volatility.
             - **Operational and Marketing Alignment:**  
               Use forecast trends in conjunction with confirmed high-confidence periods to optimize marketing strategies and inventory planning. Address anomalies proactively by reviewing the underlying causes of low-data months.
 
