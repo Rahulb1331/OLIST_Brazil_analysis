@@ -180,6 +180,19 @@ rmse = mean_squared_error(eval_df['better_cltv'], eval_df['predicted_cltv']) ** 
 with st.expander("Insights on Model Fit"):
     st.info(
         f"""
+        ### 📊 BG/NBD & Gamma-Gamma Model Assumptions
+
+        **🔁 BG/NBD (Purchase Frequency Model):**
+        - Customers purchase at a constant but varied rate (Poisson process).
+        - After each purchase, there's a constant probability the customer becomes inactive.
+        - Purchase rates and dropout probabilities vary across customers (Gamma and Beta distributions).
+        - Customer behavior is independent of others.
+
+        **💰 Gamma-Gamma (Monetary Value Model):**
+        - Transaction value is independent of purchase frequency.
+        - Each customer has their own average spend, drawn from a Gamma distribution.
+        - Individual transaction amounts are Gamma-distributed around each customer's average.
+        
         - Models assume customer dropout and spending patterns are stable over time.
         - Evaluation metrics:
             - MAE of {mae:.2f} indicates average deviation of predictions from actual CLTV.
