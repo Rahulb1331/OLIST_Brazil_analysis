@@ -215,7 +215,7 @@ with tab3:
     st.plotly_chart(fig_ci, use_container_width=True)
 
     # Interactive checkbox to display insights below the graph
-    if st.checkbox("Show Revenue Forecast Insights", key ="confidennce_interval"):
+    if st.checkbox("Show Revenue Forecast Insights", key ="confidence_interval"):
         st.info(
             """
             **Revenue Forecast Analysis & Strategic Insights for Olist:**
@@ -263,7 +263,7 @@ with tab3:
     st.metric("MAPE (Mean Absolute Percentage Error)", f"{mape:.2f}%")
 
     # An interactive checkbox to show insights based on these metrics
-    if st.checkbox("Show Forecast Accuracy Insights", key = "metrics_insight):
+    if st.checkbox("Show Forecast Accuracy Insights", key = "metrics_insight"):
         st.info(
             """
             **Interpreting the Forecast Accuracy Metrics:**
