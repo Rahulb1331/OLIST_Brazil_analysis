@@ -178,7 +178,7 @@ with st.expander("Distribution Plots"):
     """)
 
 
-with st.expander("🧬 Scatterplot"):
+with st.expander("🧬 RFM Vs CLTV Scatterplot"):
     scatter_df = rfm_cltv_df.copy()
 
     fig5 = px.scatter(
