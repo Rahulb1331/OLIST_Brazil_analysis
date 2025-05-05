@@ -203,7 +203,30 @@ if not multi_item_txns.empty:
                 - Hubs show **good cross-sell opportunities**.
                 - Isolated nodes could be **dead-ends**.
             """)
+        # Integrated Insights: Display only when the checkbox is checked
+        if st.checkbox("Show Combined Market Basket Analysis Insights"):
+            st.info(
+            """
+                **Integrated Insights from Market Basket Analysis Across CLTV Segments:**
 
+                - **High CLTV Segment:**  
+                  The network graph for high CLTV customers shows strong, well-defined clusters of product associations. This indicates that these customers tend to make deliberate and strategic purchases with specific high-value products frequently bought together. Such tight-knit patterns suggest clear buying habits and loyalty, making these customers prime candidates for premium bundle offerings and targeted cross-selling.
+
+                - **Medium CLTV Segment:**  
+                  In the medium CLTV segment, the network graph reveals moderately dense connections among product nodes. This pattern suggests a blend of planned and opportunistic buying behaviors. Although these customers exhibit some product associations, there’s also an element of variability that provides an opportunity to enhance basket sizes with tailored promotions or dynamic product bundles.
+
+                - **Low CLTV Segment:**  
+                  The network graph for low CLTV customers is noticeably more dispersed, with fewer and less intense product connections. This dispersion points to more sporadic purchasing habits, where customers are less likely to buy complementary products together. Such insights reveal an opportunity to encourage cross-category purchasing through targeted recommendations or promotional strategies.
+
+                **Overall Observations and Strategic Implications:**  
+                The contrast in connectivity across the networks highlights distinct consumer behaviors:
+                  • **Tight clusters in High CLTV** indicate predictable, high-intent buying, supporting strategies that reinforce existing popular bundles.
+                  • **Moderate connections in Medium CLTV** suggest room to nurture customer behavior, potentially elevating their future lifetime value with interactive promotions.
+                  • **Loose patterns in Low CLTV** offer an opportunity to design interventions aimed at stimulating complementary purchases to enhance overall basket value.
+
+                By understanding these inter-product relationships across different customer segments, Olist can tailor marketing strategies—ranging from bespoke cross-sell opportunities to curated product bundles—that engage customers effectively and drive revenue growth.
+            """
+            )
         # --- Top Revenue-Generating Bundles ---
         st.subheader("💰 Top 10 Revenue-Generating Product Bundles")
         top_bundles = rules_df.sort_values('estimated_revenue', ascending=False).head(10)
