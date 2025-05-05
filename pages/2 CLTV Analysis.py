@@ -89,23 +89,23 @@ st.dataframe(cltv_df.head(10))
 # --- 3. Visualizations ---
 st.subheader("📊 CLTV Distributions and Relationships")
 
-if 'log_applied' not in st.session_state:
-    st.session_state.log_applied = False
-
-log_toggle = st.toggle("Apply Log Transformation", value=st.session_state.log_applied)
-st.session_state.log_applied = log_toggle
-
-cltv_pd = rfm_cltv_df[["cltv_normalized", "CLTV_new_Segment"]].copy()
-
-if st.session_state.log_applied:
-    cltv_pd['cltv_transformed'] = np.log1p(cltv_pd['cltv_normalized'] * 1000)
-    title_suffix = "(Log Scale)"
-else:
-    cltv_pd['cltv_transformed'] = cltv_pd['cltv_normalized']
-    title_suffix = "(Raw Scale)"
-
-
 with st.expander("📦 Box Plot of CLTV"):
+    if 'log_applied' not in st.session_state:
+        st.session_state.log_applied = False
+
+    log_toggle = st.toggle("Apply Log Transformation", value=st.session_state.log_applied)
+    st.session_state.log_applied = log_toggle
+
+    cltv_pd = rfm_cltv_df[["cltv_normalized", "CLTV_new_Segment"]].copy()
+
+    if st.session_state.log_applied:
+        cltv_pd['cltv_transformed'] = np.log1p(cltv_pd['cltv_normalized'] * 1000)
+        title_suffix = "(Log Scale)"
+    else:
+        cltv_pd['cltv_transformed'] = cltv_pd['cltv_normalized']
+        title_suffix = "(Raw Scale)"
+
+    
     fig = px.box(
         cltv_pd,
         x="CLTV_new_Segment",
