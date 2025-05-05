@@ -135,49 +135,40 @@ def run_customer_segmentation(customer_features):
 
 # --- Section 1: CLTV by State and City ---
 with st.expander("📦 1. CLTV by State and City", expanded=False):
-    cltv_geo_df = prepare_cltv_geo_df(full_orders, cltv_df)
-    # new lines
-    unique_cltv = (
-         cltv_geo_df[
-             ['customer_unique_id','customer_state','customer_city','better_cltv']
-         ]
-         .drop_duplicates(['customer_unique_id','customer_state','customer_city'])
-     )
-    # new lines end here    
+        
     group_choice = st.selectbox("Group by", ["State", "City"])
     top_n = st.slider("Select Top N", min_value=5, max_value=30, value=10)
 
     if group_choice == "State":
-        #top_df = cltv_geo_df.groupby("customer_state").agg(
         top_df = full_orders.groupby("customer_state").agg(
             total_revenue=("payment_value", "sum"),
             unique_customers=("customer_unique_id", pd.Series.nunique)
-        ).assign(cltv_per_cust=lambda df: df['total_revenue'] / df['unique_customers']
-        ).sort_values("cltv_per_cust", ascending=False).head(top_n).reset_index()
+        ).assign(avg_cltv_per_customer=lambda df: df['total_revenue'] / df['unique_customers']
+        ).sort_values("avg_cltv_per_customer", ascending=False).head(top_n).reset_index()
 
         st.subheader(f"Top {top_n} States by Avg CLTV per customer")
-        st.bar_chart(top_df.set_index("customer_state")["total_revenue"])
+        st.bar_chart(top_df.set_index("customer_state")["avg_cltv_per_customer"])
 
     else:
-        #top_df = cltv_geo_df.groupby("customer_city").agg(
-        top_df = unique_cltv.groupby("customer_city").agg(            
-            total_cltv=("better_cltv", "sum"),
+        top_df = full_orders.groupby("customer_city").agg(            
+            total_revenue=("payment_value", "sum"),
             unique_customers=("customer_unique_id", pd.Series.nunique)
-        ).sort_values("total_cltv", ascending=False).head(top_n).reset_index()
+        ).assign(avg_cltv_per_customer=lambda df: df["total_revenue"] / df["unique_customers"]
+        ).sort_values("avg_cltv_per_customer", ascending=False).head(top_n).reset_index()
 
         st.subheader(f"Top {top_n} Cities by CLTV")
-        st.bar_chart(top_df.set_index("customer_city")["total_cltv"])
+        st.bar_chart(top_df.set_index("customer_city")["avg_cltv_per_customer"])
     if st.checkbox("Show Insights", key="unique_key_1"):
         st.info("""
-        This chart ranks states or cities based on their **total Customer Lifetime Value (CLTV)**.  
+        This chart ranks states or cities by their **average customer lifetime value (CLTV)**, calculated from historical revenue data.
     
-        - **CLTV** estimates how much revenue a customer will generate over their relationship with the business.
-        - By aggregating CLTV across regions, we are identifying the **high-value markets**.
+        - It reveals **where individual customers tend to spend more**, not just where more customers live.
+        - Useful for **identifying high-value markets** and prioritizing customer retention efforts.
         - This can help us do **targeted marketing**, **logistics planning**, or **inventory decisions**.
     
         **Insights**:
-        - States/cities with high CLTV might have stronger customer engagement, loyalty, or purchasing power.
-        - A lower number of unique customers but high CLTV indicates **fewer but very valuable customers**.
+        - A city with fewer customers but high avg CLTV likely has loyal or high-spending buyers.
+        - Large cities with low avg CLTV may need improved engagement or upselling strategies.
         """)
     avg_cltv_by_city = (
     full_orders
