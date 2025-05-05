@@ -294,15 +294,21 @@ comparison_df = pd.DataFrame([
 
 st.dataframe(comparison_df.sort_values(by="F1-Score", ascending=False))
 
-if st.checkbox("Show insights for predictions", key = "key7"):
+if st.checkbox("📌 Show Model Comparison Insights", key = "key7"):
     st.info("""
     **What was done:**
-    - Predictions and churn probabilities are shown for easy stakeholder consumption.
+    - Three classifiers (Random Forest, XGBoost, Logistic Regression) were trained, all with class‑imbalance handling.
+    - Each were evaluated on accuracy, precision, recall, F1‑score, ROC AUC and 5‑fold cross‑validation.
 
-    **Why:**
-    - Having probability scores allows business users to prioritize interventions.
+    **Key Observations:**
+    - **Random Forest** tops on overall accuracy (94.3%), recall (99.8%) and cross‑val score (93.99%). It catches nearly all churners but risks more false positives. 
+    - **XGBoost** offers a strong balance—precision (93.8%), recall (96.3%) and cross‑val score (92.50%)—with the highest AUC (92.3%), suggesting robust ranking of high‑risk customers.  
+    - **Logistic Regression** lags on accuracy (81.6%), recall (81.3%) and cross‑val score (80.25%), though its precision remains high (94.3%) when it does predict churn.
 
     **Recommendations:**
-    - Focus retention offers on customers with churn probability between 0.5 to 0.8 (uncertain cases).
+    - **If catching every churner is critical**, we can go with Random Forest and then tune its decision threshold to reduce false alarms.
+    - **If balancing false positives vs. false negatives is key**, XGBoost’s AUC and F1 make it the best all‑rounder.
+    - **Periodic retraining** and **threshold optimization** (e.g. moving cutoff from 0.5 to 0.4 or 0.6) will help align the model with evolving business priorities (cost of retention vs. cost of false outreach).
+    - Olist can design retention offers on customers with churn probability between 0.5 to 0.8 (uncertain cases).
     - Highly likely churners (>0.8) may require aggressive win-back campaigns.
     """)
