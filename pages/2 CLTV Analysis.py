@@ -196,7 +196,7 @@ with st.expander("🧬 RFM Vs CLTV Scatterplot"):
             **Integrated Insights from RFM Score vs Normalized CLTV Analysis:**
 
             - **Customer Segmentation & Behavior:**  
-              The scatter plot reveals that the high value (pink) group—customers with a high normalized CLTV—tend to cluster at lower RFM scores. This indicates such customers exhibit favorable recency, frequency, and monetary behaviors, making them ideal candidates for retention and upselling. Conversely, customers with higher RFM scores tend to have lower normalized CLTV, suggesting they might be less engaged or more sporadic in their transactions.
+              Customers with a Monetary (M) score of 4 are consistently classified in the High CLTV segment, even if their Recency (R) and Frequency (F) scores are low (ranging from 1 to 3). This classification results from the fact that I have used the Pareto Principle to categorize customers into High, Medium, or Low CLTV segments, since the top 20% of customers—who make the major contribution to revenue—typically have an M (Monetary) score of 4. Consequently, customers with an overall RFM score of 114 are classified as High Value in CLTV analysis.
 
             - **The Role of Normalized CLTV:**  
               Normalized CLTV is employed to standardize the raw CLTV values into a 0-to-1 range. This transformation is crucial as it:
