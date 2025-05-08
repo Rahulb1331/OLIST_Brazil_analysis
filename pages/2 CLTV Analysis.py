@@ -8,7 +8,6 @@ from sklearn.metrics import mean_absolute_error, mean_squared_error
 
 # --- Page Config ---
 import streamlit as st
-st.set_page_config(page_title="Customer Lifetime Value (CLTV)", layout="wide")
 st.title("💸 Customer Lifetime Value (CLTV) Analysis")
 
 # --- Caching heavy processing functions ---
