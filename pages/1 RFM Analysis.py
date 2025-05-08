@@ -6,7 +6,6 @@ import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
 
-st.set_page_config(page_title="RFM Analysis", layout="wide")
 st.title("🧮 RFM Analysis - Customer Segmentation")
 
 # --- Load Raw Data ---
