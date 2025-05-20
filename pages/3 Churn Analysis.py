@@ -157,10 +157,10 @@ st.write("Baseline Accuracy (Dummy Model):", dummy.score(X_test, y_test))
 def train_all_models(X_train, y_train, X_test, y_test, X, y):
     models = {
         "Random Forest": RandomForestClassifier(
-            n_estimators=100, random_state=42, class_weight="balanced"
+            n_estimators=100, max_depth = 6, random_state=42, class_weight="balanced"
         ),
         "Logistic Regression": LogisticRegression(
-            max_iter=1000, random_state=42, class_weight="balanced"
+            solver='liblinear', max_iter=300, random_state=42, class_weight="balanced"#max_iter=1000, random_state=42, class_weight="balanced"
         ),
         "XGBoost": XGBClassifier(
             use_label_encoder=False, eval_metric='logloss', random_state=42,
@@ -177,7 +177,8 @@ def train_all_models(X_train, y_train, X_test, y_test, X, y):
         report = classification_report(y_test, preds, output_dict=True)
         confusion = confusion_matrix(y_test, preds)
         roc_auc = roc_auc_score(y_test, proba)
-        cv = cross_val_score(model, X, y, cv=5).mean()
+        cv = cross_val_score(model, X, y, cv=3, n_jobs=-1).mean()  # use 3 folds, parallelized
+        #cv = cross_val_score(model, X, y, cv=5).mean()
 
         model_results[name] = {
             "model": model,
