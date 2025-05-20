@@ -290,11 +290,11 @@ fig_top.show()
 
 #Total Forecasted Revenue
 total_cltv = summary["predicted_cltv"].sum()
-print(f"💰 Total Forecasted Revenue (12 months): ${total_cltv:,.2f}")
+#print(f"💰 Total Forecasted Revenue (12 months): ${total_cltv:,.2f}")
 
 # Revenue by CLTV Segment
 revenue_by_segment = summary.groupby("cltv_segment")["predicted_cltv"].sum().sort_values()
-print(revenue_by_segment)
+#print(revenue_by_segment)
 
 # Revenue by Segment
 
