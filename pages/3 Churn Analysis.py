@@ -30,7 +30,7 @@ full_orders, cltv_df = load_data()
 # --- Data Preparation
 st.header("📦 Data Preparation")
 
-full_orders["order_purchase_timestamp"] = pd.to_datetime(full_orders["order_purchase_timestamp"])
+#full_orders["order_purchase_timestamp"] = pd.to_datetime(full_orders["order_purchase_timestamp"])
 max_date = full_orders["order_purchase_timestamp"].max()
 cutoff_date = max_date - timedelta(days=180)
 
