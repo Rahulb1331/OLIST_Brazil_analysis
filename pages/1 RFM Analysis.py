@@ -139,7 +139,7 @@ fig1 = px.bar(
     rfm_df,
     x="CustomerGroup",
     title="Customer Segments Distribution",
-    labels={"CustomerGroup": "Customer Group", 'count':'Count'},
+    labels={"CustomerGroup": "Customer Group", 'Count':'Count'},
     color="CustomerGroup",
     color_discrete_sequence=px.colors.qualitative.Set2
 )
