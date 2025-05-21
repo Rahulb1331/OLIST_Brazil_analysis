@@ -137,10 +137,10 @@ if st.checkbox("📌 Show Segment Insights", key="unique_key_rf1"):
 
 # --- Segment Distribution Plot ---
 fig1 = px.bar(
-    rfm_df,
+    rfm_summary, #rfm_df,
     x="CustomerGroup",
     title="Customer Segments Distribution",
-    labels={"CustomerGroup": "Customer Group"},
+    labels={"CustomerGroup": "Customer Group", "CustomerCount": "Count"},
     color="CustomerGroup",
     color_discrete_sequence=px.colors.qualitative.Set2
 )
