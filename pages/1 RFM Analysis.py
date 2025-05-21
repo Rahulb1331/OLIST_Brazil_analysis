@@ -59,7 +59,6 @@ def calculate_rfm(df):
 
 rfm_df = calculate_rfm(filtered_orders)
 
-st.dataframe(rfm_df.head(10))
 
 # --- Customer Group Tagging ---
 @st.cache_data
@@ -141,7 +140,7 @@ fig1 = px.bar(
     rfm_df,
     x="CustomerGroup",
     title="Customer Segments Distribution",
-    labels={"CustomerGroup": "Customer Group", 'Count':'Count'},
+    labels={"CustomerGroup": "Customer Group"},
     color="CustomerGroup",
     color_discrete_sequence=px.colors.qualitative.Set2
 )
