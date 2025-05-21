@@ -59,6 +59,8 @@ def calculate_rfm(df):
 
 rfm_df = calculate_rfm(filtered_orders)
 
+st.dataframe(rfm_df.head(10))
+
 # --- Customer Group Tagging ---
 @st.cache_data
 def add_rfm_tags(rfm_df):
