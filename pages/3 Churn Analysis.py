@@ -70,6 +70,7 @@ data = pd.merge(customer_features, cltv_df[['customer_unique_id', 'CLTV_new_Segm
 # Feature Engineering
 data["days_since_last_purchase"] = (cutoff_date - data["last_order"]).dt.days
 # ✅ Merge RFM features
+#mergiing rfm features
 
 st.write("Total customers:", data.shape[0])
 st.write("Churn distribution:")
