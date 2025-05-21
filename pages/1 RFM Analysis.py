@@ -139,6 +139,7 @@ if st.checkbox("📌 Show Segment Insights", key="unique_key_rf1"):
 fig1 = px.bar(
     rfm_summary, #rfm_df,
     x="CustomerGroup",
+    y = "CustomerCount",
     title="Customer Segments Distribution",
     labels={"CustomerGroup": "Customer Group", "CustomerCount": "Count"},
     color="CustomerGroup",
