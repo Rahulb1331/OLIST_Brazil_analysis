@@ -164,7 +164,7 @@ def train_all_models(X_train, y_train, X_test, y_test, X, y):
             solver='liblinear', max_iter=300, random_state=42, class_weight="balanced"#max_iter=1000, random_state=42, class_weight="balanced"
         ),
         "XGBoost": XGBClassifier(
-            use_label_encoder=False, eval_metric='logloss', random_state=42,
+            eval_metric='logloss', random_state=42,
             scale_pos_weight=(y_train.value_counts()[0] / y_train.value_counts()[1])
         )
     }
