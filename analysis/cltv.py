@@ -92,23 +92,6 @@ print(segment_counts)
 #Cross Tab CLTV vs RFM Segments
 #This gives a matrix-style overview of how customer segments overlap:
 cross_tab = pd.crosstab(rfm_cltv_df["CLTV_new_Segment"], rfm_cltv_df["CustomerGroup"])
-print(cross_tab)
-#Plotly: Visualize CLTV Distribution
-cltv_pd = rfm_cltv_df[["cltv_normalized", "CLTV_new_Segment"]]
-
-#Histogram by segment
-fig = px.histogram(
-    cltv_pd,
-    x="cltv_normalized",
-    color="CLTV_new_Segment",
-    nbins=30,
-    title="CLTV Distribution by Segment",
-    labels={"cltv_normalized": "Normalized CLTV"},
-    barmode="overlay",
-    opacity=0.7
-)
-fig.update_layout(template="plotly_white")
-fig.show()
 
 
 # Preparing the dataset for the modeling
@@ -129,17 +112,6 @@ summary = orders_pd.groupby("customer_unique_id").agg(
 summary = summary[summary["frequency"] > 0]
 summary = summary.dropna()
 
-import matplotlib.pyplot as plt
-import seaborn as sns
-
-# Visualize distribution
-sns.histplot(summary["recency"], bins=50, kde=True)
-plt.title("Recency Distribution")
-plt.show()
-
-sns.histplot(summary["T"], bins=50, kde=True)
-plt.title("T Distribution")
-plt.show()
 
 # Keep only customers with frequency ≥ 2
 summary = summary[summary["frequency"] >= 2]
@@ -156,17 +128,10 @@ summary = summary[summary["monetary_value"] > 0]
 summary["recency"] = summary["recency"].clip(upper=365)
 summary["T"] = summary["T"].clip(upper=365)
 
-print("Min values:\n", summary[["frequency", "recency", "T", "monetary_value"]].min())
-print("Max values:\n", summary[["frequency", "recency", "T", "monetary_value"]].max())
+
 print("Any NaNs?\n", summary.isnull().sum())
 
-sns.histplot(summary["recency"], bins=50, kde=True)
-plt.title("Recency Distribution")
-plt.show()
 
-sns.histplot(summary["T"], bins=50, kde=True)
-plt.title("T Distribution")
-plt.show()
 
 # Fitting BG/NBD model (predicts number of transactions)
 
@@ -217,108 +182,6 @@ summary["cltv_segment"] = pd.qcut(summary["predicted_cltv"], q=3, labels=["Low",
 
 # Top Customers
 top_customers = summary.sort_values(by="predicted_cltv", ascending=False).head(10)
-print(top_customers[["customer_unique_id", "predicted_cltv"]])
-
-print("Total customers in summary: ", summary.count())
-
-
-#Visualizing the Distribution
-fig = px.histogram(
-    summary,
-    x="predicted_cltv",
-    nbins=50,
-    title="Distribution of Predicted Customer Lifetime Value",
-    labels={"predicted_cltv": "Predicted CLTV"},
-    template="plotly_white"
-)
-
-fig.update_layout(
-    bargap=0.1,
-    xaxis_title="Predicted CLTV",
-    yaxis_title="Number of Customers"
-)
-
-fig.show()
-
-# Segment-wise CLTV Distribution
-fig_segment = px.histogram(
-    summary,
-    x="predicted_cltv",
-    color="cltv_segment",
-    nbins=50,
-    barmode="overlay",
-    title="CLTV Distribution by Segment",
-    labels={"predicted_cltv": "Predicted CLTV", "cltv_segment": "CLTV Segment"},
-    template="plotly_white"
-)
-
-fig_segment.update_layout(
-    bargap=0.1,
-    xaxis_title="Predicted CLTV",
-    yaxis_title="Customer Count"
-)
-
-fig_segment.show()
-
-# Top N Customers with Tooltips
-top_n = summary.nlargest(20, "predicted_cltv").copy()
-
-fig_top = px.scatter(
-    top_n,
-    x="frequency",
-    y="predicted_cltv",
-    color="cltv_segment",
-    size="predicted_cltv",
-    hover_data={
-        "customer_unique_id": True,
-        "predicted_cltv": True,
-        "frequency": True,
-        "monetary_value": True,
-        "recency": True,
-        "T": True
-    },
-    title="Top 20 Customers by Predicted CLTV",
-    labels={"frequency": "Frequency", "predicted_cltv": "Predicted CLTV"},
-    template="plotly_white"
-)
-
-fig_top.update_traces(marker=dict(opacity=0.7, line=dict(width=1, color='DarkSlateGrey')))
-fig_top.show()
-
-
-# REVENUE ANALYSIS
-
-#Total Forecasted Revenue
-total_cltv = summary["predicted_cltv"].sum()
-#print(f"💰 Total Forecasted Revenue (12 months): ${total_cltv:,.2f}")
-
-# Revenue by CLTV Segment
-revenue_by_segment = summary.groupby("cltv_segment")["predicted_cltv"].sum().sort_values()
-#print(revenue_by_segment)
-
-# Revenue by Segment
-
-fig = px.bar(
-    revenue_by_segment.reset_index(),
-    x="cltv_segment",
-    y="predicted_cltv",
-    title="Revenue Forecast by CLTV Segment (12 months)",
-    text_auto=".2s",
-    color="cltv_segment"
-)
-fig.show()
-
-# Revenue Distribution Histogram
-
-fig = px.histogram(
-    summary,
-    x="predicted_cltv",
-    nbins=30,
-    title="Distribution of Predicted CLTV (12 months)",
-    color="cltv_segment",
-    marginal="box"
-)
-fig.show()
 
 @st.cache_data
 def enrich_cltv_with_segments(cltv_df):
