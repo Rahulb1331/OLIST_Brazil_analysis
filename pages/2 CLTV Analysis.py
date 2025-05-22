@@ -247,7 +247,7 @@ with st.expander("Insights on Model Fit"):
         """
     )
 with st.expander("Predicted CLTV using BG/NBD + Gamma-Gamma"):
-    st.dataframe(summary_df.head(10))
+    st.dataframe(summary_df)#.head(10))
 
 # --- 4. Past vs Predicted Revenue ---
 st.subheader("💵 Revenue Comparison: Past vs Predicted")
