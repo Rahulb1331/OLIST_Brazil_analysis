@@ -52,7 +52,7 @@ with st.spinner("Loading and processing data..."):
 
 # --- 1. Introduction Section ---
 st.markdown("""
-Customer Lifetime Value (CLTV) helps estimate the total value a customer brings to your business over their entire relationship.
+Customer Lifetime Value (CLTV) helps estimate the total value a customer brings the business over their entire relationship.
 
 This page models future revenue using **BG/NBD + Gamma-Gamma** models.
 """)
