@@ -10,7 +10,7 @@ st.title("🧮 RFM Analysis - Customer Segmentation")
 
 # --- Load Raw Data ---
 # Change1: Added order timestamp extraction
-@st.cache_data
+@st.cache_data(max_entries=2)
 def load_data():
     from analysis.Preprocessing import full_orders
     full_orders['order_purchase_timestamp'] = pd.to_datetime(full_orders['order_purchase_timestamp'])
@@ -31,7 +31,7 @@ mask = (full_orders['order_purchase_timestamp'].dt.date >= selected_start) & (fu
 filtered_orders = full_orders[mask]
 
 # --- RFM Calculation ---
-@st.cache_data
+@st.cache_data(max_entries=2)
 def calculate_rfm(df):
     df['order_purchase_date'] = pd.to_datetime(df['order_purchase_timestamp'])
     reference_date = df['order_purchase_date'].max() + timedelta(days=1)
@@ -61,7 +61,7 @@ rfm_df = calculate_rfm(filtered_orders)
 
 
 # --- Customer Group Tagging ---
-@st.cache_data
+@st.cache_data(max_entries=2)
 def add_rfm_tags(rfm_df):
     # 1) Default everyone to Low-value
     rfm_df['CustomerGroup'] = 'Low-value'
@@ -86,7 +86,7 @@ def add_rfm_tags(rfm_df):
 rfm_df = add_rfm_tags(rfm_df)
 
 # --- Segment Summary ---
-@st.cache_data
+@st.cache_data(max_entries=2)
 def get_rfm_summary(df):
     return df.groupby("CustomerGroup").agg({
         "Recency": "mean",
@@ -211,7 +211,7 @@ if st.checkbox("📌 Show Heatmap Insights", key="unique_key_rf3"):
 )
 
 # --- Product Preferences by Group ---
-@st.cache_data
+@st.cache_data(max_entries=2)
 def get_product_preferences(full_orders, rfm_df):
     rfm_orders = full_orders.merge(rfm_df[['customer_unique_id', 'BehaviorSegment']], on='customer_unique_id', how='inner')
     product_pref = (
