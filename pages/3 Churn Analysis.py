@@ -19,7 +19,7 @@ st.set_page_config(page_title="Customer Churn Prediction", layout="wide")
 st.title("🔁 Customer Churn Prediction Dashboard")
 
 # --- Load Data
-@st.cache_data
+@st.cache_data(max_entries=2)
 def load_data():
     from analysis.Preprocessing import full_orders
     from analysis.cltv import cltv_df
@@ -154,7 +154,7 @@ dummy.fit(X_train, y_train)
 dummy_pred = dummy.predict(X_test)
 st.write("Baseline Accuracy (Dummy Model):", dummy.score(X_test, y_test))
 
-@st.cache_data
+@st.cache_data(max_entries=2)
 def train_all_models(X_train, y_train, X_test, y_test, X, y):
     models = {
         "Random Forest": RandomForestClassifier(
