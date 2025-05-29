@@ -79,7 +79,7 @@ if not multi_item_txns.empty:
         rules_df = rules_df.sort_values(["estimated_revenue", "lift"], ascending=[False, False])
 
         # --- Insights Section ---
-        with st.expander("🔍 Insights Behind This Analysis"):
+        with st.expander("Insights Behind This Analysis"):
             st.info(
                 """
                 **What was done:**  
@@ -93,7 +93,7 @@ if not multi_item_txns.empty:
             )
 
         # --- Scatterplot: Confidence vs Support (Bias Check) ---
-        st.subheader(f"📊 Confidence vs Support Analysis ({selected_segment})")
+        st.subheader(f"Confidence vs Support Analysis ({selected_segment})")
         fig_bias = px.scatter(
             rules_df, x='support', y='confidence',
             size='lift', color='lift',
@@ -116,12 +116,12 @@ if not multi_item_txns.empty:
             - How much more likely items are to be bought together compared to being bought independently.  
             - A lift > 1 indicates a positive association. Higher lift = stronger buying relationship.
 
-            👉 In short:
+            In short:
             - **Support** shows **how popular** a combination is.
             - **Confidence** shows **how reliable** the rule is.
             - **Lift** shows **how much stronger** the buying pattern is than random chance.
 
-            **⚠️ Why Bias Matters?**
+            **Why Bias Matters?**
             - Rules with **high confidence but very low support** are often misleading.
             - They may look strong but occur rarely, making them risky to act on.
             - So we have to **check both confidence AND support** before trusting a rule!
@@ -166,7 +166,7 @@ if not multi_item_txns.empty:
 
         
         # --- Dead-End Products Section ---
-        st.subheader("🚫 Dead-End Products (No Follow-up Sales)")
+        st.subheader("Dead-End Products (No Follow-up Sales)")
         dead_ends = set()
         for a, c in zip(rules_df['antecedents'], rules_df['consequents']):
             dead_ends.update(c)
@@ -177,7 +177,7 @@ if not multi_item_txns.empty:
         if products_with_no_consequents:
             st.dataframe(pd.DataFrame(products_with_no_consequents, columns=["Dead-End Product"]), use_container_width=True)
 
-        with st.expander("💡 Why Look at Dead-Ends?"):
+        with st.expander("Why Look at Dead-Ends?"):
             st.info("""
                 - Products that don't lead to cross-sales are **low leverage**.
                 - You may want to:
@@ -186,7 +186,7 @@ if not multi_item_txns.empty:
             """)
 
         # --- Network Graph ---
-        st.subheader("🌐 Network Graph of Association Rules")
+        st.subheader("Network Graph of Association Rules")
         G = nx.DiGraph()
         for _, row in rules_df.iterrows():
             G.add_edge(', '.join(row["antecedents"]), ', '.join(row["consequents"]), weight=row["lift"])
@@ -251,13 +251,13 @@ if not multi_item_txns.empty:
             """
             )
         # --- Top Revenue-Generating Bundles ---
-        st.subheader("💰 Top 10 Revenue-Generating Product Bundles")
+        st.subheader("Top 10 Revenue-Generating Product Bundles")
         top_bundles = rules_df.sort_values('estimated_revenue', ascending=False).head(10)
         st.dataframe(top_bundles.reset_index(drop=True)[['rule', 'antecedent support', 'consequent support', 'support', 'confidence', 'lift', 'estimated_revenue']], use_container_width=True)
 
 
         # --- Strategic Filters (Tactical Sliders) ---
-        st.subheader("🔍 Tactical Filters for Association Rules")
+        st.subheader("Tactical Filters for Association Rules")
         col1, col2, col3 = st.columns(3)
 
         with col1:
@@ -276,13 +276,13 @@ if not multi_item_txns.empty:
         st.dataframe(filtered_rules[['rule', 'support', 'confidence', 'lift', 'estimated_revenue']].reset_index(drop=True), use_container_width=True)
 
         # --- Conversion / Recommendation Impact ---
-        st.subheader("📦 Predicted Impact if Bundled")
+        st.subheader("Predicted Impact if Bundled")
         filtered_rules['predicted_uplift_revenue'] = filtered_rules['estimated_revenue'] * (filtered_rules['lift'] - 1)
         top_uplift = filtered_rules.sort_values('predicted_uplift_revenue', ascending=False) #.head(10)
 
         st.dataframe(top_uplift[['rule', 'lift', 'estimated_revenue', 'predicted_uplift_revenue']], use_container_width=True)
 
-        with st.expander("💬 How to Interpret This?"):
+        with st.expander("How to Interpret This?"):
             st.info("""
                 **Top Revenue Bundles** show which combinations of products bring the most sales value.
                 
@@ -296,7 +296,7 @@ if not multi_item_txns.empty:
                 - Higher is the uplift better is the bundling opportunity.
             """)
 
-        with st.expander("🧮 How Was Bundle Revenue Calculated?"):
+        with st.expander("How Was Bundle Revenue Calculated?"):
             st.info(
                 """
             **How We Predict Bundle Revenue:**
@@ -330,7 +330,7 @@ if not multi_item_txns.empty:
         )
 
         # --- "So What?" Actionable Insights ---
-        st.subheader("🧠 So What? What can Olist DO?")
+        st.subheader("What can Olist DO?")
         with st.expander("Action Plan Based on Findings"):
             st.success("""
                 🎯 **Action Recommendations:**
