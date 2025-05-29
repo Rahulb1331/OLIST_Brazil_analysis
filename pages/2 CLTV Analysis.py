@@ -63,7 +63,12 @@ with st.expander("ℹ️ What is BG/NBD + Gamma-Gamma?"):
 - **Gamma-Gamma** predicts the average revenue per transaction.
 Together, they allow us to estimate a customer's **total future value**.
 
-These models assume that purchase and monetary patterns follow specific probability distributions.
+These models assume that purchase and monetary patterns follow specific probability distributions, that is the BG/NBD model assume that the purchases follow a poisson distribution, while the Gamma-Gamma model assumes that the monetary value per transaction follows a Gamma distribution (i.e., spending amounts vary across customers).  
+
+Other Assumptions:
+- Stationarity: Customer behavior remains stable over time (e.g., purchase probabilities do not shift significantly).
+- Independence: Purchase frequency and monetary value are independent (which may not always hold true in real-world scenarios).
+- No External Factors: The model does not account for factors like seasonality, promotions, economic shifts, or competitor influence. 
 """)
 
 # --- 2. Segment Explanation & Counts ---
